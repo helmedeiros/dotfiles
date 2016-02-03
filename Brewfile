@@ -24,6 +24,7 @@ brew 'unrar'
 brew 'wget'
 brew 'youtube-dl'
 brew 'gradle'
+brew 'tig'
 
 cask '1password'
 cask 'adium'
