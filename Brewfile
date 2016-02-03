@@ -23,6 +23,7 @@ brew 'spark'
 brew 'unrar'
 brew 'wget'
 brew 'youtube-dl'
+brew 'gradle'
 
 cask '1password'
 cask 'adium'
