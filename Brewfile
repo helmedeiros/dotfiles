@@ -3,6 +3,8 @@ cask_args appdir: '/Applications'
 tap 'caskroom/cask'
 tap 'homebrew/bundle'
 
+cask 'xquartz'
+
 brew 'ack'
 brew 'coreutils'
 brew 'go'
