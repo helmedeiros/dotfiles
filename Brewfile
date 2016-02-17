@@ -5,6 +5,8 @@ tap 'homebrew/bundle'
 
 cask 'xquartz'
 
+brew 'zsh'
+brew 'zsh-completions'
 brew 'ack'
 brew 'coreutils'
 brew 'go'
