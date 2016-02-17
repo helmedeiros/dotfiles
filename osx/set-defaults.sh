@@ -30,6 +30,23 @@ defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
 defaults write com.apple.dock wvous-bl-corner -int 5
 defaults write com.apple.dock wvous-bl-modifier -int 0
 
+#minimize windows into application icon
+defaults write com.apple.dock minimize-to-application -bool true
+
+# auto-hide the dock
+defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock autohide-time-modifier -float 0
+
+#set magnification
+defaults write com.apple.dock magnification -bool true
+defaults write com.apple.dock largesize -float 128
+
+# set process indicators
+defaults write com.apple.dock show-process-indicators -bool true
+
+killall Dock
+
 # Hide Safari's bookmark bar.
 defaults write com.apple.Safari ShowFavoritesBar -bool false
 
