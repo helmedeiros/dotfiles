@@ -1,0 +1,51 @@
+# Highlevel configuration options
+
+config defaultToCurrentScreen true
+config nudgePercentOf screenSize
+config resizePercentOf screenSize
+
+# Abstract positions for later use within configuration.
+
+alias full move screenOriginX;screenOriginY screenSizeX;screenSizeY
+alias lefthalf move screenOriginX;screenOriginY screenSizeX/2;screenSizeY
+alias righthalf move screenOriginX+screenSizeX/2;screenOriginY screenSizeX/2;screenSizeY
+alias tophalf move screenOriginX;screenOriginY screenSizeX;screenSizeY/1.3
+alias bottomhalf move screenOriginX;screenOriginY/1.31+screenSizeY/1.31 screenSizeX;screenSizeY/4.15
+alias topleft corner top-left resize:screenSizeX/2;screenSizeY/1.3
+alias topright corner top-right resize:screenSizeX/2;screenSizeY/1.3
+alias bottomleft corner bottom-left resize:screenSizeX/2;screenSizeY/4.15
+alias bottomright corner bottom-right resize:screenSizeX/2;screenSizeY/4.15
+
+# Simple bindings for window positions
+#   u  i  o
+#   j  k  l
+#   m  ,  .
+
+alias hyper ctrl;alt;cmd
+
+bind u:${hyper}  ${topleft}
+bind j:${hyper}  ${lefthalf}
+bind m:${hyper}  ${bottomleft}
+
+bind i:${hyper}  ${tophalf}
+bind k:${hyper}  ${full}
+bind ,:${hyper}  ${bottomhalf}
+
+bind o:${hyper}  ${topright}
+bind l:${hyper}  ${righthalf}
+bind .:${hyper}  ${bottomright}
+
+# Binding for the grid helper
+
+bind g:${hyper} grid padding:5
+
+# Binding to relaunch slate configuration
+
+bind r:${hyper} relaunch
+
+# Binding to throw windows to other screens
+
+bind right:${hyper}     throw right resize
+bind left:${hyper}      throw left resize
+bind up:${hyper}        throw up resize
+bind down:${hyper}      throw down resize
