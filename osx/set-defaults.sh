@@ -34,6 +34,10 @@ defaults write NSGlobalDomain KeyRepeat -int 0
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
 defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
 
+# Ask for a password afer 5 seconds
+osascript -e 'tell application "System Events" to set require password to wake of security preferences to true'
+defaults -currentHost write com.apple.screensaver askForPasswordDelay -int 5
+
 # Run the screensaver if we're in the bottom-left hot corner.
 defaults write com.apple.dock wvous-bl-corner -int 5
 defaults write com.apple.dock wvous-bl-modifier -int 0
