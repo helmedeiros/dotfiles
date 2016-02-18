@@ -52,7 +52,8 @@ defaults write com.apple.dock autohide-time-modifier -float 0
 
 #set magnification
 defaults write com.apple.dock magnification -bool true
-defaults write com.apple.dock largesize -float 128
+defaults write com.apple.dock tilesize -float 30
+defaults write com.apple.dock largesize -float 100
 
 # set process indicators
 defaults write com.apple.dock show-process-indicators -bool true
