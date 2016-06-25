@@ -16,6 +16,14 @@ $ZSH/homebrew/install.sh 2>&1
 echo "› brew update"
 brew update
 
+# Mac Apple Store Upgrade
+echo "› mas upgrade"
+mas upgrade
+
+# brew bundle
+echo "› brew bundle"
+brew bundle check
+
 # Install software
 echo "› $ZSH/script/install"
 $ZSH/script/install

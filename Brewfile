@@ -1,10 +1,12 @@
 cask_args appdir: '/Applications'
 
-tap 'caskroom/cask'
 tap 'homebrew/bundle'
+tap 'caskroom/cask'
+tap 'telemachus/brew', 'https://telemachus@bitbucket.org/telemachus/brew.git'
 
 cask 'xquartz'
 
+brew 'mas'
 brew 'zsh'
 brew 'zsh-completions'
 brew 'ack'
@@ -30,11 +32,10 @@ brew 'youtube-dl'
 brew 'gradle'
 brew 'tig'
 
-cask 'java'
-cask '1password'
+cask 'java' unless system '/usr/libexec/java_home --failfast'
 cask 'adium'
 cask 'atom'
-cask 'firefox'
+cask 'firefox', args: { appdir: '~/my-apps/Applications' }
 cask 'garmin-express'
 cask 'google-chrome'
 cask 'handbrake'
@@ -56,3 +57,9 @@ cask 'dropbox'
 cask 'hipchat'
 cask 'intellij-idea'
 cask 'arduino'
+
+mas 'Xcode', id: 497799835
+mas '1Password', id: 443987910
+mas 'Telegram', id: 747648890
+mas 'Keynote', id: 409183694
+mas 'Pages', id: 409201541

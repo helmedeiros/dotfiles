@@ -1,0 +1,5 @@
+alias cleanBuild='./gradlew clean build'
+alias mongoStart='./gradlew createMongoUser'
+alias mongoStop='./gradlew stopDockerMongo'
+alias rabbitStart='./gradlew startDockerRabbitMq'
+alias rabbitStop='./gradlew stopDockerRabbitMq'
