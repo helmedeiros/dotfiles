@@ -31,6 +31,7 @@ brew 'wget'
 brew 'youtube-dl'
 brew 'gradle'
 brew 'tig'
+brew 'zsh-autosuggestions'
 
 cask 'java' unless system '/usr/libexec/java_home --failfast'
 cask 'adium'
