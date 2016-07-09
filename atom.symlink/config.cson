@@ -1,11 +1,12 @@
 "*":
-  editor:
-    showIndentGuide: true
-    fontFamily: "Menlo"
-    invisibles: {}
-    fontSize: 15
-    softWrapAtPreferredLineLength: true
   core:
+    disabledPackages: [
+      "background-tips"
+      "exception-reporting"
+      "metrics"
+    ]
+    followSymlinks: false
+    hideGitIgnoredFiles: true
     ignoredNames: [
       ".bundle"
       ".git"
@@ -15,16 +16,29 @@
       "vendor"
     ]
     themes: [
-      "unity-ui"
-      "glacier-syntax"
+      "seti-ui"
+      "solarized-dark-syntax"
     ]
-    hideGitIgnoredFiles: true
-    disabledPackages: [
-      "background-tips"
-      "exception-reporting"
-      "metrics"
-    ]
-    followSymlinks: false
+  editor:
+    fontFamily: "Menlo"
+    fontSize: 15
+    invisibles: {}
+    showIndentGuide: true
+    softWrapAtPreferredLineLength: true
+  "go-plus":
+    goPath: "/Users/holman/Code/go"
+  minimap:
+    plugins:
+      bookmarks: true
+      bookmarksDecorationsZIndex: 0
+      cursorline: true
+      cursorlineDecorationsZIndex: 0
+      "find-and-replace": true
+      "find-and-replaceDecorationsZIndex": 0
+      selection: true
+      selectionDecorationsZIndex: 0
+  "release-notes":
+    viewedVersion: "0.89.0"
   "spell-check":
     grammars: [
       "text.plain"
@@ -33,7 +47,3 @@
     ]
   welcome:
     showOnStartup: false
-  "release-notes":
-    viewedVersion: "0.89.0"
-  "go-plus":
-    goPath: "/Users/holman/Code/go"
