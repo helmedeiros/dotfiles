@@ -42,7 +42,6 @@ cask 'adium'
 cask 'atom'
 cask 'firefox', args: { appdir: '~/my-apps/Applications' }
 cask 'garmin-express'
-cask 'google-chrome'
 cask 'handbrake'
 cask 'mapbox-studio'
 cask 'seashore'
