@@ -36,6 +36,7 @@ brew 'zsh-autosuggestions'
 brew 'zsh-syntax-highlighting'
 brew 'python'
 brew 'uncrustify'
+brew 'ngrep'
 
 cask 'java' unless system '/usr/libexec/java_home --failfast'
 cask 'adium'
