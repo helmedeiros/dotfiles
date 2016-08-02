@@ -1,1 +1,2 @@
-alias doc-config='eval $(docker-machine env default)'
+alias d='docker'
+alias dm='docker-machine'

@@ -51,7 +51,6 @@ cask 'steam'
 cask 'transmission'
 cask 'tunnelbear'
 cask 'vlc'
-cask 'dockertoolbox'
 cask 'p4merge'
 cask 'spotify'
 cask 'caffeine'
@@ -62,6 +61,7 @@ cask 'dropbox'
 cask 'hipchat'
 cask 'intellij-idea'
 cask 'arduino'
+cask 'docker'
 
 mas 'Xcode', id: 497799835
 mas '1Password', id: 443987910
