@@ -42,12 +42,8 @@ cask 'java' unless system '/usr/libexec/java_home --failfast'
 cask 'adium'
 cask 'atom'
 cask 'firefox', args: { appdir: '~/my-apps/Applications' }
-cask 'garmin-express'
-cask 'handbrake'
-cask 'mapbox-studio'
 cask 'seashore'
 cask 'slack'
-cask 'steam'
 cask 'transmission'
 cask 'tunnelbear'
 cask 'vlc'
@@ -62,6 +58,7 @@ cask 'hipchat'
 cask 'intellij-idea'
 cask 'arduino'
 cask 'docker'
+cask 'iterm2'
 
 mas 'Xcode', id: 497799835
 mas '1Password', id: 443987910
