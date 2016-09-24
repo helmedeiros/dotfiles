@@ -1,0 +1,11 @@
+#!/bin/bash
+# Creates script to unzip and then remove a zip archive.
+# (use trash instead of rm to move them to trash)
+# ex.: unzip-all '*.zip'
+set -e
+
+for item in $1; do
+    if [ -n "$(file -b "$item" | grep -o 'Zip')" ]; then
+        unzip "$item" && trash "$item"
+    fi
+done
