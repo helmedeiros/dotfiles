@@ -55,3 +55,7 @@ open "${DOTFILES_ROOT}/terminal/Solarized Dark.itermcolors"
 
 # Don’t display the annoying prompt when quitting iTerm
 defaults write com.googlecode.iterm2 PromptOnQuit -bool false
+
+# Enable Secure Keyboard Entry in terminal.app
+# See: http://security.stackexchange.com/q/47749
+defaults write com.apple.terminal SecureKeyboardEntry -bool true
