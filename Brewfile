@@ -38,6 +38,7 @@ brew 'python'
 brew 'uncrustify'
 brew 'ngrep'
 brew 'trash'
+brew 'links'
 
 cask 'java' unless system '/usr/libexec/java_home --failfast'
 cask 'adium'
@@ -66,3 +67,4 @@ mas '1Password', id: 443987910
 mas 'Telegram', id: 747648890
 mas 'Keynote', id: 409183694
 mas 'Pages', id: 409201541
+mas 'Airmail', id: 918858936
