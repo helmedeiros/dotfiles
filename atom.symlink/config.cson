@@ -18,6 +18,7 @@
       "tmp"
       "vendor"
     ]
+    telemetryConsent: "limited"
     themes: [
       "seti-ui"
       "solarized-dark-syntax"
