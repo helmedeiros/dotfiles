@@ -40,6 +40,7 @@ brew 'uncrustify'
 brew 'ngrep'
 brew 'trash'
 brew 'links'
+brew 'tree'
 
 cask 'adium'
 cask 'atom'
