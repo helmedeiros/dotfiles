@@ -5,6 +5,7 @@ tap 'caskroom/cask'
 tap 'telemachus/brew', 'https://telemachus@bitbucket.org/telemachus/brew.git'
 
 cask 'xquartz'
+cask 'java' unless system '/usr/libexec/java_home --failfast'
 
 brew 'mas'
 brew 'zsh'
@@ -40,7 +41,6 @@ brew 'ngrep'
 brew 'trash'
 brew 'links'
 
-cask 'java' unless system '/usr/libexec/java_home --failfast'
 cask 'adium'
 cask 'atom'
 cask 'firefox', args: { appdir: '~/my-apps/Applications' }
@@ -61,6 +61,8 @@ cask 'intellij-idea'
 cask 'arduino'
 cask 'docker'
 cask 'iterm2'
+cask 'blockblock'
+cask 'knockknock'
 
 mas 'Xcode', id: 497799835
 mas '1Password', id: 443987910
