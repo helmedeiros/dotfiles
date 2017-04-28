@@ -12,5 +12,5 @@ else
   s='s'
 fi
 
-git diff --stat origin/$branch..HEAD
+git difftool --stat origin/$branch..HEAD
 echo " $count commit$s total"
