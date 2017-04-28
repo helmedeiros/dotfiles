@@ -39,10 +39,3 @@ do
 done
 
 unset config_files
-
-# added by travis gem
-[ -f /Users/helmedeiros/.travis/travis.sh ] && source /Users/helmedeiros/.travis/travis.sh
-
-fpath=(/Users/light/Code/workspaceTW/PAG/tracer-bullet/completion/zsh $fpath)
-autoload -U compinit
-compinit
