@@ -3,4 +3,4 @@
 # Show the diff of everything you haven't pushed yet.
 
 branch=$(git rev-parse --abbrev-ref HEAD)
-git difftool origin/$branch..HEAD
+git difftool -y origin/$branch..HEAD
