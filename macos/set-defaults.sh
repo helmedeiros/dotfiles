@@ -15,10 +15,7 @@ defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 #Press Fn key to use the special features
 defaults write -g com.apple.keyboard.fnState -bool true
 
-# Disable press-and-hold for keys in favor of key repeat.
-defaults write -g ApplePressAndHoldEnabled -bool false
-
-# Use AirDrop over every interface. srsly this should be a default.
+# Use AirDrop over every interface. srsly this should be a default.q
 defaults write com.apple.NetworkBrowser BrowseAllInterfaces 1
 
 # Always open everything in Finder's list view. This is important.
@@ -28,8 +25,11 @@ defaults write com.apple.Finder FXPreferredViewStyle Nlsv
 chflags nohidden ~/Library
 
 # Set a really fast key repeat.
-defaults write NSGlobalDomain KeyRepeat -float 0.000000000001
+defaults write NSGlobalDomain KeyRepeat -int 2
 defaults write NSGlobalDomain InitialKeyRepeat -int 15
+
+# Disable press-and-hold for keys in favor of key repeat.
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 # Set the Finder prefs for showing a few different volumes on the Desktop.
 defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
