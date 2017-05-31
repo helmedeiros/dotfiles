@@ -41,6 +41,7 @@ brew 'ngrep'
 brew 'trash'
 brew 'links'
 brew 'tree'
+brew 'vault'
 
 cask 'adium'
 cask 'atom'
