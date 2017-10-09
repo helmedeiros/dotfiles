@@ -42,6 +42,7 @@ brew 'trash'
 brew 'links'
 brew 'tree'
 brew 'vault'
+brew 'jq'
 
 cask 'adium'
 cask 'atom'
