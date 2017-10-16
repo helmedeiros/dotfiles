@@ -28,8 +28,7 @@
     invisibles: {}
     showIndentGuide: true
     softWrapAtPreferredLineLength: true
-  "linter-ui-default":
-    panelHeight: 36
+  "linter-ui-default": {}
   minimap:
     plugins:
       bookmarks: true
