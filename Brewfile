@@ -47,7 +47,6 @@ brew 'jq'
 cask 'adium'
 cask 'atom'
 cask 'firefox', args: { appdir: '~/my-apps/Applications' }
-cask 'seashore'
 cask 'slack'
 cask 'transmission'
 cask 'tunnelbear'
