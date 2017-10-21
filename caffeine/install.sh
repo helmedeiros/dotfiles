@@ -1,5 +1,11 @@
 #!/bin/sh
 #
 # Caffeine
+set -e
 
-osascript -e 'tell application "Caffeine" to turn on'
+# Check for Caffeine
+if [[ $(brew cask list) =~ caffeine ]]    
+then
+  echo "  Configuring Caffeine for you."
+  osascript -e 'tell application "Caffeine" to turn on'
+fi
