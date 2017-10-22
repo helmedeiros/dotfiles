@@ -49,7 +49,7 @@ cask 'atom'
 cask 'firefox', args: { appdir: '~/my-apps/Applications' }
 cask 'slack'
 cask 'transmission'
-cask 'tunnelbear'
+cask 'viscosity'
 cask 'vlc'
 cask 'p4merge'
 cask 'spotify'
