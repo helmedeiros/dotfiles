@@ -3,6 +3,8 @@ cask_args appdir: '/Applications'
 tap 'homebrew/bundle'
 tap 'caskroom/cask'
 tap 'telemachus/brew', 'https://telemachus@bitbucket.org/telemachus/brew.git'
+tap 'pivotal/tap'
+
 
 cask 'xquartz'
 cask 'java' unless system '/usr/libexec/java_home --failfast'
@@ -43,6 +45,8 @@ brew 'links'
 brew 'tree'
 brew 'vault'
 brew 'jq'
+brew 'springboot'
+brew 'maven'
 
 cask 'adium'
 cask 'atom'
