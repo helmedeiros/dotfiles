@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Usage: cd <github hosted project> && gh
+# Description: it opens the github page in your browser for the git repository you are currently in
+
+set -e
+
+function gh () {
+
+  giturl=$(git config --get remote.origin.url)
+  echo $githurl
+
+  if [[ "$githurl" ]]; then
+     echo "Not a git repository or no remote.origin.url set"
+  else
+    giturl=${giturl/git\@github\.com\:/https://github.com/}
+    giturl=${giturl/\.git/\/tree/}
+    branch="$(git symbolic-ref HEAD 2>/dev/null)" ||
+    branch="(unnamed branch)"     # detached HEAD
+    branch=${branch##refs/heads/}
+    giturl=$giturl/tree/$branch
+    open $giturl
+  fi
+}
