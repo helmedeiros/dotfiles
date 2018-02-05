@@ -70,6 +70,7 @@ cask 'iterm2'
 cask 'blockblock'
 cask 'knockknock'
 cask 'postman'
+cask 'dbeaver-community'
 
 mas 'Xcode', id: 497799835
 mas '1Password', id: 443987910
