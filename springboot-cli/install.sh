@@ -4,7 +4,7 @@
 set -e
 
 # Check for springboot
-if [[ $(brew list) =~ springboot ]]
+if [ -f ~/spring-cloud-cli ]
 then
   echo "  Installing spring cloud cli for you."
   git clone https://github.com/spring-cloud/spring-cloud-cli ~/spring-cloud-cli &&
