@@ -2,12 +2,15 @@ cask_args appdir: '/Applications'
 
 tap 'homebrew/bundle'
 tap 'caskroom/cask'
+tap 'caskroom/versions'
 tap 'telemachus/brew', 'https://telemachus@bitbucket.org/telemachus/brew.git'
 tap 'pivotal/tap'
 
 
 cask 'xquartz'
 cask 'java' unless system '/usr/libexec/java_home --failfast'
+cask 'java8'
+
 
 brew 'mas'
 brew 'zsh'
