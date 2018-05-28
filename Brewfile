@@ -74,6 +74,7 @@ cask 'knockknock'
 cask 'postman'
 cask 'dbeaver-community'
 cask 'citrix-receiver'
+cask 'openemu'
 
 mas 'Xcode', id: 497799835
 mas '1Password', id: 443987910
