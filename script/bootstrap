@@ -2,6 +2,7 @@
 #
 # bootstrap installs things.
 source $(dirname $0)/../secrets/dots.sh
+source $(dirname $0)/../emulator/rooms.sh
 
 cd "$(dirname "$0")/.."
 DOTFILES_ROOT=$(pwd -P)
@@ -139,8 +140,11 @@ install_dotfiles () {
 }
 
 setup_gitconfig
+
 setup_secret_dotfiles
 install_dotfiles
+
+setup_rooms
 
 # If we're on a Mac, let's install and setup homebrew.
 if [ "$(uname -s)" == "Darwin" ]
