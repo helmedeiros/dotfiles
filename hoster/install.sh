@@ -10,7 +10,7 @@ setup_hoster () {
 
   if [[ ! -d "$dot_hoster" ]]
   then
-    git clone https://github.com/helmedeiros/hoster "$dot_secret"
+    git clone https://github.com/helmedeiros/hoster "$dot_hoster"
     chmod +x ~/.hoster/hoster
   else
     echo "  hoster already installed."
