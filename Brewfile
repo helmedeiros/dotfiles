@@ -50,6 +50,7 @@ brew 'vault'
 brew 'jq'
 brew 'springboot'
 brew 'maven'
+brew 'openshift-cli'
 
 cask 'adium'
 cask 'atom'
