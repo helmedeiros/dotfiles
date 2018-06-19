@@ -3,19 +3,24 @@
 # go
 #
 # This installs go.
+function installglobal() {
+  go get -u "${@}" 2> /dev/null
+}
 
 if test $(which go)
 then
-  echo "  Installing go for you."
+  echo "  Installing go and packages for you."
 
-	mkdir $HOME/go
+	mkdir -p $HOME/go
 
-  go get -u golang.org/x/tools/cmd/goimports
-  go get -u golang.org/x/tools/cmd/gorename
-  go get -u github.com/sqs/goreturns
-  go get -u github.com/nsf/gocode
-  go get -u github.com/alecthomas/gometalinter
-  go get -u github.com/zmb3/gogetdoc
-  go get -u github.com/zmb3/goaddimport
-  go get -u github.com/rogpeppe/godef
+  installglobal golang.org/x/tools/cmd/goimports
+  installglobal golang.org/x/tools/cmd/gorename
+  installglobal github.com/sqs/goreturns
+  installglobal github.com/nsf/gocode
+  installglobal github.com/alecthomas/gometalinter
+  installglobal github.com/zmb3/gogetdoc
+  installglobal github.com/zmb3/goaddimport
+  installglobal github.com/rogpeppe/godef
+  installglobal github.com/gorilla/mux
+  installglobal github.com/lib/pq
 fi
