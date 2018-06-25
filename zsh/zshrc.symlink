@@ -43,3 +43,7 @@ unset config_files
 fpath=(/Users/helmedeiros/Code/PAG/tracer-bullet/completion/zsh $fpath)
 autoload -U compinit
 compinit
+
+fpath=(/Users/helmedeiros/.tracer/completion/zsh $fpath)
+autoload -U compinit
+compinit

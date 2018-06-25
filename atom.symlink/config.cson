@@ -25,10 +25,12 @@
     ]
   editor:
     fontFamily: "Menlo"
+    fontSize: 17
     invisibles: {}
     showIndentGuide: true
     softWrapAtPreferredLineLength: true
-  "linter-ui-default": {}
+  "linter-ui-default":
+    panelHeight: 341
   minimap:
     plugins:
       bookmarks: true
@@ -49,5 +51,7 @@
       "source.gfm"
       "text.git-commit"
     ]
+  "tree-view":
+    hideVcsIgnoredFiles: true
   welcome:
     showOnStartup: false
