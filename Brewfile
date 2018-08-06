@@ -51,6 +51,7 @@ brew 'jq'
 brew 'springboot'
 brew 'maven'
 brew 'openshift-cli'
+brew 'hugo'
 
 cask 'adium'
 cask 'atom'
