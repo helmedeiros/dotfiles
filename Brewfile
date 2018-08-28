@@ -77,6 +77,7 @@ cask 'dbeaver-community'
 cask 'citrix-receiver'
 cask 'openemu'
 cask 'hyper'
+cask 'karabiner-elements'
 
 mas 'Xcode', id: 497799835
 mas '1Password', id: 443987910
