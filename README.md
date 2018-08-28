@@ -43,6 +43,47 @@ which sets up a few paths that'll be different on your particular machine.
 defaults, and so on. Tweak this script, and occasionally run `dot` from
 time to time to keep your environment fresh and up-to-date.
 
+## key mapping
+
+Karabiner is a powerful utility for keyboard customization.
+
+You can expect some keyboard changing after running this `dotfiles`.
+
+
+### Vimium mode everywhere:
+
+Press `Esc` to enter Vimium mode.
+
+```
+Manipulating tabs
+
+K, gt	Go one tab right
+J, gT	Go one tab left
+t	Create new tab
+x	Close current tab
+X	Restore closed tab
+g0	Go to the first tab
+g$	Go to the last tab
+```
+```
+Navigating
+
+h/j/k/l	Arrow Keys
+gg	Scroll to the top of the page
+G	Scroll to the bottom of the page
+f, <c-f>	Scroll a full page down
+b, <c-b>	Scroll a full page up
+<c-u>	Scroll 20 lines up
+<c-d>	Scroll 20 lines down
+r	Reload the page
+/	Search
+n	Cycle forward to the next find match
+N	Cycle backward to the previous find match
+u	Undo
+<c-r>	Redo
+i	Enter insert mode
+```
+
 ## thanks
 
 I forked [Zach Holman](http://github.com/holman)' excellent
