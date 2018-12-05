@@ -6,11 +6,15 @@ source $(dirname $0)/../secrets/dots.sh
 set -e
 
 function move_dbeaver_connections_from() {
-  if [ -f ~/.dbeaver4/General/.dbeaver-data-sources.xml ]
-  then
-    mv ~/.dbeaver4/General/.dbeaver-data-sources.xml  ~/.dbeaver4/General/.dbeaver-data-sources.xml.original
+  local -r dbeaver="~/.dbeaver4"
+
+  if [[ -d "${dbeaver}" || -L "${dbeaver}" ]]; then
+    if [ -f ~/.dbeaver4/General/.dbeaver-data-sources.xml ]; then
+      mv ~/.dbeaver4/General/.dbeaver-data-sources.xml  ~/.dbeaver4/General/.dbeaver-data-sources.xml.original
+    fi
+
+    cp $1/dbeaver/dbeaver-data-sources.xml ~/.dbeaver4/General/.dbeaver-data-sources.xml
   fi
-  cp $1/dbeaver/dbeaver-data-sources.xml ~/.dbeaver4/General/.dbeaver-data-sources.xml
 }
 
 setup_secret_dotfiles;
