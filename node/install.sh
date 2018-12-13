@@ -49,4 +49,5 @@ then
 	installglobal speed-test
 	installglobal newman
 	installglobal @angular/cli@latest
+	installglobal spotify-cli-mac 
 fi
