@@ -78,6 +78,7 @@ cask 'dbeaver-community'
 cask 'openemu'
 cask 'hyper'
 cask 'karabiner-elements'
+cask 'virtualbox'
 
 mas 'Xcode', id: 497799835
 mas '1Password', id: 443987910
