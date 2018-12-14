@@ -21,7 +21,7 @@ function installNVM() {
 		git clone https://github.com/creationix/nvm.git ~/.nvm
 		getLatest
 		source nvm.sh
-		nvm install 8.11.
+		nvm install 8.11.4
 	else
 		getLatest
 	fi
@@ -30,7 +30,7 @@ function installNVM() {
 if test $(which node)
 then
 	echo " Installing npm manually"
-	intallNVM
+	installNVM
 fi
 
 # Check for npm
@@ -49,5 +49,5 @@ then
 	installglobal speed-test
 	installglobal newman
 	installglobal @angular/cli@latest
-	installglobal spotify-cli-mac 
+	installglobal spotify-cli-mac
 fi
