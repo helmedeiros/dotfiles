@@ -21,7 +21,7 @@ function installNVM() {
 		git clone https://github.com/creationix/nvm.git ~/.nvm
 		getLatest
 		source nvm.sh
-		nvm install 8.11.4
+		nvm install 11.4.0
 	else
 		getLatest
 	fi
