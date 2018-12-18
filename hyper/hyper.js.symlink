@@ -43,7 +43,7 @@ module.exports = {
     copyOnSelect: 'true'
   },
 
-  plugins: ["hypercwd", "hyper-pane", "hyper-whimsy"],
+  plugins: ["hypercwd", "hyper-pane", "hyper-whimsy",  "hyperline",],
 
   localPlugins: []
 }
