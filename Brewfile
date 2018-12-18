@@ -80,6 +80,7 @@ cask 'hyper'
 cask 'karabiner-elements'
 cask 'virtualbox'
 cask 'google-cloud-sdk'
+cask 'minikube'
 
 mas 'Xcode', id: 497799835
 mas '1Password', id: 443987910
