@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# List all open pull request with number of changed files and link to access it
+url=$(git remote -v | awk '{print $2}' | head -n1)
+repo=$(echo $url | awk -F"github.com/" '{print $2}')
+
+hub pr list -s open |
+while read ref; do
+  pr=$(echo $ref | awk '{print $1}' | sed 's/#//g')
+  echo "PR: $repo/$ref \n    --> $url/pull/$pr"
+done
