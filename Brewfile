@@ -53,6 +53,7 @@ brew 'maven'
 brew 'openshift-cli'
 brew 'hugo'
 brew 'hub'
+brew 'plantuml'
 
 cask 'adium'
 cask 'atom'
