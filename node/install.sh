@@ -51,4 +51,5 @@ then
 	installglobal newman
 	installglobal @angular/cli@latest
 	installglobal spotify-cli-mac
+	installglobal selenium-side-runner
 fi
