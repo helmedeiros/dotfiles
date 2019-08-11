@@ -1,8 +1,6 @@
 cask_args appdir: '/Applications'
 
 tap 'homebrew/bundle'
-tap 'caskroom/cask'
-tap 'caskroom/versions'
 tap 'telemachus/brew', 'https://telemachus@bitbucket.org/telemachus/brew.git'
 tap 'pivotal/tap'
 
@@ -54,6 +52,7 @@ brew 'openshift-cli'
 brew 'hugo'
 brew 'hub'
 brew 'plantuml'
+brew 'groovy'
 
 cask 'adium'
 cask 'atom'
