@@ -7,25 +7,8 @@ function installglobal() {
 	npm install -g "${@}" 2> /dev/null
 }
 
-function getLatest() {
-	cd "$NVM_DIR"
-	git fetch --tags origin
-	git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
-}
-
 function installNVM() {
-	local -r dot_nvm="$HOME/.nvm"
-
-	if ! [[ -d "${dot_nvm}" || -L "${dot_nvm}" ]]
-	then
-		git clone https://github.com/creationix/nvm.git ~/.nvm
-		getLatest
-		source nvm.sh
-		nvm install 11.4.
-		nvm use --delete-prefix v11.4.0
-	else
-		getLatest
-	fi
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
 }
 
 if test $(which node)
