@@ -1,6 +1,8 @@
 cask_args appdir: '/Applications'
 
+tap 'homebrew/cask'
 tap 'homebrew/bundle'
+tap 'homebrew/cask-versions'
 tap 'telemachus/brew', 'https://telemachus@bitbucket.org/telemachus/brew.git'
 tap 'pivotal/tap'
 
@@ -8,6 +10,7 @@ tap 'pivotal/tap'
 cask 'xquartz'
 cask 'java' unless system '/usr/libexec/java_home --failfast'
 cask 'java8'
+cask 'java11'
 
 
 brew 'mas'
@@ -23,7 +26,7 @@ brew 'jp2a'
 brew 'libcaca', args: ['with-imlib2']
 brew 'libgit2'
 brew 'openssl'
-brew 'node', args: ['without-npm']
+brew 'node'
 brew 'readline'
 brew 'postgresql'
 brew 'ruby-build'
