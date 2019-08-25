@@ -4,7 +4,8 @@
 #
 # This installs go.
 function installglobal() {
-  go get -u "${@}" 2> /dev/null
+  echo " > go get ${@}"
+  go get -u "${@}"
 }
 
 if test $(which go)
@@ -23,4 +24,5 @@ then
   installglobal github.com/rogpeppe/godef
   installglobal github.com/gorilla/mux
   installglobal github.com/lib/pq
+  installglobal github.com/spf13/cobra/cobra
 fi
