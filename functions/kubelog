@@ -1,0 +1,6 @@
+function kubelog () {
+  echo "Start logging: $1"
+  local -r namespace=$(kubectl get pods --all-namespaces | grep "$1" | awk -F' ' '{print $1}')
+  local -r podname=$(kubectl get pods --all-namespaces | grep "$1" | awk -F' ' '{print $2}')
+  kubectl -n "${namespace}"  logs -f "${podname}"
+}
