@@ -6,5 +6,4 @@ then
  open /Applications/Docker.app
  docker --version
  docker-compose --version
- docker-machine --version
 fi
