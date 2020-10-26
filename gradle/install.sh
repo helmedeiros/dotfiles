@@ -8,6 +8,6 @@
 if test $(which gradle)
 then
   echo "  Enablig Gradle Daemon."
-  touch ~/.gradle/gradle.properties && echo "org.gradle.daemon=true" >> ~/.gradle/gradle.properties
+  mkdir -p ~/.gradle && touch ~/.gradle/gradle.properties && echo "org.gradle.daemon=true" >> ~/.gradle/gradle.properties
 fi
-exit 0
+exit 
