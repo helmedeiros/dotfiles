@@ -1713,14 +1713,6 @@
                     "to": {
                         "key_code": "tab"
                     }
-                },
-                {
-                    "from": {
-                        "key_code": "tab"
-                    },
-                    "to": {
-                        "key_code": "escape"
-                    }
                 }
             ],
             "virtual_hid_keyboard": {
