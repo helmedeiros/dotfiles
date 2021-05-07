@@ -28,6 +28,7 @@ brew bundle check
 echo "› npm upgrade"
 sudo npm install npm@latest -g
 sudo npm update -g
+sudo npm audit fix
 
 # Install software
 echo "› $ZSH/script/install"
