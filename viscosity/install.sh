@@ -22,7 +22,7 @@ function preventing_network_leaks() {
 }
 
 # Check for Viscosity
-if [[ $(brew cask list) =~ viscosity ]]
+if [[ $(brew list --cask) =~ viscosity ]]
 then
   preventing_network_leaks
 fi
