@@ -10,7 +10,7 @@ tap 'spring-io/tap'
 
 cask 'xquartz'
 cask 'java' unless system '/usr/libexec/java_home --failfast'
-cask 'adoptopenjdk8'
+#cask 'adoptopenjdk8'
 cask 'adoptopenjdk11'
 cask 'adoptopenjdk12'
 cask 'adoptopenjdk13'
