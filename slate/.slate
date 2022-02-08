@@ -9,12 +9,12 @@ config resizePercentOf screenSize
 alias full move screenOriginX;screenOriginY screenSizeX;screenSizeY
 alias lefthalf move screenOriginX;screenOriginY screenSizeX/2;screenSizeY
 alias righthalf move screenOriginX+screenSizeX/2;screenOriginY screenSizeX/2;screenSizeY
-alias tophalf move screenOriginX;screenOriginY screenSizeX;screenSizeY/1.3
-alias bottomhalf move screenOriginX;screenOriginY/1.31+screenSizeY/1.31 screenSizeX;screenSizeY/4.15
-alias topleft corner top-left resize:screenSizeX/2;screenSizeY/1.3
-alias topright corner top-right resize:screenSizeX/2;screenSizeY/1.3
-alias bottomleft corner bottom-left resize:screenSizeX/2;screenSizeY/4.15
-alias bottomright corner bottom-right resize:screenSizeX/2;screenSizeY/4.15
+alias tophalf move screenOriginX;screenOriginY screenSizeX;screenSizeY/2.1
+alias bottomhalf move screenOriginX;screenOriginY/1.31+screenSizeY/2.15 screenSizeX;screenSizeY/1.15
+alias topleft corner top-left resize:screenSizeX/2;screenSizeY/2.1
+alias topright corner top-right resize:screenSizeX/2;screenSizeY/2.1
+alias bottomleft corner bottom-left resize:screenSizeX/2;screenSizeY/2.15
+alias bottomright corner bottom-right resize:screenSizeX/2;screenSizeY/2.15
 
 # Simple bindings for window positions
 #   u  i  o
