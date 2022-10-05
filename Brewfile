@@ -60,7 +60,6 @@ brew 'groovy'
 brew 'gometalinter'
 
 cask 'adium'
-cask 'atom'
 cask 'firefox', args: { appdir: '~/my-apps/Applications' }
 cask 'slack'
 cask 'transmission'
