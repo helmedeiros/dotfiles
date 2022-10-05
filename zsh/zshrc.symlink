@@ -51,3 +51,7 @@ export NVM_DIR="$HOME/.nvm"
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/Users/helio.medeiros/.sdkman"
 [[ -s "/Users/helio.medeiros/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/helio.medeiros/.sdkman/bin/sdkman-init.sh"
+
+fpath=(/Users/helio.medeiros/.tracer/completion/zsh $fpath)
+autoload -U compinit
+compinit
