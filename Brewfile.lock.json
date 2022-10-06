@@ -365,6 +365,15 @@
             "appdir": "/Applications"
           }
         }
+      },
+      "via": {
+        "version": "2.0.5",
+        "options": {
+          "full_name": "via",
+          "args": {
+            "appdir": "/Applications"
+          }
+        }
       }
     },
     "brew": {
@@ -1920,7 +1929,7 @@
       "monterey": {
         "HOMEBREW_VERSION": "3.6.4",
         "HOMEBREW_PREFIX": "/opt/homebrew",
-        "Homebrew/homebrew-core": "b06c8b8b12d6ae6104878206c9aea3076956e5f4",
+        "Homebrew/homebrew-core": "da2095fbe42b321c3aae2e15e1150c24689d60ca",
         "CLT": "14.0.0.0.1.1661618636",
         "Xcode": "14.0.1",
         "macOS": "12.6"
