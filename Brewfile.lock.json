@@ -2,13 +2,13 @@
   "entries": {
     "tap": {
       "homebrew/cask": {
-        "revision": "ba02fc5f708f36acd3127d9ef9799368a9397a05"
+        "revision": "0143cefd4ebda2d0f589a49e383273904376123c"
       },
       "homebrew/bundle": {
         "revision": "b70b51d90e5c4f478796f3df374841b9ac442789"
       },
       "homebrew/cask-versions": {
-        "revision": "b3203fa0b2e5da0ff26cd44dfa7a934238880808"
+        "revision": "08cfec3aaf9a9b2e92f029fd93e90e1657b2ddc7"
       },
       "pivotal/tap": {
         "revision": "17f35cd7838348fbbc7d70c56cd87fcfcea44d7b"
@@ -160,7 +160,7 @@
         }
       },
       "intellij-idea": {
-        "version": "2022.2.2,222.4167.29",
+        "version": "2022.2.3,222.4345.14",
         "options": {
           "full_name": "intellij-idea",
           "args": {
@@ -1920,7 +1920,7 @@
       "monterey": {
         "HOMEBREW_VERSION": "3.6.4",
         "HOMEBREW_PREFIX": "/opt/homebrew",
-        "Homebrew/homebrew-core": "6a7da4c87dd8a7c0375e723e09d06414d2af8fce",
+        "Homebrew/homebrew-core": "b06c8b8b12d6ae6104878206c9aea3076956e5f4",
         "CLT": "14.0.0.0.1.1661618636",
         "Xcode": "14.0.1",
         "macOS": "12.6"
