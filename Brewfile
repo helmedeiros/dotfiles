@@ -59,6 +59,10 @@ brew 'plantuml'
 brew 'groovy'
 brew 'gometalinter'
 
+## COCOA - MACOS NATIVE APPS
+brew 'cocoapods'
+brew 'carthage'
+
 cask 'adium'
 cask 'firefox', args: { appdir: '~/my-apps/Applications' }
 cask 'slack'
