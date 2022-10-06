@@ -47,11 +47,3 @@ compinit
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/Users/helio.medeiros/.sdkman"
-[[ -s "/Users/helio.medeiros/.sdkman/bin/sdkman-init.sh" ]] && source "/Users/helio.medeiros/.sdkman/bin/sdkman-init.sh"
-
-fpath=(/Users/helio.medeiros/.tracer/completion/zsh $fpath)
-autoload -U compinit
-compinit
