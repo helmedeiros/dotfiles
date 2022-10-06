@@ -1,2 +1,2 @@
 alias d='docker'
-alias dm='docker-machine'
+alias dm='docker swarm'
