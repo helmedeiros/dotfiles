@@ -1,8 +1,7 @@
 #!/bin/sh
-#
-###############################################################################
-# Terminal & iTerm 2                                                          #
-###############################################################################
+##################################################################
+# Terminal                                                       #
+#################################################################
 
 cd "$(dirname "$0")/.."
 DOTFILES_ROOT=$(pwd -P)
@@ -49,12 +48,6 @@ EOD
 # i.e. hover over a window and start typing in it without clicking first
 #defaults write com.apple.terminal FocusFollowsMouse -bool true
 #defaults write org.x.X11 wm_ffm -bool true
-
-# Install the Solarized Dark theme for iTerm
-open "${DOTFILES_ROOT}/terminal/Solarized Dark.itermcolors"
-
-# Don’t display the annoying prompt when quitting iTerm
-defaults write com.googlecode.iterm2 PromptOnQuit -bool false
 
 # Enable Secure Keyboard Entry in terminal.app
 # See: http://security.stackexchange.com/q/47749
