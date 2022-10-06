@@ -39,7 +39,7 @@ module.exports = {
     shell: '/bin/zsh',
     shellArgs: ['--login'],
     env: {},
-    bell: 'SOUND',
+    bell: 'false',
     copyOnSelect: 'true'
   },
 
