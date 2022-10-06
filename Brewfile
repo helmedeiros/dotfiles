@@ -83,6 +83,7 @@ cask 'karabiner-elements'
 cask 'google-cloud-sdk'
 cask 'visual-studio-code'
 cask 'rar'
+cask 'via'
 
 mas 'Xcode', id: 497799835
 mas 'Telegram', id: 747648890
