@@ -1,6 +1,23 @@
 function kubelog () {
-  echo "Start logging: $1"
-  local -r namespace=$(kubectl get pods --all-namespaces | grep "$1" | awk -F' ' '{print $1}')
-  local -r podname=$(kubectl get pods --all-namespaces | grep "$1" | awk -F' ' '{print $2}')
-  kubectl -n "${namespace}"  logs -f "${podname}"
+  local -r namespace=$(kubectl get pods --all-namespaces | grep "$1" | awk -F' ' '{print $1}' | head -n 1)
+  local -r podnames=($(kubectl get pods --all-namespaces | grep "$1" | awk -F' ' '{print $2}'))
+
+  echo "Start logging: $1 (namespace contains ${#podnames[@]} pods)"
+  
+  echo "Choose the pod bellow to tail logs:"
+  select podname in "${podnames[@]}"; do
+    if [[ -z "$podname" ]]; then
+      printf '"%s" is not a valid choice\n' "$REPLY" >&2
+    else
+      user_in="$(( REPLY ))"
+      break
+    fi
+  done
+
+  printf 'You pick "%s"\n' "${podnames[$user_in]}"
+  
+  printf "%s " "Press enter to continue"
+  read ans
+  
+  kubectl -n "${namespace}"  logs -f "${podnames[$user_in]}" | jq
 }
