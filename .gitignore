@@ -33,6 +33,9 @@ Icon
 default.profraw
 *.profraw
 
+# Unusual filenames
+-
+
 # Generally include all dotfiles and configuration files
 !*.zsh
 !*.sh
