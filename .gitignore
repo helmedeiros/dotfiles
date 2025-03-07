@@ -1,5 +1,3 @@
-git/gitconfig.symlink
-
 # Homebrew
 Brewfile.lock.json
 
@@ -35,8 +33,11 @@ Icon
 default.profraw
 *.profraw
 
-# Keep all dotfiles and configuration files
-!*.symlink
+# Generally include all dotfiles and configuration files
 !*.zsh
 !*.sh
 !*.conf
+!*.symlink
+
+# Specific files to ignore (these override the above inclusions)
+git/gitconfig.symlink
