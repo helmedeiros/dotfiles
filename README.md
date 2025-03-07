@@ -21,6 +21,9 @@ There's a few special files in the hierarchy.
   your `$HOME`. This is so you can keep all of those versioned in your dotfiles
   but still keep those autoloaded files in your home directory. These get
   symlinked in when you run `script/bootstrap`.
+- **templates/**: Contains templates for files that should be stored in separate
+  private repositories, such as `.dot-secrets`. These templates help you set up
+  sensitive configurations without exposing actual credentials.
 
 ## install
 
