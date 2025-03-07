@@ -1,6 +1,5 @@
 cask_args appdir: '/Applications'
 
-tap 'homebrew/cask'
 tap 'homebrew/bundle'
 tap 'homebrew/cask-versions'
 tap 'pivotal/tap'
