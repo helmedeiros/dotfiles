@@ -1,23 +1,86 @@
-function kubelog () {
-  local -r namespace=$(kubectl get pods --all-namespaces | grep "$1" | awk -F' ' '{print $1}' | head -n 1)
-  local -r podnames=($(kubectl get pods --all-namespaces | grep "$1" | awk -F' ' '{print $2}'))
+#!/bin/bash
+#
+# kubelog - A function to easily view logs from Kubernetes pods
+#
+# Usage: kubelog <search_term>
+# Example: kubelog nginx
 
-  echo "Start logging: $1 (namespace contains ${#podnames[@]} pods)"
+function kubelog() {
+  # Check if kubectl is installed
+  if ! command -v kubectl &> /dev/null; then
+    echo "Error: kubectl is not installed or not in PATH"
+    return 1
+  fi
+
+  # Check if jq is installed
+  if ! command -v jq &> /dev/null; then
+    echo "Warning: jq is not installed. Logs will be displayed without JSON formatting."
+    JQ_AVAILABLE=false
+  else
+    JQ_AVAILABLE=true
+  fi
+
+  # Check if a search term was provided
+  if [[ -z "$1" ]]; then
+    echo "Error: No search term provided"
+    echo "Usage: kubelog <search_term>"
+    return 1
+  fi
+
+  local search_term="$1"
   
-  echo "Choose the pod bellow to tail logs:"
-  select podname in "${podnames[@]}"; do
-    if [[ -z "$podname" ]]; then
-      printf '"%s" is not a valid choice\n' "$REPLY" >&2
+  # Get pods matching the search term
+  echo "Searching for pods matching: $search_term"
+  local pod_list=$(kubectl get pods --all-namespaces | grep -i "$search_term" || true)
+  
+  if [[ -z "$pod_list" ]]; then
+    echo "No pods found matching '$search_term'"
+    return 1
+  fi
+  
+  # Parse the pod list to get namespaces and pod names
+  local namespaces=($(echo "$pod_list" | awk '{print $1}'))
+  local podnames=($(echo "$pod_list" | awk '{print $2}'))
+  
+  echo "Found ${#podnames[@]} pods matching '$search_term'"
+  
+  # If only one pod is found, use it directly
+  if [[ ${#podnames[@]} -eq 1 ]]; then
+    echo "Using pod: ${podnames[0]} in namespace: ${namespaces[0]}"
+    
+    if [[ "$JQ_AVAILABLE" == "true" ]]; then
+      kubectl -n "${namespaces[0]}" logs -f "${podnames[0]}" | jq '.' 2>/dev/null || kubectl -n "${namespaces[0]}" logs -f "${podnames[0]}"
     else
-      user_in="$(( REPLY ))"
-      break
+      kubectl -n "${namespaces[0]}" logs -f "${podnames[0]}"
     fi
+    
+    return 0
+  fi
+  
+  # If multiple pods are found, let the user choose
+  echo "Choose the pod to view logs from:"
+  
+  # Display the list with namespace information
+  for i in "${!podnames[@]}"; do
+    echo "[$i] ${podnames[$i]} (namespace: ${namespaces[$i]})"
   done
-
-  printf 'You pick "%s"\n' "${podnames[$user_in]}"
   
-  printf "%s " "Press enter to continue"
-  read ans
+  # Get user selection
+  local selection
+  read -p "Enter number [0-$((${#podnames[@]}-1))]: " selection
   
-  kubectl -n "${namespace}"  logs -f "${podnames[$user_in]}" | jq
+  # Validate selection
+  if ! [[ "$selection" =~ ^[0-9]+$ ]] || [[ "$selection" -ge "${#podnames[@]}" ]]; then
+    echo "Invalid selection: $selection"
+    return 1
+  fi
+  
+  echo "Viewing logs for: ${podnames[$selection]} in namespace: ${namespaces[$selection]}"
+  
+  # Display logs with or without jq formatting
+  if [[ "$JQ_AVAILABLE" == "true" ]]; then
+    kubectl -n "${namespaces[$selection]}" logs -f "${podnames[$selection]}" | jq '.' 2>/dev/null || kubectl -n "${namespaces[$selection]}" logs -f "${podnames[$selection]}"
+  else
+    kubectl -n "${namespaces[$selection]}" logs -f "${podnames[$selection]}"
+  fi
 }
