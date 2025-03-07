@@ -31,6 +31,10 @@ Icon
 *.log
 *.sqlite
 
+# Profiling data
+default.profraw
+*.profraw
+
 # Keep all dotfiles and configuration files
 !*.symlink
 !*.zsh
