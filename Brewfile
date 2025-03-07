@@ -4,15 +4,10 @@ tap 'homebrew/cask'
 tap 'homebrew/bundle'
 tap 'homebrew/cask-versions'
 tap 'pivotal/tap'
-tap 'AdoptOpenJDK/openjdk'
 tap 'spring-io/tap'
 tap 'alecthomas/homebrew-tap'
 
 cask 'xquartz'
-cask 'adoptopenjdk11'
-cask 'adoptopenjdk12'
-cask 'adoptopenjdk13'
-cask 'adoptopenjdk14'
 cask 'temurin17'
 cask 'temurin18'
 
@@ -87,6 +82,7 @@ cask 'google-cloud-sdk'
 cask 'visual-studio-code'
 cask 'rar'
 cask 'via'
+cask 'ollama'
 
 mas 'Xcode', id: 497799835
 mas 'Telegram', id: 747648890
