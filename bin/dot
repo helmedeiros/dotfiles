@@ -56,13 +56,36 @@ mas upgrade
 
 # brew bundle
 echo "› brew bundle"
-brew bundle check
+brew bundle install --file="$dotfilesDirectory/Brewfile"
 
-# Update npm & packages
-echo "› npm upgrade"
-sudo npm install npm@latest -g
-sudo npm update -g
-sudo npm audit fix
+# Update Node.js and npm
+echo "› Updating Node.js and npm"
+# Source the existing NVM configuration
+if [ -f "$ZSH/node/path.zsh" ]; then
+	echo "Sourcing existing NVM configuration"
+	source "$ZSH/node/path.zsh"
+	
+	# Check if NVM is available
+	if command -v nvm &> /dev/null; then
+		# Install and use a compatible Node.js version
+		echo "Using NVM to install Node.js 20.17.0"
+		nvm install 20.17.0
+		nvm use 20.17.0
+		echo "Node.js updated to $(node -v)"
+		
+		# Now update npm with the compatible Node.js version
+		echo "› npm upgrade"
+		npm install -g npm@latest --no-fund
+		npm update -g --no-fund
+		npm audit fix --force --no-fund
+	else
+		echo "NVM not properly loaded. Running node/install.sh to set up NVM"
+		"$ZSH/node/install.sh"
+	fi
+else
+	echo "NVM configuration not found. Running node/install.sh to set up NVM"
+	"$ZSH/node/install.sh"
+fi
 
 # Install software
 echo "› $ZSH/script/install"
