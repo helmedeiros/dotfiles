@@ -10,13 +10,21 @@ DOTFILES_ROOT=$(pwd -P)
 # Only use UTF-8 in Terminal.app
 defaults write com.apple.terminal StringEncodings -array 4
 
-# Use a modified version of the Solarized Dark theme by default in Terminal.app
-osascript <<EOD
+# Check if the theme is already installed
+THEME_NAME="Solarized Dark xterm-256color"
+THEME_INSTALLED=$(defaults read com.apple.Terminal "Window Settings" | grep -c "$THEME_NAME" || echo "0")
+
+# Only install the theme if it's not already installed
+if [ "$THEME_INSTALLED" -eq 0 ]; then
+  echo "Installing terminal theme: $THEME_NAME"
+  
+  # Use a modified version of the Solarized Dark theme by default in Terminal.app
+  osascript <<EOD
 tell application "Terminal"
 	local allOpenedWindows
 	local initialOpenedWindows
 	local windowID
-	set themeName to "Solarized Dark xterm-256color"
+	set themeName to "$THEME_NAME"
 	(* Store the IDs of all the open terminal windows. *)
 	set initialOpenedWindows to id of every window
 	(* Open the custom theme so that it gets added to the list
@@ -43,8 +51,22 @@ tell application "Terminal"
 	end repeat
 end tell
 EOD
+else
+  echo "Terminal theme '$THEME_NAME' is already installed. Skipping."
+  
+  # Just set the theme as default without opening new windows
+  osascript <<EOD
+tell application "Terminal"
+	set themeName to "$THEME_NAME"
+	(* Set the custom theme as the default terminal theme. *)
+	set default settings to settings set themeName
+	(* Apply theme to current windows *)
+	set current settings of tabs of every window to settings set themeName
+end tell
+EOD
+fi
 
-# Enable “focus follows mouse” for Terminal.app and all X11 apps
+# Enable "focus follows mouse" for Terminal.app and all X11 apps
 # i.e. hover over a window and start typing in it without clicking first
 #defaults write com.apple.terminal FocusFollowsMouse -bool true
 #defaults write org.x.X11 wm_ffm -bool true
