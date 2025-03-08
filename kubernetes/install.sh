@@ -61,63 +61,76 @@ fi
 # Create the .kube directory if it doesn't exist
 mkdir -p "$HOME/.kube"
 
-# Download the company's kubectl config
-echo "Downloading company kubectl configuration from $KUBE_CONFIG_URL..."
-if command -v curl &> /dev/null; then
-  curl -s -o "$HOME/.kube/$KUBE_CONFIG_FILENAME" "$KUBE_CONFIG_URL"
-elif command -v wget &> /dev/null; then
-  wget -q -O "$HOME/.kube/$KUBE_CONFIG_FILENAME" "$KUBE_CONFIG_URL"
-else
-  echo "Error: Neither curl nor wget is installed. Cannot download kubectl config."
-  exit 1
-fi
-
-# Check if the download was successful
-if [ ! -f "$HOME/.kube/$KUBE_CONFIG_FILENAME" ]; then
-  echo "Error: Failed to download kubectl config from $KUBE_CONFIG_URL"
-  echo "Please check your network connection and the URL."
-  exit 1
-fi
-
-# Set the KUBECONFIG environment variable for this session
-export KUBECONFIG="$HOME/.kube/$KUBE_CONFIG_FILENAME"
-
-# Add the KUBECONFIG to shell profile if not already there
-for PROFILE in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile"; do
-  if [ -f "$PROFILE" ]; then
-    if ! grep -q "KUBECONFIG.*$KUBE_CONFIG_FILENAME" "$PROFILE"; then
-      echo "Adding KUBECONFIG to $PROFILE"
-      echo "" >> "$PROFILE"
-      echo "# Kubernetes configuration" >> "$PROFILE"
-      echo "export KUBECONFIG=\"\$HOME/.kube/$KUBE_CONFIG_FILENAME\"" >> "$PROFILE"
-    fi
+# Check if we can access the company URL (VPN check)
+echo "Checking VPN connectivity to company resources..."
+if curl --connect-timeout 5 -s --head "$KUBE_CONFIG_URL" >/dev/null; then
+  echo "VPN connection detected. Proceeding with download..."
+  
+  # Download the company's kubectl config
+  echo "Downloading company kubectl configuration from $KUBE_CONFIG_URL..."
+  if command -v curl &> /dev/null; then
+    curl --connect-timeout 10 -s -o "$HOME/.kube/$KUBE_CONFIG_FILENAME" "$KUBE_CONFIG_URL"
+  elif command -v wget &> /dev/null; then
+    wget --timeout=10 -q -O "$HOME/.kube/$KUBE_CONFIG_FILENAME" "$KUBE_CONFIG_URL"
+  else
+    echo "Error: Neither curl nor wget is installed. Cannot download kubectl config."
+    exit 1
   fi
-done
 
-# List available contexts
-echo "Available Kubernetes contexts:"
-kubectl config get-contexts
+  # Check if the download was successful
+  if [ ! -f "$HOME/.kube/$KUBE_CONFIG_FILENAME" ]; then
+    echo "Error: Failed to download kubectl config from $KUBE_CONFIG_URL"
+    echo "Please check your network connection and the URL."
+    exit 1
+  fi
+  
+  # Set the KUBECONFIG environment variable for this session
+  export KUBECONFIG="$HOME/.kube/$KUBE_CONFIG_FILENAME"
 
-# Set the default context
-echo "Setting default context to $DEFAULT_CONTEXT"
-kubectl config use-context "$DEFAULT_CONTEXT"
+  # Add the KUBECONFIG to shell profile if not already there
+  for PROFILE in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile"; do
+    if [ -f "$PROFILE" ]; then
+      if ! grep -q "KUBECONFIG.*$KUBE_CONFIG_FILENAME" "$PROFILE"; then
+        echo "Adding KUBECONFIG to $PROFILE"
+        echo "" >> "$PROFILE"
+        echo "# Kubernetes configuration" >> "$PROFILE"
+        echo "export KUBECONFIG=\"\$HOME/.kube/$KUBE_CONFIG_FILENAME\"" >> "$PROFILE"
+      fi
+    fi
+  done
 
-# Test the connection
-echo "Testing connection to Kubernetes cluster..."
-if kubectl get namespaces --request-timeout=5s &> /dev/null; then
-  echo "Connection successful!"
-  kubectl get namespaces
-else
-  echo "Warning: Could not connect to Kubernetes cluster"
-  echo "This could be due to:"
-  echo "  1. VPN not connected"
-  echo "  2. Invalid context"
-  echo "  3. Network issues"
+  # List available contexts
+  echo "Available Kubernetes contexts:"
+  kubectl config get-contexts
+
+  # Set the default context
+  echo "Setting default context to $DEFAULT_CONTEXT"
+  kubectl config use-context "$DEFAULT_CONTEXT"
+
+  # Test the connection
+  echo "Testing connection to Kubernetes cluster..."
+  if kubectl get namespaces --request-timeout=5s &> /dev/null; then
+    echo "Connection successful!"
+    kubectl get namespaces
+  else
+    echo "Warning: Could not connect to Kubernetes cluster"
+    echo "This could be due to:"
+    echo "  1. VPN not connected properly"
+    echo "  2. Invalid context"
+    echo "  3. Network issues"
+    echo ""
+    echo "Please check your connection and try again."
+  fi
+
   echo ""
-  echo "Please check your connection and try again."
-fi
-
-echo ""
-echo "Kubernetes configuration setup complete!"
-echo "You can switch contexts using: kubectl config use-context <context-name>"
-echo "Available contexts can be listed using: kubectl config get-contexts" 
+  echo "Kubernetes configuration setup complete!"
+  echo "You can switch contexts using: kubectl config use-context <context-name>"
+  echo "Available contexts can be listed using: kubectl config get-contexts"
+else
+  echo "VPN connection not detected or company resources not accessible."
+  echo "Cannot download Kubernetes configuration without VPN connection."
+  echo "Please connect to the company VPN and run this script again."
+  echo ""
+  echo "Skipping Kubernetes configuration for now."
+  exit 0
+fi 
