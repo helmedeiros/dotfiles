@@ -12,6 +12,7 @@ These dotfiles provide a comprehensive setup for developers, including:
 - Homebrew package management
 - Karabiner keyboard customization
 - Vim-like navigation across applications
+- Automatic update checking
 - And much more!
 
 ## Structure
@@ -58,6 +59,23 @@ The main file you'll want to change right off the bat is `zsh/zshrc.symlink`, wh
 ```sh
 bin/dot
 ```
+
+### Automatic Updates
+
+These dotfiles include an automatic update checker that runs once per day when you open a new shell. It will:
+
+- Check if your local dotfiles are behind the remote repository
+- Notify you when updates are available
+- Provide a summary of changes
+- Offer to update automatically
+
+You can also manually check for updates at any time by running:
+
+```sh
+dotfiles-update-check
+```
+
+This helps ensure your development environment stays current with the latest improvements without requiring manual checks.
 
 ## Features
 
