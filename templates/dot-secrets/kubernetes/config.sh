@@ -1,19 +1,21 @@
 #!/bin/bash
-#
-# Kubernetes Configuration Variables
-# Copy this file to ~/.dot-secrets/kubernetes/config.sh
-#
-# This file ONLY contains company-specific configuration variables.
-# All implementation logic is in the main dotfiles repository.
+# Kubernetes configuration
+# Copy this file to ~/.dot-secrets/kubernetes/config.sh and update with your values
 
-# URL to download the kubectl config file
-KUBE_CONFIG_URL="https://your-company-ci-server.example.com/path/to/kubectl-config"
+# URL to download your Kubernetes configuration file
+# Replace with your company's specific URL
+KUBE_CONFIG_URL="https://your-company-domain.com/kubernetes/config"
 
-# Filename to save the kubectl config as
-KUBE_CONFIG_FILENAME="company-debug.conf"
+# Filename to save the Kubernetes configuration as
+KUBE_CONFIG_FILENAME="config"
 
 # Default Kubernetes context to use
-DEFAULT_CONTEXT="dev"
+# This should match one of the contexts in your config file
+DEFAULT_CONTEXT="your-default-context"
+
+# Additional company-specific environment variables can be added here
+# COMPANY_NAMESPACE="your-namespace"
+# COMPANY_REGISTRY="your-registry.company.com"
 
 # Optional: Set to true if VPN is required to connect
 # COMPANY_VPN_REQUIRED=true
