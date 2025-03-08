@@ -7,8 +7,9 @@ set -e
 cd "$(dirname $0)"/..
 
 # # Run Homebrew through the Brewfile
-echo "› brew bundle"
-brew bundle
+# This is now done in bin/dot, so we skip it here
+# echo "› brew bundle"
+# brew bundle
 
 # find the installers and run them iteratively
 allDirectories=$(find . -name install.sh | tr "\n" " ")
@@ -20,7 +21,7 @@ executed=1
 for val in "${fileItemArray[@]}"; do
   app=$(echo "$val" | awk -F'/' '{print $2}' )
   printf "[%s/%s] -> Starting [%s]\n" "$executed" "$length" "$app"
-  sh -c "${val}"
+  sh -c "${val}" || echo "Warning: ${app} installation script failed"
   printf "[%s/%s] -> Finished [%s]\n" "$executed" "$length" "$app"
   let "executed++"
 done

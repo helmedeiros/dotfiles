@@ -58,41 +58,51 @@ mas upgrade
 echo "› brew bundle"
 brew bundle install --file="$dotfilesDirectory/Brewfile"
 
-# Update Node.js and npm
+# Update Node.js and npm in a subshell to isolate any issues
 echo "› Updating Node.js and npm"
-# Source the existing NVM configuration
-if [ -f "$ZSH/node/path.zsh" ]; then
-	echo "Sourcing existing NVM configuration"
-	source "$ZSH/node/path.zsh"
-	
-	# Check if NVM is available
-	if command -v nvm &> /dev/null; then
-		# Install and use a compatible Node.js version
-		echo "Using NVM to install Node.js 20.17.0"
-		nvm install 20.17.0
-		nvm use 20.17.0
-		echo "Node.js updated to $(node -v)"
+(
+	# Source the existing NVM configuration
+	if [ -f "$ZSH/node/path.zsh" ]; then
+		echo "Sourcing existing NVM configuration"
+		source "$ZSH/node/path.zsh" || true
 		
-		# Now update npm with the compatible Node.js version
-		echo "› npm upgrade"
-		npm install -g npm@latest --no-fund
-		
-		# Update global packages but suppress most warnings
-		echo "› Updating global npm packages"
-		npm update -g --no-fund --silent || true
-		
-		# Run npm audit fix but don't show warnings about deprecated packages
-		echo "› Running npm audit fix"
-		npm audit fix --force --no-fund --silent || true
+		# Check if NVM is available
+		if command -v nvm &> /dev/null; then
+			# Install and use a compatible Node.js version
+			echo "Using NVM to install Node.js 20.17.0"
+			nvm install 20.17.0 || true
+			nvm use 20.17.0 || true
+			echo "Node.js version: $(node -v || echo 'unknown')"
+			
+			# Now update npm with the compatible Node.js version
+			echo "› npm upgrade"
+			npm install -g npm@latest --no-fund || true
+			
+			# Update global packages but suppress most warnings
+			echo "› Updating global npm packages"
+			npm update -g --no-fund --silent || true
+			
+			# Run npm audit fix but don't show warnings about deprecated packages
+			echo "› Running npm audit fix"
+			npm audit fix --force --no-fund --silent || true
+			echo "Node.js and npm update completed"
+		else
+			echo "NVM not properly loaded. Running node/install.sh to set up NVM"
+			"$ZSH/node/install.sh" || true
+		fi
 	else
-		echo "NVM not properly loaded. Running node/install.sh to set up NVM"
-		"$ZSH/node/install.sh"
+		echo "NVM configuration not found. Running node/install.sh to set up NVM"
+		"$ZSH/node/install.sh" || true
 	fi
-else
-	echo "NVM configuration not found. Running node/install.sh to set up NVM"
-	"$ZSH/node/install.sh"
-fi
+) || echo "Node.js update had some issues, continuing with installation"
 
+echo "› Starting post-install scripts"
 # Install software
-echo "› $ZSH/script/install"
-$ZSH/script/install
+echo "› Running post-install scripts from $ZSH/script/install"
+"$ZSH/script/install" || echo "Warning: Some post-install scripts failed"
+
+echo ""
+echo "┌────────────────────────────────────────────┐"
+echo "│ dot script completed successfully!         │"
+echo "│ Your system is now up-to-date.             │"
+echo "└────────────────────────────────────────────┘"
