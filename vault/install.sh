@@ -17,6 +17,19 @@ if [ "$(uname -m)" = "arm64" ]; then
   ARCH="arm64"
 fi
 
+# Check if Vault is already installed with the correct version
+if command -v vault >/dev/null 2>&1; then
+  INSTALLED_VERSION=$(vault --version | head -n 1 | cut -d ' ' -f 2 | sed 's/v//')
+  if [ "$INSTALLED_VERSION" = "$VAULT_VERSION" ]; then
+    echo "Vault ${VAULT_VERSION} is already installed. Skipping installation."
+    exit 0
+  else
+    echo "Updating Vault from version ${INSTALLED_VERSION} to ${VAULT_VERSION}..."
+  fi
+else
+  echo "Vault is not installed. Installing version ${VAULT_VERSION}..."
+fi
+
 echo "Installing Vault ${VAULT_VERSION} for macOS (${ARCH})..."
 
 # Create a temporary directory
