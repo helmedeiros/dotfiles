@@ -2,16 +2,32 @@
 #
 # kubelog - A function to easily view logs from Kubernetes pods
 #
-# Usage: kubelog <search_term>
+# Usage: kubelog <search_term> [options]
 # Example: kubelog nginx
+#          kubelog nginx -f "error"
+#          kubelog nginx --filter="connection refused"
+#          kubelog nginx -n 100
 
 function kubelog() {
   # Check for help flag
   if [[ "$1" == "-h" || "$1" == "--help" ]]; then
     echo "kubelog - View logs from Kubernetes pods"
     echo ""
-    echo "Usage: kubelog <search_term>"
+    echo "Usage: kubelog <search_term> [options]"
     echo "Example: kubelog nginx"
+    echo "         kubelog nginx -f \"error\""
+    echo "         kubelog nginx --filter=\"connection refused\""
+    echo "         kubelog nginx -n 100"
+    echo "         kubelog nginx -c sidecar"
+    echo "         kubelog nginx -f \"error\" --full-json"
+    echo ""
+    echo "Options:"
+    echo "  -f, --filter=PATTERN   Filter logs to show only lines containing PATTERN"
+    echo "  -n, --tail=LINES       Show only the last LINES of logs (default: all)"
+    echo "  -c, --container=NAME   Filter logs to show only logs from the container NAME"
+    echo "  --no-color             Disable colored output for filtered text"
+    echo "  --full-json            Show full JSON context when filtering"
+    echo "  -h, --help             Show this help message"
     echo ""
     echo "This function searches for pods matching the given term and displays their logs."
     echo "If multiple pods match, you will be prompted to select one."
@@ -35,11 +51,73 @@ function kubelog() {
   # Check if a search term was provided
   if [[ -z "$1" ]]; then
     echo "Error: No search term provided"
-    echo "Usage: kubelog <search_term>"
+    echo "Usage: kubelog <search_term> [options]"
     return 1
   fi
 
   local search_term="$1"
+  shift  # Remove the search term from the arguments
+  
+  # Parse options
+  local filter=""
+  local tail_lines=""
+  local color=true
+  local container=""
+  local full_json=false
+  
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -f=*|--filter=*)
+        filter="${1#*=}"
+        shift
+        ;;
+      -f|--filter)
+        if [[ -z "$2" || "$2" == -* ]]; then
+          echo "Error: --filter requires an argument"
+          return 1
+        fi
+        filter="$2"
+        shift 2
+        ;;
+      -n=*|--tail=*)
+        tail_lines="${1#*=}"
+        shift
+        ;;
+      -n|--tail)
+        if [[ -z "$2" || "$2" == -* ]]; then
+          echo "Error: --tail requires an argument"
+          return 1
+        fi
+        tail_lines="$2"
+        shift 2
+        ;;
+      -c=*|--container=*)
+        container="${1#*=}"
+        shift
+        ;;
+      -c|--container)
+        if [[ -z "$2" || "$2" == -* ]]; then
+          echo "Error: --container requires an argument"
+          return 1
+        fi
+        container="$2"
+        shift 2
+        ;;
+      --no-color)
+        color=false
+        shift
+        ;;
+      --full-json)
+        full_json=true
+        shift
+        ;;
+      *)
+        echo "Error: Unknown option: $1"
+        echo "Run 'kubelog --help' for usage information"
+        return 1
+        ;;
+    esac
+  done
   
   # Get pods matching the search term
   echo "Searching for pods matching: $search_term"
@@ -58,14 +136,11 @@ function kubelog() {
   local pod_count=$(wc -l < /tmp/kubelog_pods.txt)
   echo "Found $pod_count pods matching '$search_term'"
   
-  # If only one pod is found, use it directly
-  if [ "$pod_count" -eq 1 ]; then
-    # Extract namespace and pod name
-    local pod_info=$(cat /tmp/kubelog_pods.txt)
+  # Helper function to extract namespace and pod name
+  extract_pod_info() {
+    local pod_info="$1"
     local namespace=$(echo "$pod_info" | awk '{print $1}')
     local podname=$(echo "$pod_info" | awk '{print $2}')
-    
-    echo "Using pod: $podname in namespace: $namespace"
     
     # Ensure the namespace and pod name are not empty
     if [ -z "$namespace" ] || [ -z "$podname" ]; then
@@ -75,12 +150,86 @@ function kubelog() {
       return 1
     fi
     
-    # View the logs
-    if [ "$JQ_AVAILABLE" = "true" ]; then
-      kubectl -n "$namespace" logs -f "$podname" | jq '.' 2>/dev/null || kubectl -n "$namespace" logs -f "$podname"
-    else
-      kubectl -n "$namespace" logs -f "$podname"
+    echo "$namespace $podname"
+  }
+  
+  # Helper function to build and execute kubectl command
+  view_pod_logs() {
+    local namespace="$1"
+    local podname="$2"
+    
+    # Build the kubectl logs command
+    local kubectl_cmd="kubectl -n \"$namespace\" logs -f"
+    
+    # Add tail option if specified
+    if [ -n "$tail_lines" ]; then
+      kubectl_cmd="$kubectl_cmd --tail=$tail_lines"
     fi
+    
+    # Add container option if specified
+    if [ -n "$container" ]; then
+      kubectl_cmd="$kubectl_cmd -c \"$container\""
+    fi
+    
+    # Add the pod name
+    kubectl_cmd="$kubectl_cmd \"$podname\""
+    
+    # Add jq formatting if available
+    if [ "$JQ_AVAILABLE" = "true" ]; then
+      if [ -n "$filter" ]; then
+        # Apply jq with filter to show complete JSON objects that contain the filter pattern
+        echo "Filtering logs for: \"$filter\" with JSON formatting"
+        if [ "$full_json" = "true" ]; then
+          # Use jq to filter and show full JSON objects
+          echo "Showing full JSON objects that contain the filter"
+          if [ "$color" = "true" ]; then
+            kubectl_cmd="$kubectl_cmd | jq -R 'fromjson? // .' | jq 'select(tostring | test(\"$filter\"; \"i\"))' || $kubectl_cmd | grep --color=always -i \"$filter\""
+          else
+            kubectl_cmd="$kubectl_cmd | jq -R 'fromjson? // .' | jq 'select(tostring | test(\"$filter\"; \"i\"))' || $kubectl_cmd | grep -i \"$filter\""
+          fi
+        else
+          # Use jq to filter and format JSON objects that contain the filter pattern
+          if [ "$color" = "true" ]; then
+            kubectl_cmd="$kubectl_cmd | jq -c '.' | grep -i \"$filter\" | jq '.' || $kubectl_cmd | grep --color=always -i \"$filter\""
+          else
+            kubectl_cmd="$kubectl_cmd | jq -c '.' | grep -i \"$filter\" | jq '.' || $kubectl_cmd | grep -i \"$filter\""
+          fi
+        fi
+      else
+        # Just apply jq formatting
+        kubectl_cmd="$kubectl_cmd | jq '.' 2>/dev/null || $kubectl_cmd"
+      fi
+    elif [ -n "$filter" ]; then
+      # No jq available, just apply filter
+      echo "Filtering logs for: \"$filter\""
+      if [ "$color" = "true" ]; then
+        kubectl_cmd="$kubectl_cmd | grep --color=always -i \"$filter\""
+      else
+        kubectl_cmd="$kubectl_cmd | grep -i \"$filter\""
+      fi
+    fi
+    
+    # Execute the command
+    echo "Running: $kubectl_cmd"
+    eval "$kubectl_cmd"
+  }
+  
+  # If only one pod is found, use it directly
+  if [ "$pod_count" -eq 1 ]; then
+    # Extract namespace and pod name
+    local pod_info=$(cat /tmp/kubelog_pods.txt)
+    local pod_details=$(extract_pod_info "$pod_info")
+    
+    if [ $? -ne 0 ]; then
+      # Error message already displayed by extract_pod_info
+      return 1
+    fi
+    
+    read namespace podname <<< "$pod_details"
+    echo "Using pod: $podname in namespace: $namespace"
+    
+    # View the logs
+    view_pod_logs "$namespace" "$podname"
     
     rm -f /tmp/kubelog_pods.txt
     return 0
@@ -105,25 +254,18 @@ function kubelog() {
   
   # Extract the selected pod info
   local pod_info=$(sed -n "${selection}p" /tmp/kubelog_pods.txt)
-  local namespace=$(echo "$pod_info" | awk '{print $1}')
-  local podname=$(echo "$pod_info" | awk '{print $2}')
+  local pod_details=$(extract_pod_info "$pod_info")
   
-  echo "Viewing logs for: $podname in namespace: $namespace"
-  
-  # Ensure the namespace and pod name are not empty
-  if [ -z "$namespace" ] || [ -z "$podname" ]; then
-    echo "Error: Could not extract namespace or pod name"
-    echo "Raw pod info: $pod_info"
-    rm -f /tmp/kubelog_pods.txt
+  if [ $? -ne 0 ]; then
+    # Error message already displayed by extract_pod_info
     return 1
   fi
   
+  read namespace podname <<< "$pod_details"
+  echo "Viewing logs for: $podname in namespace: $namespace"
+  
   # View the logs
-  if [ "$JQ_AVAILABLE" = "true" ]; then
-    kubectl -n "$namespace" logs -f "$podname" | jq '.' 2>/dev/null || kubectl -n "$namespace" logs -f "$podname"
-  else
-    kubectl -n "$namespace" logs -f "$podname"
-  fi
+  view_pod_logs "$namespace" "$podname"
   
   rm -f /tmp/kubelog_pods.txt
 }
