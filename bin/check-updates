@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# check-updates
+#
+# Check for updates to the dotfiles repository and notify the user
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Get the dotfiles directory
+DOTFILES_DIR="$HOME/.dotfiles"
+
+# Check if the dotfiles directory exists
+if [ ! -d "$DOTFILES_DIR" ]; then
+  echo -e "${RED}Error: Dotfiles directory not found at $DOTFILES_DIR${NC}"
+  exit 1
+fi
+
+# Change to the dotfiles directory
+cd "$DOTFILES_DIR"
+
+# Check if git is installed
+if ! command -v git &> /dev/null; then
+  echo -e "${RED}Error: git is not installed${NC}"
+  exit 1
+fi
+
+# Check if the directory is a git repository
+if [ ! -d ".git" ]; then
+  echo -e "${RED}Error: $DOTFILES_DIR is not a git repository${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}Checking for updates to your dotfiles...${NC}"
+
+# Fetch the latest changes without merging
+git fetch origin --quiet
+
+# Check if there are any changes
+LOCAL=$(git rev-parse @)
+REMOTE=$(git rev-parse @{u})
+BASE=$(git merge-base @ @{u})
+
+if [ $LOCAL = $REMOTE ]; then
+  echo -e "${GREEN}Your dotfiles are up to date!${NC}"
+elif [ $LOCAL = $BASE ]; then
+  # Count the number of commits behind
+  COMMITS_BEHIND=$(git rev-list --count HEAD..@{u})
+  
+  echo -e "${YELLOW}Your dotfiles are behind by $COMMITS_BEHIND commit(s).${NC}"
+  echo -e "${YELLOW}Run 'cd $DOTFILES_DIR && git pull' to update.${NC}"
+  
+  # Show a summary of the changes
+  echo -e "\n${GREEN}Summary of changes:${NC}"
+  git log --oneline --pretty=format:"%h %s" HEAD..@{u} | head -n 5
+  
+  # If there are more than 5 commits, show a message
+  if [ $COMMITS_BEHIND -gt 5 ]; then
+    echo -e "${YELLOW}... and $(($COMMITS_BEHIND - 5)) more commit(s)${NC}"
+  fi
+  
+  echo -e "\n${YELLOW}Would you like to update now? (y/n)${NC}"
+  read -r response
+  if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    git pull
+    echo -e "${GREEN}Dotfiles updated successfully!${NC}"
+    echo -e "${GREEN}Run 'bin/dot' to apply any new changes.${NC}"
+  else
+    echo -e "${YELLOW}Update skipped. You can update later with 'cd $DOTFILES_DIR && git pull'${NC}"
+  fi
+elif [ $REMOTE = $BASE ]; then
+  echo -e "${YELLOW}Your dotfiles have local changes that haven't been pushed.${NC}"
+  echo -e "${YELLOW}Run 'cd $DOTFILES_DIR && git push' to push your changes.${NC}"
+else
+  echo -e "${RED}Your dotfiles have diverged from the remote repository.${NC}"
+  echo -e "${RED}You may need to resolve conflicts manually.${NC}"
+  echo -e "${RED}Run 'cd $DOTFILES_DIR && git status' for more information.${NC}"
+fi 
