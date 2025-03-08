@@ -1,0 +1,35 @@
+{
+  "connections": [
+    {
+      "name": "Sample MongoDB Connection",
+      "connectionId": "sample-connection",
+      "serverHost": "localhost",
+      "serverPort": 27017,
+      "defaultDatabase": "",
+      "sshAuthMethod": 0,
+      "sshHost": "",
+      "sshPort": 22,
+      "sshUserName": "",
+      "sshPrivateKeyFile": "",
+      "sshPassphrase": "",
+      "sshPassword": "",
+      "sslEnabled": false,
+      "sslPemKeyFile": "",
+      "sslPemPassphrase": "",
+      "sslCaFile": "",
+      "authEnabled": false,
+      "authMechanism": "SCRAM-SHA-1",
+      "userName": "",
+      "userPassword": "",
+      "databaseName": "admin"
+    }
+  ],
+  "settings": {
+    "timeZone": 0,
+    "viewMode": 0,
+    "autoExpand": false,
+    "autoExec": true,
+    "lineNumbers": false,
+    "utcMode": true
+  }
+} 
