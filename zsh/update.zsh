@@ -7,8 +7,42 @@ DOTFILES_UPDATE_LOG="$HOME/.dotfiles_update.log"
 # Status file for prompt integration
 DOTFILES_UPDATE_STATUS="$HOME/.dotfiles_update_status"
 
+# Maximum log file size in bytes (1MB)
+MAX_LOG_SIZE=1048576
+
+# Function to check and rotate log file if needed
+function _check_log_rotation() {
+  # Check if log file exists
+  if [ -f "$DOTFILES_UPDATE_LOG" ]; then
+    # Get file size in bytes
+    local file_size=$(stat -f%z "$DOTFILES_UPDATE_LOG")
+    
+    # If file size exceeds the maximum, rotate the log
+    if [ $file_size -gt $MAX_LOG_SIZE ]; then
+      # Create a backup with timestamp
+      local timestamp=$(date +%Y%m%d%H%M%S)
+      local backup_file="${DOTFILES_UPDATE_LOG}.${timestamp}"
+      
+      # Move the current log to backup
+      mv "$DOTFILES_UPDATE_LOG" "$backup_file"
+      
+      # Create a new empty log file
+      touch "$DOTFILES_UPDATE_LOG"
+      
+      # Keep only the 5 most recent backup files
+      ls -t "${DOTFILES_UPDATE_LOG}."* 2>/dev/null | tail -n +6 | xargs rm -f 2>/dev/null
+      
+      # Log the rotation
+      echo "[$(date '+%Y-%m-%d %H:%M:%S')] Log file rotated. Previous log saved as $backup_file" >> "$DOTFILES_UPDATE_LOG"
+    fi
+  fi
+}
+
 # Function to log messages
 function _dotfiles_log() {
+  # Check if log rotation is needed before logging
+  _check_log_rotation
+  
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$DOTFILES_UPDATE_LOG"
 }
 
@@ -158,6 +192,26 @@ function dotfiles-apply-updates() {
   else
     echo "No pending updates found."
   fi
+}
+
+# Function to clean up old log files
+function dotfiles-cleanup-logs() {
+  echo "Cleaning up dotfiles log files..."
+  
+  # Remove all but the 5 most recent log backups
+  local backup_count=$(ls -1 "${DOTFILES_UPDATE_LOG}."* 2>/dev/null | wc -l)
+  if [ $backup_count -gt 5 ]; then
+    echo "Removing old log backups..."
+    ls -t "${DOTFILES_UPDATE_LOG}."* | tail -n +6 | xargs rm -f
+    echo "Kept the 5 most recent log backups."
+  else
+    echo "No cleanup needed. Found $backup_count log backups."
+  fi
+  
+  # Rotate current log if it's too large
+  _check_log_rotation
+  
+  echo "Log cleanup complete."
 }
 
 # Run the update check when a new shell is started
