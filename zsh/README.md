@@ -21,12 +21,13 @@ Each indicator is color-coded for better visibility:
 - Brew updates: Green
 - NPM updates: Blue
 - System updates: Red
-- No updates: Green
+- No updates: Light gray (less prominent)
 
 ### Commands
 
 - `dotfiles-update-check` - Manually check for updates and show the status
 - `dotfiles-apply-updates` - Apply pending updates and clear the status
+- `dotfiles-cleanup-logs` - Clean up old log files and rotate logs if needed
 
 ### How It Works
 
@@ -42,4 +43,11 @@ The update checker is configured in `zsh/update.zsh` and the prompt integration 
 
 ### Logs
 
-Logs are stored in `~/.dotfiles_update.log` for troubleshooting. 
+Logs are stored in `~/.dotfiles_update.log` for troubleshooting. The log system includes:
+
+- Automatic log rotation when the file exceeds 1MB
+- Retention of the 5 most recent log backups
+- Timestamped log entries for easy tracking
+- Log cleanup command to manage disk space
+
+Log backups are stored as `~/.dotfiles_update.log.TIMESTAMP` where TIMESTAMP is the date and time of rotation. 
