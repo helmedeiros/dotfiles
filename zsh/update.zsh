@@ -1,5 +1,5 @@
 # Dotfiles update checker
-# Checks for updates to the dotfiles repository once a day
+# Checks for updates to the dotfiles repository and dependencies once a day
 
 # Log file for debugging
 DOTFILES_UPDATE_LOG="$HOME/.dotfiles_update.log"
@@ -57,7 +57,7 @@ function check_dotfiles_updates() {
 
 # Function to manually check for updates
 function dotfiles-update-check() {
-  echo "Manually checking for dotfiles updates..."
+  echo "Manually checking for dotfiles updates and dependencies..."
   _dotfiles_log "Manual update check triggered"
   
   # Force check by removing the last check file

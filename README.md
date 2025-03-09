@@ -12,7 +12,7 @@ These dotfiles provide a comprehensive setup for developers, including:
 - Homebrew package management
 - Karabiner keyboard customization
 - Vim-like navigation across applications
-- Automatic update checking
+- Automatic update checking and dependency management
 - And much more!
 
 ## Structure
@@ -65,6 +65,7 @@ bin/dot
 These dotfiles include an automatic update checker that runs once per day when you open a new shell. It will:
 
 - Check if your local dotfiles are behind the remote repository
+- Check for outdated Homebrew packages and npm global packages
 - Notify you when updates are available
 - Provide a summary of changes
 - Offer to update automatically
@@ -75,7 +76,7 @@ You can also manually check for updates at any time by running:
 dotfiles-update-check
 ```
 
-This helps ensure your development environment stays current with the latest improvements without requiring manual checks.
+This comprehensive update system ensures both your dotfiles and their dependencies stay current with the latest improvements without requiring manual checks.
 
 ## Features
 

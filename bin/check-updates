@@ -2,7 +2,7 @@
 #
 # check-updates
 #
-# Check for updates to the dotfiles repository and notify the user
+# Check for updates to the dotfiles repository and dependencies
 
 set -e
 
@@ -10,6 +10,7 @@ set -e
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Get the dotfiles directory
@@ -36,7 +37,7 @@ if [ ! -d ".git" ]; then
   exit 1
 fi
 
-echo -e "${GREEN}Checking for updates to your dotfiles...${NC}"
+echo -e "${BLUE}=== Checking for dotfiles updates ===${NC}"
 
 # Fetch the latest changes without merging
 git fetch origin --quiet
@@ -45,6 +46,8 @@ git fetch origin --quiet
 LOCAL=$(git rev-parse @)
 REMOTE=$(git rev-parse @{u})
 BASE=$(git merge-base @ @{u})
+
+DOTFILES_UPDATED=false
 
 if [ $LOCAL = $REMOTE ]; then
   echo -e "${GREEN}Your dotfiles are up to date!${NC}"
@@ -64,14 +67,14 @@ elif [ $LOCAL = $BASE ]; then
     echo -e "${YELLOW}... and $(($COMMITS_BEHIND - 5)) more commit(s)${NC}"
   fi
   
-  echo -e "\n${YELLOW}Would you like to update now? (y/n)${NC}"
+  echo -e "\n${YELLOW}Would you like to update your dotfiles now? (y/n)${NC}"
   read -r response
   if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
     git pull
     echo -e "${GREEN}Dotfiles updated successfully!${NC}"
-    echo -e "${GREEN}Run 'bin/dot' to apply any new changes.${NC}"
+    DOTFILES_UPDATED=true
   else
-    echo -e "${YELLOW}Update skipped. You can update later with 'cd $DOTFILES_DIR && git pull'${NC}"
+    echo -e "${YELLOW}Dotfiles update skipped.${NC}"
   fi
 elif [ $REMOTE = $BASE ]; then
   echo -e "${YELLOW}Your dotfiles have local changes that haven't been pushed.${NC}"
@@ -80,4 +83,59 @@ else
   echo -e "${RED}Your dotfiles have diverged from the remote repository.${NC}"
   echo -e "${RED}You may need to resolve conflicts manually.${NC}"
   echo -e "${RED}Run 'cd $DOTFILES_DIR && git status' for more information.${NC}"
-fi 
+fi
+
+# Check for outdated dependencies
+echo -e "\n${BLUE}=== Checking for outdated dependencies ===${NC}"
+
+# Check if Homebrew is installed
+if command -v brew &> /dev/null; then
+  echo -e "${GREEN}Checking for outdated Homebrew packages...${NC}"
+  
+  # Update Homebrew formulae
+  brew update > /dev/null
+  
+  # Get outdated packages
+  OUTDATED_PACKAGES=$(brew outdated)
+  
+  if [ -z "$OUTDATED_PACKAGES" ]; then
+    echo -e "${GREEN}All Homebrew packages are up to date!${NC}"
+  else
+    echo -e "${YELLOW}The following Homebrew packages are outdated:${NC}"
+    echo "$OUTDATED_PACKAGES"
+  fi
+else
+  echo -e "${YELLOW}Homebrew is not installed. Skipping package check.${NC}"
+fi
+
+# Check for outdated npm packages if Node.js is installed
+if command -v npm &> /dev/null; then
+  echo -e "\n${GREEN}Checking for outdated global npm packages...${NC}"
+  
+  # Get outdated global packages
+  OUTDATED_NPM=$(npm outdated -g --parseable)
+  
+  if [ -z "$OUTDATED_NPM" ]; then
+    echo -e "${GREEN}All global npm packages are up to date!${NC}"
+  else
+    echo -e "${YELLOW}You have outdated global npm packages.${NC}"
+    npm outdated -g
+  fi
+else
+  echo -e "${YELLOW}Node.js/npm is not installed. Skipping npm package check.${NC}"
+fi
+
+# Ask if user wants to run bin/dot to update dependencies
+if [ "$DOTFILES_UPDATED" = true ] || [ ! -z "$OUTDATED_PACKAGES" ] || [ ! -z "$OUTDATED_NPM" ]; then
+  echo -e "\n${YELLOW}Would you like to run bin/dot to update your dependencies? (y/n)${NC}"
+  read -r response
+  if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+    echo -e "${GREEN}Running bin/dot...${NC}"
+    "$DOTFILES_DIR/bin/dot"
+    echo -e "${GREEN}bin/dot completed successfully!${NC}"
+  else
+    echo -e "${YELLOW}bin/dot skipped. You can run it manually with 'bin/dot'.${NC}"
+  fi
+fi
+
+echo -e "\n${GREEN}Update check completed!${NC}" 
