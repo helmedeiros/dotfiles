@@ -143,8 +143,8 @@ function dotfiles_update_status() {
     
     echo "$text_indicator"
   else
-    # No updates available
-    echo "%{$fg[green]%}[No updates]%{$reset_color%}"
+    # No updates available - use light gray to make it less prominent
+    echo "%{$fg_no_bold[grey]%}[No updates]%{$reset_color%}"
   fi
 }
 

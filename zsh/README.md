@@ -21,7 +21,7 @@ Each indicator is color-coded for better visibility:
 - Brew updates: Green
 - NPM updates: Blue
 - System updates: Red
-- No updates: Green
+- No updates: Light gray (less prominent)
 
 ### Commands
 
