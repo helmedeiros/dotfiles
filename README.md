@@ -24,7 +24,7 @@ If you're adding a new area to your forked dotfiles — say, "Java" — you can 
 
 There's a few special files in the hierarchy:
 
-- **bin/**: Anything in `bin/` will get added to your `$PATH` and be made available everywhere.
+- **bin/**: Anything in `bin/` will get added to your `$PATH` and be made available everywhere. See [bin/README.md](bin/README.md) for detailed documentation of each script.
 - **Brewfile**: This is a list of applications for [Homebrew](https://brew.sh) to install.
 - **topic/\*.zsh**: Any files ending in `.zsh` get loaded into your environment.
 - **topic/path.zsh**: Any file named `path.zsh` is loaded first and is expected to setup `$PATH` or similar.
