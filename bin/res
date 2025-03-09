@@ -9,16 +9,22 @@
 # There doesn't appear to be an easy way to do this without just using
 # AppleScript to automate clicking buttons, so that's what this does.
 #
-# Updated for macOS Ventura and later which uses System Settings instead of System Preferences
+# Updated for macOS Ventura, Sonoma, and Sequoia which use System Settings instead of System Preferences
 
 # Determine which app to use based on macOS version
 set macOSVersion to system version of (system info)
 set useSystemSettings to false
 
+# Convert version string to number for comparison
+set versionParts to my theSplit(macOSVersion, ".")
+set majorVersion to item 1 of versionParts as number
+
 # Check if macOS version is Ventura (13) or later
-if macOSVersion starts with "13." or macOSVersion starts with "14." then
+if majorVersion ≥ 13 then
   set useSystemSettings to true
 end if
+
+log "macOS Version: " & macOSVersion & ", Major Version: " & majorVersion & ", Using System Settings: " & useSystemSettings
 
 if useSystemSettings then
   # For macOS Ventura and later (System Settings)
@@ -30,46 +36,158 @@ if useSystemSettings then
     tell application "System Events"
       tell process "System Settings"
         # Click on Displays in the sidebar
-        click (first button of scroll area 1 of group 1 of window 1 whose name contains "Displays")
-        delay 0.5
+        try
+          # First try to find the Displays button by name
+          set displayButton to (first button of scroll area 1 of group 1 of window 1 whose name contains "Displays")
+          click displayButton
+        on error
+          # If that fails, try to find it by UI position (may vary by macOS version)
+          try
+            # Try to find it in the sidebar list
+            set sidebarItems to buttons of scroll area 1 of group 1 of window 1
+            repeat with anItem in sidebarItems
+              if name of anItem contains "Display" then
+                click anItem
+                exit repeat
+              end if
+            end repeat
+          on error
+            # Last resort - try clicking where Displays usually is
+            click at {100, 200}
+          end try
+        end try
+        
+        delay 1
         
         # Click on Display Settings
-        click button "Display Settings" of group 1 of scroll area 1 of group 1 of window 1
-        delay 0.5
+        try
+          click button "Display Settings" of group 1 of scroll area 1 of group 1 of window 1
+        on error
+          try
+            # Try to find any button that might be the display settings
+            set allButtons to buttons of group 1 of scroll area 1 of group 1 of window 1
+            repeat with aButton in allButtons
+              if name of aButton contains "Display" or name of aButton contains "Settings" then
+                click aButton
+                exit repeat
+              end if
+            end repeat
+          end try
+        end try
+        
+        delay 1
         
         # Select the built-in display if there are multiple displays
         try
           click button "Built-in Retina Display" of group 1 of scroll area 1 of group 1 of window 1
-          delay 0.5
+        on error
+          try
+            # Try to find any button that might be the built-in display
+            set allButtons to buttons of group 1 of scroll area 1 of group 1 of window 1
+            repeat with aButton in allButtons
+              if name of aButton contains "Built-in" or name of aButton contains "Retina" or name of aButton contains "Display" then
+                click aButton
+                exit repeat
+              end if
+            end repeat
+          end try
         end try
+        
+        delay 1
         
         # Click on the Resolution dropdown
-        click pop up button "Resolution:" of group 1 of scroll area 1 of group 1 of window 1
-        delay 0.5
-        
-        # Check if we're in Default or Scaled mode
-        set currentMenu to menu 1 of pop up button "Resolution:" of group 1 of scroll area 1 of group 1 of window 1
-        set isDefault to false
-        
         try
-          set isDefault to exists (menu item "Default" of currentMenu whose value of attribute "AXMenuItemMarkChar" is "✓")
+          click pop up button "Resolution:" of group 1 of scroll area 1 of group 1 of window 1
+        on error
+          try
+            # Try to find any popup button that might control resolution
+            set allPopups to pop up buttons of group 1 of scroll area 1 of group 1 of window 1
+            repeat with aPopup in allPopups
+              if name of aPopup contains "Resolution" then
+                click aPopup
+                exit repeat
+              end if
+            end repeat
+          end try
         end try
         
-        # Toggle between Default and Scaled (More Space)
-        if isDefault then
-          click menu item "More Space" of currentMenu
-        else
-          click menu item "Default" of currentMenu
-        end if
+        delay 1
         
-        delay 0.5
+        # Check if we're in Default or Scaled mode and toggle
+        try
+          set currentMenu to menu 1 of pop up button "Resolution:" of group 1 of scroll area 1 of group 1 of window 1
+          set isDefault to false
+          
+          try
+            set isDefault to exists (menu item "Default" of currentMenu whose value of attribute "AXMenuItemMarkChar" is "✓")
+          end try
+          
+          # Toggle between Default and Scaled (More Space)
+          if isDefault then
+            click menu item "More Space" of currentMenu
+          else
+            click menu item "Default" of currentMenu
+          end if
+        on error
+          try
+            # Try to find the menu items by approximate names
+            set theMenu to menu 1 of first pop up button of group 1 of scroll area 1 of group 1 of window 1
+            set menuItems to menu items of theMenu
+            
+            # Find the currently selected item
+            set selectedItem to ""
+            repeat with anItem in menuItems
+              try
+                if value of attribute "AXMenuItemMarkChar" of anItem is "✓" then
+                  set selectedItem to name of anItem
+                  exit repeat
+                end if
+              end try
+            end repeat
+            
+            # Toggle to a different resolution
+            if selectedItem contains "Default" then
+              # Find an item with "More Space" or similar
+              repeat with anItem in menuItems
+                if name of anItem contains "More Space" or name of anItem contains "Larger" then
+                  click anItem
+                  exit repeat
+                end if
+              end repeat
+            else
+              # Find the Default item
+              repeat with anItem in menuItems
+                if name of anItem contains "Default" then
+                  click anItem
+                  exit repeat
+                end if
+              end repeat
+            end if
+          end try
+        end try
+        
+        delay 1
         
         # Click Done button
-        click button "Done" of group 1 of scroll area 1 of group 1 of window 1
+        try
+          click button "Done" of group 1 of scroll area 1 of group 1 of window 1
+        on error
+          try
+            # Try to find any button that might be the Done button
+            set allButtons to buttons of group 1 of scroll area 1 of group 1 of window 1
+            repeat with aButton in allButtons
+              if name of aButton is "Done" or name of aButton is "OK" or name of aButton is "Apply" then
+                click aButton
+                exit repeat
+              end if
+            end repeat
+          end try
+        end try
       end tell
     end tell
     
     # Quit System Settings
+    delay 1
     quit
   end tell
 else
@@ -113,3 +231,12 @@ else
     quit
   end tell
 end if
+
+-- Helper function to split a string
+on theSplit(theString, theDelimiter)
+  set oldDelimiters to AppleScript's text item delimiters
+  set AppleScript's text item delimiters to theDelimiter
+  set theArray to every text item of theString
+  set AppleScript's text item delimiters to oldDelimiters
+  return theArray
+end theSplit
