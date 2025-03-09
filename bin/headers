@@ -1,8 +1,65 @@
 #!/bin/sh
 #
-# https://github.com/rtomayko/dotfiles/blob/rtomayko/bin/headers
+# headers - A utility to view HTTP headers from web requests
+#
+# DESCRIPTION:
+#   This script makes an HTTP request to a specified URL and displays only
+#   the HTTP headers from the response. It's useful for debugging web requests,
+#   checking server configurations, or verifying HTTP responses without the
+#   clutter of the full response body.
+#
+# USAGE:
+#   headers [options] URL
+#
+# OPTIONS:
+#   -X, --request METHOD   Specify the request method (GET, POST, etc.)
+#   -H, --header HEADER    Pass custom header(s) to server
+#   -d, --data DATA        Send data in the request body
+#   -i, --include          Include the request headers in the output
+#   -h, --help             Display this help message
+#
+# EXAMPLES:
+#   headers https://example.com
+#   headers -X POST -H "Content-Type: application/json" -d '{"key":"value"}' https://api.example.com
+#   headers -i https://example.com
+#
+# AUTHOR:
+#   Originally from https://github.com/rtomayko/dotfiles/blob/rtomayko/bin/headers
+#   Enhanced version for helmedeiros dotfiles
 
-curl -sv "$@" 2>&1 >/dev/null |
-  grep -v "^\*" |
-  grep -v "^}" |
-  cut -c3-
+# Display help if requested
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  grep "^#" "$0" | grep -v "!/bin/sh" | sed 's/^# \?//'
+  exit 0
+fi
+
+# Check if we should include request headers
+include_request=false
+if [ "$1" = "-i" ] || [ "$1" = "--include" ]; then
+  include_request=true
+  shift
+fi
+
+# Build the curl command with all arguments
+curl_cmd="curl -sv"
+
+# Pass all arguments to curl
+if [ $include_request = true ]; then
+  # Show both request and response headers
+  $curl_cmd "$@" 2>&1 >/dev/null | 
+    grep -v "^\*" | 
+    grep -v "^}" | 
+    cut -c3-
+else
+  # Show only response headers (filter out request headers)
+  $curl_cmd "$@" 2>&1 >/dev/null | 
+    grep -v "^\*" | 
+    grep -v "^}" | 
+    grep -v "^>" |  # Filter out request headers (lines starting with >)
+    cut -c3- |
+    # Add a header to indicate these are response headers
+    (echo "=== RESPONSE HEADERS ==="; cat)
+fi
+
+# Exit with the status of the last command in the pipeline
+exit ${PIPESTATUS[0]}
