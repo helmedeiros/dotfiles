@@ -1,6 +1,6 @@
 #!/usr/bin/osascript
 #
-# A small command line script to change screen resolutions on macOs Sierra`.
+# A small command line script to change screen resolutions on modern macOS.
 #
 # Primarily I switch between two resolutions on my Retina MacBook Pro: Retina,
 # and the full resolution setting. This means for particular apps I use, I can
@@ -9,27 +9,107 @@
 # There doesn't appear to be an easy way to do this without just using
 # AppleScript to automate clicking buttons, so that's what this does.
 #
-# Most of this script is adapted from this helpful answer:
-#
-#   http://apple.stackexchange.com/a/91590
+# Updated for macOS Ventura and later which uses System Settings instead of System Preferences
 
-tell application "System Preferences"
-	reveal anchor "displaysDisplayTab" of pane "com.apple.preference.displays"
-end tell
+# Determine which app to use based on macOS version
+set macOSVersion to system version of (system info)
+set useSystemSettings to false
 
-tell application "System Events" to tell process "System Preferences" to tell window "Built-in Retina Display"
-	click radio button "Display" of first tab group
-	click radio button "Scaled" of first radio group of first tab group
-	tell first radio group of second group of first tab group
-		set isDefault to get value of second radio button
-	end tell
-	if isDefault then
-		click last radio button of first radio group of second group of first tab group
-	else
-		click second radio button of first radio group of second group of first tab group
-	end if
-end tell
+# Check if macOS version is Ventura (13) or later
+if macOSVersion starts with "13." or macOSVersion starts with "14." then
+  set useSystemSettings to true
+end if
 
-tell application "System Preferences"
-	quit
-end tell
+if useSystemSettings then
+  # For macOS Ventura and later (System Settings)
+  tell application "System Settings"
+    activate
+    delay 1 # Give it time to open
+    
+    # Navigate to Displays
+    tell application "System Events"
+      tell process "System Settings"
+        # Click on Displays in the sidebar
+        click (first button of scroll area 1 of group 1 of window 1 whose name contains "Displays")
+        delay 0.5
+        
+        # Click on Display Settings
+        click button "Display Settings" of group 1 of scroll area 1 of group 1 of window 1
+        delay 0.5
+        
+        # Select the built-in display if there are multiple displays
+        try
+          click button "Built-in Retina Display" of group 1 of scroll area 1 of group 1 of window 1
+          delay 0.5
+        end try
+        
+        # Click on the Resolution dropdown
+        click pop up button "Resolution:" of group 1 of scroll area 1 of group 1 of window 1
+        delay 0.5
+        
+        # Check if we're in Default or Scaled mode
+        set currentMenu to menu 1 of pop up button "Resolution:" of group 1 of scroll area 1 of group 1 of window 1
+        set isDefault to false
+        
+        try
+          set isDefault to exists (menu item "Default" of currentMenu whose value of attribute "AXMenuItemMarkChar" is "✓")
+        end try
+        
+        # Toggle between Default and Scaled (More Space)
+        if isDefault then
+          click menu item "More Space" of currentMenu
+        else
+          click menu item "Default" of currentMenu
+        end if
+        
+        delay 0.5
+        
+        # Click Done button
+        click button "Done" of group 1 of scroll area 1 of group 1 of window 1
+      end tell
+    end tell
+    
+    # Quit System Settings
+    quit
+  end tell
+else
+  # For older macOS versions (System Preferences)
+  tell application "System Preferences"
+    reveal anchor "displaysDisplayTab" of pane "com.apple.preference.displays"
+  end tell
+
+  tell application "System Events" to tell process "System Preferences"
+    try
+      tell window "Built-in Retina Display"
+        click radio button "Display" of first tab group
+        click radio button "Scaled" of first radio group of first tab group
+        tell first radio group of second group of first tab group
+          set isDefault to get value of second radio button
+        end tell
+        if isDefault then
+          click last radio button of first radio group of second group of first tab group
+        else
+          click second radio button of first radio group of second group of first tab group
+        end if
+      end tell
+    on error
+      # Fallback for different window title or structure
+      tell front window
+        click radio button "Display" of first tab group
+        click radio button "Scaled" of first radio group of first tab group
+        tell first radio group of second group of first tab group
+          set isDefault to get value of second radio button
+        end tell
+        if isDefault then
+          click last radio button of first radio group of second group of first tab group
+        else
+          click second radio button of first radio group of second group of first tab group
+        end if
+      end tell
+    end try
+  end tell
+
+  tell application "System Preferences"
+    quit
+  end tell
+end if
