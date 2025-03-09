@@ -13,6 +13,7 @@ These dotfiles provide a comprehensive setup for developers, including:
 - Karabiner keyboard customization
 - Vim-like navigation across applications
 - Automatic update checking and dependency management
+- Update status indicators in your prompt
 - And much more!
 
 ## Structure
@@ -69,11 +70,18 @@ These dotfiles include an automatic update checker that runs once per day when y
 - Notify you when updates are available
 - Provide a summary of changes
 - Offer to update automatically
+- Show update indicators in your prompt (e.g., [DOTFILES UPDATE], [BREW UPDATE], [NPM UPDATE])
 
 You can also manually check for updates at any time by running:
 
 ```sh
 dotfiles-update-check
+```
+
+To apply pending updates and clear the status indicators:
+
+```sh
+dotfiles-apply-updates
 ```
 
 This comprehensive update system ensures both your dotfiles and their dependencies stay current with the latest improvements without requiring manual checks.
