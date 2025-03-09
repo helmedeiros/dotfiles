@@ -1,4 +1,4 @@
-autoload colors && colors
+autoload -U colors && colors
 # cheers, @ehrenmurdick
 # http://github.com/ehrenmurdick/config/blob/master/zsh/prompt.zsh
 
@@ -40,9 +40,9 @@ unpushed () {
 need_push () {
   if [[ $(unpushed) == "" ]]
   then
-    echo " "
+    echo ""
   else
-    echo " with %{$fg_bold[magenta]%}unpushed%{$reset_color%} "
+    echo " with %{$fg_bold[magenta]%}unpushed%{$reset_color%}"
   fi
 }
 
@@ -71,7 +71,29 @@ directory_name() {
   echo "%{$fg_bold[cyan]%}%1/%\/%{$reset_color%}"
 }
 
-export PROMPT=$'\n$(rb_prompt)in $(directory_name) $(git_dirty)$(need_push)\n› '
+# Check if the original prompt is already set
+if [ -z "$ORIGINAL_PROMPT" ]; then
+  # Store the original prompt
+  ORIGINAL_PROMPT=${PROMPT:-'%m%# '}
+fi
+
+# Function to get the update status indicator
+update_indicator() {
+  if type dotfiles_update_status >/dev/null 2>&1; then
+    local indicator=$(dotfiles_update_status)
+    if [[ -n "$indicator" ]]; then
+      echo " ${indicator}"
+    else
+      echo ""
+    fi
+  else
+    echo ""
+  fi
+}
+
+# Integrate the update indicator into the prompt
+export PROMPT=$'\n$(rb_prompt)in $(directory_name) $(git_dirty)$(need_push)$(update_indicator)\n› '
+
 set_prompt () {
   export RPROMPT="%{$fg_bold[cyan]%}%{$reset_color%}"
 }
