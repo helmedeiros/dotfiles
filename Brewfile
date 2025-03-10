@@ -7,8 +7,8 @@ tap 'spring-io/tap'
 tap 'alecthomas/homebrew-tap'
 
 cask 'xquartz'
-cask 'temurin17'
-cask 'temurin18'
+cask 'temurin@17'
+cask 'temurin@21'
 
 brew 'mas'
 brew 'zsh'
