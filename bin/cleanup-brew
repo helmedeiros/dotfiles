@@ -1,0 +1,26 @@
+#!/bin/sh
+#
+# cleanup-brew
+#
+# Uninstalls disabled or problematic Homebrew packages that are no longer supported
+
+set -e
+
+echo "Checking for disabled Homebrew packages..."
+
+# List of known disabled packages
+DISABLED_PACKAGES=("openssl@1.1" "vault" "xmlto" "pre-commit")
+
+# Check and uninstall disabled packages
+for pkg in "${DISABLED_PACKAGES[@]}"; do
+  if brew list "$pkg" &>/dev/null; then
+    echo "Found disabled package: $pkg"
+    echo "Uninstalling $pkg..."
+    brew uninstall "$pkg" || echo "Failed to uninstall $pkg, continuing..."
+  else
+    echo "Package $pkg is not installed."
+  fi
+done
+
+echo "Cleanup completed!"
+echo "Run 'bin/dot' to ensure your system is up-to-date." 
