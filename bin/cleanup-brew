@@ -9,18 +9,58 @@ set -e
 echo "Checking for disabled Homebrew packages..."
 
 # List of known disabled packages
-DISABLED_PACKAGES=("openssl@1.1" "vault" "xmlto" "pre-commit")
+DISABLED_PACKAGES=("openssl@1.1" "vault" "xmlto" "pre-commit" "youtube-dl" "spaceman-diff")
+
+# Check for force flag
+FORCE=false
+if [ "$1" = "--force" ]; then
+  FORCE=true
+  echo "Force mode enabled. Will ignore dependencies."
+fi
 
 # Check and uninstall disabled packages
 for pkg in "${DISABLED_PACKAGES[@]}"; do
   if brew list "$pkg" &>/dev/null; then
     echo "Found disabled package: $pkg"
-    echo "Uninstalling $pkg..."
-    brew uninstall "$pkg" || echo "Failed to uninstall $pkg, continuing..."
+    
+    # Check for dependencies
+    DEPS=$(brew uses --installed "$pkg" 2>/dev/null || echo "")
+    
+    if [ -n "$DEPS" ]; then
+      echo "Warning: $pkg is required by: $DEPS"
+      
+      if [ "$FORCE" = true ]; then
+        echo "Forcing uninstall of $pkg (ignoring dependencies)..."
+        brew uninstall --ignore-dependencies "$pkg" || echo "Failed to uninstall $pkg, continuing..."
+      else
+        echo "Skipping $pkg. To force removal, run: bin/cleanup-brew --force"
+        echo "Note: This may break packages that depend on it."
+        
+        # Special handling for youtube-dl
+        if [ "$pkg" = "youtube-dl" ]; then
+          echo "Recommendation: Use yt-dlp instead of youtube-dl (already in your Brewfile)"
+        fi
+        
+        # Special handling for openssl@1.1
+        if [ "$pkg" = "openssl@1.1" ]; then
+          echo "Note: openssl@1.1 is required by grc. Consider updating grc or accepting this dependency."
+        fi
+      fi
+    else
+      echo "Uninstalling $pkg..."
+      brew uninstall "$pkg" || echo "Failed to uninstall $pkg, continuing..."
+    fi
   else
     echo "Package $pkg is not installed."
   fi
 done
 
+echo ""
 echo "Cleanup completed!"
+echo ""
+echo "If you're still seeing these packages as outdated, you can:"
+echo "1. Run 'bin/cleanup-brew --force' to force removal (may break dependencies)"
+echo "2. Accept that some disabled packages are needed by your installed software"
+echo "3. Consider updating your Brewfile to use newer alternatives"
+echo ""
 echo "Run 'bin/dot' to ensure your system is up-to-date." 
