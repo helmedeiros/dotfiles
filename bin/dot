@@ -61,39 +61,74 @@ brew bundle install --file="$dotfilesDirectory/Brewfile"
 # Update Node.js and npm in a subshell to isolate any issues
 echo "› Updating Node.js and npm"
 (
+	# Disable NVM auto-use completely
+	export NVM_AUTO_USE=false
+	
 	# Source the existing NVM configuration
 	if [ -f "$ZSH/node/path.zsh" ]; then
 		echo "Sourcing existing NVM configuration"
-		source "$ZSH/node/path.zsh" || true
+		source "$ZSH/node/path.zsh" || echo "Failed to source NVM configuration"
 		
 		# Check if NVM is available
 		if command -v nvm &> /dev/null; then
-			# Install and use a compatible Node.js version
+			# Install Node.js 20.17.0 explicitly
 			echo "Using NVM to install Node.js 20.17.0"
-			nvm install 20.17.0 || true
-			nvm use 20.17.0 || true
-			echo "Node.js version: $(node -v || echo 'unknown')"
+			nvm install 20.17.0 || echo "Failed to install Node.js 20.17.0"
 			
-			# Now update npm with the compatible Node.js version
-			echo "› npm upgrade"
-			npm install -g npm@latest --no-fund || true
+			# Explicitly use this version (no auto-use)
+			nvm use 20.17.0 || {
+				echo "Failed to use Node.js 20.17.0, trying to install LTS version"
+				nvm install --lts
+				nvm use --lts || echo "Failed to use LTS version, continuing with system Node.js"
+			}
 			
-			# Update global packages but suppress most warnings
-			echo "› Updating global npm packages"
-			npm update -g --no-fund --silent || true
-			
-			# Run npm audit fix but don't show warnings about deprecated packages
-			echo "› Running npm audit fix"
-			npm audit fix --force --no-fund --silent || true
-			echo "Node.js and npm update completed"
+			# Verify Node.js is available
+			if command -v node &> /dev/null; then
+				echo "Node.js version: $(node -v)"
+				
+				# Now update npm with the compatible Node.js version
+				echo "› npm upgrade"
+				npm install -g npm@latest --no-fund || echo "Failed to update npm"
+
+				# Remove Angular CLI as it's no longer needed
+				npm uninstall -g @angular/cli 2>/dev/null || true
+				
+				# Get list of outdated packages
+				echo "› Checking for outdated global npm packages"
+				OUTDATED_PACKAGES=$(npm outdated -g --parseable 2>/dev/null || echo "")
+				
+				if [ -n "$OUTDATED_PACKAGES" ]; then
+					echo "› Installing latest versions of outdated global npm packages"
+					# Extract package names from outdated packages list
+					PACKAGE_NAMES=$(echo "$OUTDATED_PACKAGES" | awk -F: '{print $4}' | sort -u)
+					echo "Packages to update: $PACKAGE_NAMES"
+					
+					# Install latest version of each outdated package
+					for package in $PACKAGE_NAMES; do
+						echo "  Updating $package to latest version"
+						npm install -g "$package@latest" --no-fund --silent || echo "Failed to update $package"
+					done
+				else
+					echo "› All global npm packages are up to date"
+				fi
+				
+				# Run npm audit fix but don't show warnings about deprecated packages
+				echo "› Running npm audit fix"
+				npm audit fix --force --no-fund --silent || echo "npm audit fix had issues"
+				echo "Node.js and npm update completed"
+			else
+				echo "Node.js is not available after NVM setup. Something went wrong."
+			fi
 		else
 			echo "NVM not properly loaded. Running node/install.sh to set up NVM"
-			"$ZSH/node/install.sh" || true
+			"$ZSH/node/install.sh" || echo "Failed to run node/install.sh"
 		fi
 	else
 		echo "NVM configuration not found. Running node/install.sh to set up NVM"
-		"$ZSH/node/install.sh" || true
+		"$ZSH/node/install.sh" || echo "Failed to run node/install.sh"
 	fi
+	
+	exit 0  # Force successful exit from subshell
 ) || echo "Node.js update had some issues, continuing with installation"
 
 echo "› Starting post-install scripts"
