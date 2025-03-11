@@ -4,22 +4,47 @@
 #
 # This installs npm packages using npm.
 function installglobal() {
-	npm install -g --no-fund "${@}" 2> /dev/null
+	echo "  Installing $*"
+	npm install -g --no-fund "${@}" 2>/dev/null || echo "  Failed to install $*"
 }
 
 function installNVM() {
-	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash	
+	echo "  Installing NVM..."
+	# Check if NVM directory exists
+	if [ ! -d "$HOME/.nvm" ]; then
+		mkdir -p "$HOME/.nvm"
+	fi
+	
+	# Install NVM
+	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+	
+	# Source NVM immediately without auto-use
+	export NVM_DIR="$HOME/.nvm"
+	export NVM_AUTO_USE=false
+	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
+	
+	# Verify NVM installation
+	if command -v nvm &> /dev/null; then
+		echo "  NVM installed successfully"
+		
+		# Install latest LTS version of Node.js
+		nvm install --lts
+		nvm use --lts
+		
+		echo "  Node.js $(node -v) installed"
+	else
+		echo "  NVM installation failed"
+	fi
 }
 
-if test $(which node)
-then
-	echo " Installing npm manually"
+# Check if Node.js is installed
+if ! command -v node &> /dev/null; then
+	echo " Node.js not found. Installing NVM and Node.js..."
 	installNVM
 fi
 
 # Check for npm
-if test $(which npm)
-then
+if command -v npm &> /dev/null; then
   echo "  Installing npm packages for you."
 
   # First, remove any deprecated packages that might be installed
@@ -49,9 +74,6 @@ then
 	installglobal uuid@latest # Modern version of uuid
 	installglobal glob@latest # Modern version of glob
 	
-	# Framework CLIs
-	installglobal @angular/cli@latest
-	
 	# Media tools
 	installglobal spotify-cli-mac
 	
@@ -65,4 +87,6 @@ then
 	
 	echo "  Global npm packages have been installed/updated!"
 	echo "  Some warnings may still appear for packages that depend on deprecated packages."
+else
+	echo "  npm not found even after Node.js installation. Something went wrong."
 fi
