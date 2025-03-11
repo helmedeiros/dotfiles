@@ -112,15 +112,79 @@ fi
 if command -v npm &> /dev/null; then
   echo -e "\n${GREEN}Checking for outdated global npm packages...${NC}"
   
-  # Get outdated global packages
-  OUTDATED_NPM=$(npm outdated -g --parseable)
+  # Load NVM if available to ensure we're using the same Node.js environment as bin/dot
+  export NVM_DIR="$HOME/.nvm"
+  export NVM_AUTO_USE=false
   
-  if [ -z "$OUTDATED_NPM" ]; then
-    echo -e "${GREEN}All global npm packages are up to date!${NC}"
-  else
-    echo -e "${YELLOW}You have outdated global npm packages.${NC}"
-    npm outdated -g
+  if [ -f "$DOTFILES_DIR/node/path.zsh" ]; then
+    echo -e "${GREEN}Loading NVM environment...${NC}"
+    source "$DOTFILES_DIR/node/path.zsh" > /dev/null 2>&1
+    
+    # Check if NVM is available and use the same Node.js version as bin/dot
+    if command -v nvm &> /dev/null; then
+      # Use Node.js 20.17.0 to match bin/dot
+      nvm use 20.17.0 --silent > /dev/null 2>&1 || {
+        # If that fails, try LTS
+        nvm use --lts --silent > /dev/null 2>&1
+      }
+      echo -e "${GREEN}Using Node.js $(node -v) for package check${NC}"
+    fi
   fi
+  
+  echo -e "${GREEN}Checking npm packages (this may take a moment)...${NC}"
+  
+  # Create a temporary directory for our work
+  TEMP_DIR=$(mktemp -d)
+  
+  # Get list of globally installed packages
+  npm list -g --depth=0 --json > "$TEMP_DIR/installed.json" 2>/dev/null
+  
+  # Check if we got valid JSON
+  if jq -e . "$TEMP_DIR/installed.json" >/dev/null 2>&1; then
+    # Extract package names and versions
+    jq -r '.dependencies | to_entries[] | "\(.key)@\(.value.version)"' "$TEMP_DIR/installed.json" > "$TEMP_DIR/installed_packages.txt"
+    
+    # Initialize outdated packages array
+    OUTDATED_PACKAGES=()
+    HAS_OUTDATED=false
+    
+    # Check each package individually
+    while IFS= read -r package_info; do
+      package_name=$(echo "$package_info" | cut -d@ -f1)
+      current_version=$(echo "$package_info" | cut -d@ -f2)
+      
+      # Skip npm itself as it's handled separately
+      if [ "$package_name" = "npm" ]; then
+        continue
+      fi
+      
+      # Try to get the latest version
+      latest_version=$(npm view "$package_name" version 2>/dev/null)
+      
+      if [ -n "$latest_version" ] && [ "$current_version" != "$latest_version" ]; then
+        OUTDATED_PACKAGES+=("$package_name@$current_version → $latest_version")
+        HAS_OUTDATED=true
+      fi
+    done < "$TEMP_DIR/installed_packages.txt"
+    
+    # Check if we found any outdated packages
+    if [ "$HAS_OUTDATED" = true ]; then
+      echo -e "${YELLOW}You have outdated global npm packages:${NC}"
+      for pkg in "${OUTDATED_PACKAGES[@]}"; do
+        echo "  $pkg"
+      done
+      OUTDATED_NPM="yes"
+    else
+      echo -e "${GREEN}All global npm packages are up to date!${NC}"
+      OUTDATED_NPM=""
+    fi
+  else
+    echo -e "${YELLOW}Could not parse npm package information. Try running 'npm outdated -g' manually.${NC}"
+    OUTDATED_NPM="unknown"
+  fi
+  
+  # Clean up
+  rm -rf "$TEMP_DIR"
 else
   echo -e "${YELLOW}Node.js/npm is not installed. Skipping npm package check.${NC}"
 fi
