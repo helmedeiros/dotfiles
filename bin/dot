@@ -50,6 +50,10 @@ $ZSH/homebrew/install.sh 2>&1
 echo "› brew update"
 brew update
 
+# Upgrade outdated packages
+echo "› brew upgrade"
+brew upgrade
+
 # Mac Apple Store Upgrade
 echo "› mas upgrade"
 mas upgrade
