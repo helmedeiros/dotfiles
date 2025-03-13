@@ -126,6 +126,7 @@ USAGE:
   history-clean <line_number> [line_number2 ...]  - Remove specific line numbers from history
   history-clean -p <pattern>                      - Remove all lines matching a pattern
   history-clean --last <n>                        - Remove the last n lines from history
+  history-clean --autocomplete                    - Clear all autocompletion history
   history-clean --help                            - Show help message
 
 EXAMPLES:
@@ -133,9 +134,11 @@ EXAMPLES:
   history-clean 10 15 20                          - Remove lines 10, 15, and 20 from history
   history-clean -p "password"                     - Remove all lines containing "password"
   history-clean --last 5                          - Remove the last 5 commands from history
+  history-clean --autocomplete                    - Clear all autocompletion history
 
 NOTES:
   - Creates a backup of your history file before making changes
+  - Cleans both command history and autocompletion/autosuggestions history
   - Changes take effect in new shell sessions
   - To apply changes to the current session, run: fc -R $HISTFILE
   - Particularly useful when you accidentally paste sensitive information like passwords

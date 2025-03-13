@@ -110,8 +110,9 @@ The dotfiles include tools for managing your shell history:
   - Remove multiple lines: `history-clean 10 15 20`
   - Remove all lines containing a pattern: `history-clean -p "password"`
   - Remove the last N commands: `history-clean --last 5`
+  - Clear all autocompletion history: `history-clean --autocomplete`
 
-This is particularly useful when you accidentally paste sensitive information like passwords into your terminal.
+This is particularly useful when you accidentally paste sensitive information like passwords into your terminal. The script not only cleans your command history but also removes matching entries from autocompletion and autosuggestions.
 
 ### Keyboard Customization
 
