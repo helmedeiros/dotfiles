@@ -1,0 +1,148 @@
+#!/bin/zsh
+#
+# history-clean
+#
+# Remove specific lines from Zsh history without creating new history entries
+# Usage: history-clean <line_number> [line_number2 ...]
+#        history-clean -p <pattern>
+#        history-clean --last <n>
+
+set -e
+
+# Colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Function to display usage information
+function show_usage() {
+  echo "Usage:"
+  echo "  history-clean <line_number> [line_number2 ...]  - Remove specific line numbers from history"
+  echo "  history-clean -p <pattern>                      - Remove all lines matching a pattern"
+  echo "  history-clean --last <n>                        - Remove the last n lines from history"
+  echo "  history-clean --help                            - Show this help message"
+  echo ""
+  echo "Examples:"
+  echo "  history-clean 42                                - Remove line 42 from history"
+  echo "  history-clean 10 15 20                          - Remove lines 10, 15, and 20 from history"
+  echo "  history-clean -p \"password\"                     - Remove all lines containing \"password\""
+  echo "  history-clean --last 5                          - Remove the last 5 commands from history"
+}
+
+# Check if HISTFILE is set and exists
+if [ -z "$HISTFILE" ]; then
+  HISTFILE="$HOME/.zsh_history"
+  echo -e "${YELLOW}HISTFILE not set, using default: $HISTFILE${NC}"
+fi
+
+if [ ! -f "$HISTFILE" ]; then
+  echo -e "${RED}Error: History file not found at $HISTFILE${NC}"
+  exit 1
+fi
+
+# Create a backup of the history file
+BACKUP_FILE="${HISTFILE}.bak.$(date +%Y%m%d%H%M%S)"
+cp "$HISTFILE" "$BACKUP_FILE"
+echo -e "${GREEN}Created backup of history file at $BACKUP_FILE${NC}"
+
+# Process command line arguments
+if [ $# -eq 0 ]; then
+  show_usage
+  exit 0
+fi
+
+if [ "$1" = "--help" ]; then
+  show_usage
+  exit 0
+fi
+
+if [ "$1" = "-p" ]; then
+  if [ $# -lt 2 ]; then
+    echo -e "${RED}Error: No pattern specified${NC}"
+    show_usage
+    exit 1
+  fi
+  
+  PATTERN="$2"
+  echo -e "${YELLOW}Removing all history entries containing: $PATTERN${NC}"
+  
+  # Use grep to exclude lines matching the pattern
+  grep -v "$PATTERN" "$BACKUP_FILE" > "$HISTFILE"
+  
+  # Count how many lines were removed
+  ORIGINAL_COUNT=$(wc -l < "$BACKUP_FILE")
+  NEW_COUNT=$(wc -l < "$HISTFILE")
+  REMOVED_COUNT=$((ORIGINAL_COUNT - NEW_COUNT))
+  
+  echo -e "${GREEN}Removed $REMOVED_COUNT history entries matching \"$PATTERN\"${NC}"
+  exit 0
+fi
+
+if [ "$1" = "--last" ]; then
+  if [ $# -lt 2 ]; then
+    echo -e "${RED}Error: Number of lines not specified${NC}"
+    show_usage
+    exit 1
+  fi
+  
+  if ! [[ "$2" =~ ^[0-9]+$ ]]; then
+    echo -e "${RED}Error: Invalid number: $2${NC}"
+    exit 1
+  fi
+  
+  COUNT="$2"
+  TOTAL_LINES=$(wc -l < "$HISTFILE")
+  
+  if [ "$COUNT" -ge "$TOTAL_LINES" ]; then
+    echo -e "${YELLOW}Warning: Trying to remove all history entries. This is not recommended.${NC}"
+    echo -e "${YELLOW}Do you want to continue? (y/n)${NC}"
+    read -r response
+    if [[ ! "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+      echo -e "${GREEN}Operation cancelled.${NC}"
+      exit 0
+    fi
+  fi
+  
+  echo -e "${YELLOW}Removing the last $COUNT history entries${NC}"
+  
+  # Keep all lines except the last COUNT lines
+  head -n -"$COUNT" "$BACKUP_FILE" > "$HISTFILE"
+  
+  echo -e "${GREEN}Removed the last $COUNT history entries${NC}"
+  exit 0
+fi
+
+# Handle line number removal
+LINE_NUMBERS=()
+for arg in "$@"; do
+  if ! [[ "$arg" =~ ^[0-9]+$ ]]; then
+    echo -e "${RED}Error: Invalid line number: $arg${NC}"
+    exit 1
+  fi
+  LINE_NUMBERS+=("$arg")
+done
+
+echo -e "${YELLOW}Removing history entries with line numbers: ${LINE_NUMBERS[*]}${NC}"
+
+# Create a temporary file
+TEMP_FILE=$(mktemp)
+
+# Process the history file line by line
+line_count=1
+while IFS= read -r line; do
+  # Check if the current line number is in the list to remove
+  if [[ ! " ${LINE_NUMBERS[@]} " =~ " ${line_count} " ]]; then
+    echo "$line" >> "$TEMP_FILE"
+  fi
+  ((line_count++))
+done < "$BACKUP_FILE"
+
+# Replace the history file with the temporary file
+mv "$TEMP_FILE" "$HISTFILE"
+
+echo -e "${GREEN}Removed ${#LINE_NUMBERS[@]} history entries${NC}"
+
+# Reload history
+echo -e "${GREEN}History cleaned. Changes will take effect in new shell sessions.${NC}"
+echo -e "${YELLOW}To apply changes to the current session, run: fc -R $HISTFILE${NC}" 
