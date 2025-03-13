@@ -15,13 +15,22 @@ cd "$(dirname $0)"/..
 allDirectories=$(find . -name install.sh | tr "\n" " ")
 fileItemArray=($allDirectories)
 length=${#fileItemArray[@]}
-echo "There are ${length} post-install instructions."
+echo "Running ${length} post-install scripts..."
 
 executed=1
 for val in "${fileItemArray[@]}"; do
   app=$(echo "$val" | awk -F'/' '{print $2}' )
-  printf "[%s/%s] -> Starting [%s]\n" "$executed" "$length" "$app"
-  sh -c "${val}" || echo "Warning: ${app} installation script failed"
-  printf "[%s/%s] -> Finished [%s]\n" "$executed" "$length" "$app"
+  
+  # Show a simple progress indicator and then move to a new line
+  # This ensures password prompts appear on their own line
+  printf "\rProgress: [%s/%s] %s\n" "$executed" "$length" "$app"
+  
+  # Execute the install script, capturing output in case of errors
+  sh -c "${val}" || {
+    echo "Error in ${app} installation"
+  }
+  
   let "executed++"
 done
+
+echo "Post-install scripts completed."
