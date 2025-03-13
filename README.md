@@ -101,6 +101,18 @@ The dotfiles include enhanced Kubernetes tools:
 - Custom prompt with git status information
 - Syntax highlighting for commands
 
+### History Management
+
+The dotfiles include tools for managing your shell history:
+
+- `history-clean`: A secure way to remove sensitive information from your shell history
+  - Remove specific line numbers: `history-clean 42`
+  - Remove multiple lines: `history-clean 10 15 20`
+  - Remove all lines containing a pattern: `history-clean -p "password"`
+  - Remove the last N commands: `history-clean --last 5`
+
+This is particularly useful when you accidentally paste sensitive information like passwords into your terminal.
+
 ### Keyboard Customization
 
 Karabiner is a powerful utility for keyboard customization. You can expect some keyboard changing after running this `dotfiles`.
