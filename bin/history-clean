@@ -21,6 +21,7 @@ function show_usage() {
   echo "  history-clean <line_number> [line_number2 ...]  - Remove specific line numbers from history"
   echo "  history-clean -p <pattern>                      - Remove all lines matching a pattern"
   echo "  history-clean --last <n>                        - Remove the last n lines from history"
+  echo "  history-clean --autocomplete                    - Clear all autocompletion history"
   echo "  history-clean --help                            - Show this help message"
   echo ""
   echo "Examples:"
@@ -28,6 +29,7 @@ function show_usage() {
   echo "  history-clean 10 15 20                          - Remove lines 10, 15, and 20 from history"
   echo "  history-clean -p \"password\"                     - Remove all lines containing \"password\""
   echo "  history-clean --last 5                          - Remove the last 5 commands from history"
+  echo "  history-clean --autocomplete                    - Clear all autocompletion history"
 }
 
 # Check if HISTFILE is set and exists
@@ -57,6 +59,131 @@ if [ "$1" = "--help" ]; then
   exit 0
 fi
 
+# Function to clean Zsh autocompletion history
+function clean_zsh_autocompletion_history() {
+  local pattern="$1"
+  local zsh_compdump="${ZDOTDIR:-$HOME}/.zcompdump"
+  local zsh_zcompcache="${ZDOTDIR:-$HOME}/.zcompcache"
+  
+  # Check for .zsh_history.autocomplete file (used by some Zsh configurations)
+  local autocomplete_history="${HISTFILE}.autocomplete"
+  if [ -f "$autocomplete_history" ]; then
+    echo -e "${YELLOW}Cleaning autocompletion history file: $autocomplete_history${NC}"
+    local autocomplete_backup="${autocomplete_history}.bak.$(date +%Y%m%d%H%M%S)"
+    cp "$autocomplete_history" "$autocomplete_backup"
+    grep -v "$pattern" "$autocomplete_backup" > "$autocomplete_history" || true
+  fi
+  
+  # Check for Zsh autosuggestions history
+  local zsh_autosuggest_history="${ZDOTDIR:-$HOME}/.zsh_history_autosuggest"
+  if [ -f "$zsh_autosuggest_history" ]; then
+    echo -e "${YELLOW}Cleaning Zsh autosuggestions history file: $zsh_autosuggest_history${NC}"
+    local autosuggest_backup="${zsh_autosuggest_history}.bak.$(date +%Y%m%d%H%M%S)"
+    cp "$zsh_autosuggest_history" "$autosuggest_backup"
+    grep -v "$pattern" "$autosuggest_backup" > "$zsh_autosuggest_history" || true
+  fi
+  
+  # Reset Zsh autosuggestions if the plugin is loaded
+  if typeset -f _zsh_autosuggest_reset >/dev/null 2>&1; then
+    echo -e "${YELLOW}Resetting Zsh autosuggestions plugin${NC}"
+    _zsh_autosuggest_reset
+  fi
+  
+  # Clear the Zsh completion cache
+  if [ -d "$zsh_zcompcache" ]; then
+    echo -e "${YELLOW}Clearing Zsh completion cache directory${NC}"
+    rm -rf "${zsh_zcompcache:?}"/*
+  fi
+  
+  # Rebuild Zsh completion system
+  if [ -f "$zsh_compdump" ]; then
+    echo -e "${YELLOW}Rebuilding Zsh completion system${NC}"
+    rm -f "$zsh_compdump"
+    rm -f "$zsh_compdump.zwc"
+  fi
+  
+  # Clear Zsh command history hash
+  echo -e "${YELLOW}Clearing Zsh command history hash${NC}"
+  hash -r
+  
+  # Clear the current session's history
+  echo -e "${YELLOW}Clearing current session history containing the pattern${NC}"
+  fc -R "$HISTFILE"
+  
+  # Remove matching entries from the current session's history
+  local temp_history=$(mktemp)
+  fc -l 1 | grep -v "$pattern" > "$temp_history" || true
+  fc -p "$temp_history"
+  rm -f "$temp_history"
+}
+
+# Function to clean all Zsh autocompletion history
+function clean_all_zsh_autocompletion() {
+  echo -e "${YELLOW}Clearing all Zsh autocompletion history...${NC}"
+  
+  # Clear Zsh completion cache
+  local zsh_compdump="${ZDOTDIR:-$HOME}/.zcompdump"
+  local zsh_zcompcache="${ZDOTDIR:-$HOME}/.zcompcache"
+  
+  # Remove autocompletion history file if it exists
+  local autocomplete_history="${HISTFILE}.autocomplete"
+  if [ -f "$autocomplete_history" ]; then
+    echo -e "${YELLOW}Removing autocompletion history file: $autocomplete_history${NC}"
+    local autocomplete_backup="${autocomplete_history}.bak.$(date +%Y%m%d%H%M%S)"
+    cp "$autocomplete_history" "$autocomplete_backup"
+    echo "" > "$autocomplete_history"
+  fi
+  
+  # Clear the Zsh completion cache
+  if [ -d "$zsh_zcompcache" ]; then
+    echo -e "${YELLOW}Clearing Zsh completion cache directory${NC}"
+    rm -rf "${zsh_zcompcache:?}"/*
+  fi
+  
+  # Rebuild Zsh completion system
+  if [ -f "$zsh_compdump" ]; then
+    echo -e "${YELLOW}Rebuilding Zsh completion system${NC}"
+    rm -f "$zsh_compdump"
+    rm -f "$zsh_compdump.zwc"
+  fi
+  
+  # Clear Zsh command history hash
+  echo -e "${YELLOW}Clearing Zsh command history hash${NC}"
+  hash -r
+  
+  # Clear Zsh directory stack
+  dirs -c
+  
+  # Clear Zsh named directories
+  local zshdir="${ZDOTDIR:-$HOME}/.zsh"
+  if [ -d "$zshdir" ]; then
+    echo -e "${YELLOW}Clearing Zsh named directories${NC}"
+    rm -f "$zshdir/named-directories" 2>/dev/null
+  fi
+  
+  # Clear Zsh autosuggestions history
+  local zsh_autosuggest_history="${ZDOTDIR:-$HOME}/.zsh_history_autosuggest"
+  if [ -f "$zsh_autosuggest_history" ]; then
+    echo -e "${YELLOW}Clearing Zsh autosuggestions history${NC}"
+    local autosuggest_backup="${zsh_autosuggest_history}.bak.$(date +%Y%m%d%H%M%S)"
+    cp "$zsh_autosuggest_history" "$autosuggest_backup"
+    echo "" > "$zsh_autosuggest_history"
+  fi
+  
+  # Reset Zsh autosuggestions if the plugin is loaded
+  if typeset -f _zsh_autosuggest_reset >/dev/null 2>&1; then
+    echo -e "${YELLOW}Resetting Zsh autosuggestions plugin${NC}"
+    _zsh_autosuggest_reset
+  fi
+  
+  # Clear Zsh command history for current session
+  echo -e "${YELLOW}Clearing current session history${NC}"
+  history -c
+  
+  echo -e "${GREEN}All Zsh autocompletion history cleared.${NC}"
+  echo -e "${YELLOW}To fully apply changes, you should restart your terminal session.${NC}"
+}
+
 if [ "$1" = "-p" ]; then
   if [ $# -lt 2 ]; then
     echo -e "${RED}Error: No pattern specified${NC}"
@@ -68,7 +195,7 @@ if [ "$1" = "-p" ]; then
   echo -e "${YELLOW}Removing all history entries containing: $PATTERN${NC}"
   
   # Use grep to exclude lines matching the pattern
-  grep -v "$PATTERN" "$BACKUP_FILE" > "$HISTFILE"
+  grep -v "$PATTERN" "$BACKUP_FILE" > "$HISTFILE" || true
   
   # Count how many lines were removed
   ORIGINAL_COUNT=$(wc -l < "$BACKUP_FILE")
@@ -76,6 +203,12 @@ if [ "$1" = "-p" ]; then
   REMOVED_COUNT=$((ORIGINAL_COUNT - NEW_COUNT))
   
   echo -e "${GREEN}Removed $REMOVED_COUNT history entries matching \"$PATTERN\"${NC}"
+  
+  # Clean autocompletion history
+  clean_zsh_autocompletion_history "$PATTERN"
+  
+  echo -e "${GREEN}Autocompletion history cleaned.${NC}"
+  echo -e "${YELLOW}To fully apply changes, you may need to restart your terminal session.${NC}"
   exit 0
 fi
 
@@ -110,6 +243,22 @@ if [ "$1" = "--last" ]; then
   head -n -"$COUNT" "$BACKUP_FILE" > "$HISTFILE"
   
   echo -e "${GREEN}Removed the last $COUNT history entries${NC}"
+  
+  # For last N entries, we can't easily clean autocompletion history
+  # So we'll just rebuild the completion system
+  if [ -f "${ZDOTDIR:-$HOME}/.zcompdump" ]; then
+    echo -e "${YELLOW}Rebuilding Zsh completion system${NC}"
+    rm -f "${ZDOTDIR:-$HOME}/.zcompdump"
+    rm -f "${ZDOTDIR:-$HOME}/.zcompdump.zwc"
+  fi
+  
+  echo -e "${YELLOW}To fully apply changes, you may need to restart your terminal session.${NC}"
+  exit 0
+fi
+
+if [ "$1" = "--autocomplete" ]; then
+  # No need to check or backup the history file for this option
+  clean_all_zsh_autocompletion
   exit 0
 fi
 
@@ -130,10 +279,13 @@ TEMP_FILE=$(mktemp)
 
 # Process the history file line by line
 line_count=1
+REMOVED_LINES=()
 while IFS= read -r line; do
   # Check if the current line number is in the list to remove
   if [[ ! " ${LINE_NUMBERS[@]} " =~ " ${line_count} " ]]; then
     echo "$line" >> "$TEMP_FILE"
+  else
+    REMOVED_LINES+=("$line")
   fi
   ((line_count++))
 done < "$BACKUP_FILE"
@@ -143,6 +295,16 @@ mv "$TEMP_FILE" "$HISTFILE"
 
 echo -e "${GREEN}Removed ${#LINE_NUMBERS[@]} history entries${NC}"
 
+# For each removed line, try to clean it from autocompletion history
+for line in "${REMOVED_LINES[@]}"; do
+  # Extract the command part (remove timestamp if present)
+  cmd=$(echo "$line" | sed -E 's/^[^;]*;//')
+  if [ -n "$cmd" ]; then
+    clean_zsh_autocompletion_history "$cmd"
+  fi
+done
+
 # Reload history
 echo -e "${GREEN}History cleaned. Changes will take effect in new shell sessions.${NC}"
-echo -e "${YELLOW}To apply changes to the current session, run: fc -R $HISTFILE${NC}" 
+echo -e "${YELLOW}To apply changes to the current session, run: fc -R $HISTFILE${NC}"
+echo -e "${YELLOW}To fully clear autocompletion suggestions, you may need to restart your terminal session.${NC}" 
