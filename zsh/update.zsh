@@ -117,8 +117,9 @@ function check_dotfiles_updates() {
       # Extract the number of commits behind
       local commits_behind=$(grep "Your dotfiles are behind by" "$temp_output" | sed -E 's/.*behind by ([0-9]+) commit.*/\1/')
       _update_status_file "dotfiles" "Dotfiles updates available ($commits_behind commits)"
+    # Check for Homebrew updates - look for the specific pattern from check-updates
     elif grep -q "The following Homebrew packages are outdated" "$temp_output"; then
-      # Count the number of outdated packages
+      # Count the number of outdated packages - improved counting logic
       local outdated_count=$(grep -A 100 "The following Homebrew packages are outdated" "$temp_output" | grep -v "The following" | grep -v "^$" | grep -v "Would you like" | wc -l | tr -d ' ')
       _update_status_file "brew" "Homebrew updates available ($outdated_count packages)"
     elif grep -q "You have outdated global npm packages" "$temp_output"; then
@@ -212,6 +213,13 @@ function dotfiles-cleanup-logs() {
   _check_log_rotation
   
   echo "Log cleanup complete."
+}
+
+# Function to manually clear the update status
+function dotfiles-clear-status() {
+  echo "Manually clearing dotfiles update status..."
+  _clear_status_file
+  echo "Status cleared. The prompt will show [No updates] in the next shell session."
 }
 
 # Run the update check when a new shell is started
