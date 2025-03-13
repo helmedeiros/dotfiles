@@ -44,6 +44,7 @@ This directory contains executable scripts that are added to your `$PATH` when u
 | `check-updates` | Check for updates to dotfiles, Homebrew packages, and npm global packages. |
 | `dot` | Set up environment, install dependencies, and configure macOS defaults. |
 | `e` | Quick shortcut to open files in the editor. |
+| `history-clean` | Securely remove specific entries from your shell history. |
 | `movieme` | Create a movie from a series of images. |
 | `mustacheme` | Add a mustache to an image. |
 | `set-defaults` | Set macOS defaults. |
@@ -114,6 +115,30 @@ NOTES:
   - Checks for outdated npm global packages
   - Displays a summary of available updates
   - Updates the status indicator for your prompt
+```
+
+### history-clean
+
+A utility to securely remove specific entries from your shell history without creating new history entries with sensitive information.
+
+```
+USAGE:
+  history-clean <line_number> [line_number2 ...]  - Remove specific line numbers from history
+  history-clean -p <pattern>                      - Remove all lines matching a pattern
+  history-clean --last <n>                        - Remove the last n lines from history
+  history-clean --help                            - Show help message
+
+EXAMPLES:
+  history-clean 42                                - Remove line 42 from history
+  history-clean 10 15 20                          - Remove lines 10, 15, and 20 from history
+  history-clean -p "password"                     - Remove all lines containing "password"
+  history-clean --last 5                          - Remove the last 5 commands from history
+
+NOTES:
+  - Creates a backup of your history file before making changes
+  - Changes take effect in new shell sessions
+  - To apply changes to the current session, run: fc -R $HISTFILE
+  - Particularly useful when you accidentally paste sensitive information like passwords
 ```
 
 ## Adding New Scripts
