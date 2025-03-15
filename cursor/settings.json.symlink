@@ -1,0 +1,52 @@
+{
+  "editor.fontFamily": "JetBrains Mono, Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontSize": 14,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.renderWhitespace": "boundary",
+  "editor.rulers": [80, 120],
+  "editor.minimap.enabled": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.suggestSelection": "first",
+  "editor.wordWrap": "off",
+  "editor.cursorBlinking": "smooth",
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.linkedEditing": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  
+  "workbench.colorTheme": "Default Dark+",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.startupEditor": "newUntitledFile",
+  "workbench.editor.enablePreview": false,
+  
+  "terminal.integrated.fontFamily": "JetBrains Mono, Menlo, Monaco, 'Courier New', monospace",
+  "terminal.integrated.fontSize": 14,
+  
+  "files.associations": {
+    "*.bats": "shellscript",
+    "*.zsh": "shellscript",
+    "*.zsh-theme": "shellscript"
+  },
+  
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": true,
+  
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  
+  "telemetry.telemetryLevel": "off",
+  
+  "extensions.ignoreRecommendations": true,
+  
+  // Cursor-specific settings
+  "cursor.showStatusBarItemsInActivity": true,
+  "cursor.showCompletionLengthHint": true,
+  "cursor.showCompletionContribution": true
+} 
