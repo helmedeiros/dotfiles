@@ -9,6 +9,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/git_mother.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/brew_mother.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/npm_mother.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/dot_mother.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/status_mother.sh"
 
 # Function to set up a test environment with the specified fixtures
 a_scenario_with() {
@@ -17,6 +18,7 @@ a_scenario_with() {
   local brew_fixture="$3"
   local npm_fixture="$4"
   local dot_fixture="$5"
+  local status_fixture="$6"
 
   # Create the test directory structure
   mkdir -p "${test_dir}"
@@ -79,6 +81,31 @@ a_scenario_with() {
       ;;
   esac
 
+  # Set up the status fixture
+  case "$status_fixture" in
+    "dotfilesUpdateStatus")
+      a_dotfiles_update_status "$test_dir"
+      ;;
+    "brewUpdateStatus")
+      a_brew_update_status "$test_dir"
+      ;;
+    "npmUpdateStatus")
+      an_npm_update_status "$test_dir"
+      ;;
+    "unknownUpdateStatus")
+      an_unknown_update_status "$test_dir"
+      ;;
+    "lastCheckToday")
+      a_last_check_file_with_today "$test_dir"
+      ;;
+    "lastCheckYesterday")
+      a_last_check_file_with_yesterday "$test_dir"
+      ;;
+    *)
+      # No status fixture by default
+      ;;
+  esac
+
   # Add the mock bin directory to the PATH
   export PATH="${test_dir}/bin:${PATH}"
 }
@@ -111,4 +138,42 @@ a_local_changes_scenario() {
 a_diverged_scenario() {
   local test_dir="$1"
   a_scenario_with "$test_dir" "repositoryDivergedFromRemote" "brewWithOutdatedPackages" "npmWithOutdatedPackages" "standardDotScript"
+}
+
+# Status-specific scenarios
+
+# A scenario with dotfiles update status
+a_scenario_with_dotfiles_update() {
+  local test_dir="$1"
+  a_dotfiles_update_status "$test_dir"
+}
+
+# A scenario with brew update status
+a_scenario_with_brew_update() {
+  local test_dir="$1"
+  a_brew_update_status "$test_dir"
+}
+
+# A scenario with npm update status
+a_scenario_with_npm_update() {
+  local test_dir="$1"
+  an_npm_update_status "$test_dir"
+}
+
+# A scenario with unknown update status
+a_scenario_with_unknown_update() {
+  local test_dir="$1"
+  an_unknown_update_status "$test_dir"
+}
+
+# A scenario with last check today
+a_scenario_with_last_check_today() {
+  local test_dir="$1"
+  a_last_check_file_with_today "$test_dir"
+}
+
+# A scenario with last check yesterday
+a_scenario_with_last_check_yesterday() {
+  local test_dir="$1"
+  a_last_check_file_with_yesterday "$test_dir"
 }
