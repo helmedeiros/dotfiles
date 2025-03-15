@@ -77,6 +77,11 @@ if [ -z "$ORIGINAL_PROMPT" ]; then
   ORIGINAL_PROMPT=${PROMPT:-'%m%# '}
 fi
 
+# Source the shared status library if available
+if [ -f "$HOME/.dotfiles/lib/status.sh" ]; then
+  source "$HOME/.dotfiles/lib/status.sh"
+fi
+
 # Function to get the update status indicator
 update_indicator() {
   if type dotfiles_update_status >/dev/null 2>&1; then

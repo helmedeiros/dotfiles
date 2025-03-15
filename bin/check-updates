@@ -16,6 +16,11 @@ NC='\033[0m' # No Color
 # Get the dotfiles directory
 DOTFILES_DIR="$HOME/.dotfiles"
 
+# Source the shared status library
+if [ -f "$DOTFILES_DIR/lib/status.sh" ]; then
+  source "$DOTFILES_DIR/lib/status.sh"
+fi
+
 # Check if the dotfiles directory exists
 if [ ! -d "$DOTFILES_DIR" ]; then
   echo -e "${RED}Error: Dotfiles directory not found at $DOTFILES_DIR${NC}"
@@ -103,9 +108,9 @@ if command -v brew &> /dev/null; then
     echo -e "${GREEN}All Homebrew packages are up to date!${NC}"
     
     # Clear the status file if it exists and contains brew updates
-    if [ -f "$HOME/.dotfiles_update_status" ] && grep -q '"type":"brew"' "$HOME/.dotfiles_update_status"; then
+    if status_exists "brew"; then
       echo -e "${GREEN}Clearing previous brew update status${NC}"
-      rm -f "$HOME/.dotfiles_update_status"
+      status_clear
     fi
   else
     echo -e "${YELLOW}The following Homebrew packages are outdated:${NC}"
@@ -116,7 +121,7 @@ if command -v brew &> /dev/null; then
     OUTDATED_COUNT=$(echo "$OUTDATED_PACKAGES" | wc -l | tr -d ' ')
     
     # Update the status file
-    echo "{\"type\":\"brew\",\"message\":\"Homebrew updates available ($OUTDATED_COUNT packages)\",\"timestamp\":\"$(date '+%Y-%m-%d %H:%M:%S')\"}" > "$HOME/.dotfiles_update_status"
+    status_update "brew" "Homebrew updates available ($OUTDATED_COUNT packages)"
   fi
 else
   echo -e "${YELLOW}Homebrew is not installed. Skipping package check.${NC}"
@@ -188,9 +193,18 @@ if command -v npm &> /dev/null; then
         echo "  $pkg"
       done
       OUTDATED_NPM="yes"
+      
+      # Update the status file
+      status_update "npm" "npm updates available"
     else
       echo -e "${GREEN}All global npm packages are up to date!${NC}"
       OUTDATED_NPM=""
+      
+      # Clear the status file if it exists and contains npm updates
+      if status_exists "npm"; then
+        echo -e "${GREEN}Clearing previous npm update status${NC}"
+        status_clear
+      fi
     fi
   else
     echo -e "${YELLOW}Could not parse npm package information. Try running 'npm outdated -g' manually.${NC}"
