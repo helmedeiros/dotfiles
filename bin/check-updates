@@ -101,10 +101,22 @@ if command -v brew &> /dev/null; then
   
   if [ -z "$OUTDATED_PACKAGES" ]; then
     echo -e "${GREEN}All Homebrew packages are up to date!${NC}"
+    
+    # Clear the status file if it exists and contains brew updates
+    if [ -f "$HOME/.dotfiles_update_status" ] && grep -q '"type":"brew"' "$HOME/.dotfiles_update_status"; then
+      echo -e "${GREEN}Clearing previous brew update status${NC}"
+      rm -f "$HOME/.dotfiles_update_status"
+    fi
   else
     echo -e "${YELLOW}The following Homebrew packages are outdated:${NC}"
     echo "$OUTDATED_PACKAGES"
     BREW_OUTDATED=true
+    
+    # Count the number of outdated packages
+    OUTDATED_COUNT=$(echo "$OUTDATED_PACKAGES" | wc -l | tr -d ' ')
+    
+    # Update the status file
+    echo "{\"type\":\"brew\",\"message\":\"Homebrew updates available ($OUTDATED_COUNT packages)\",\"timestamp\":\"$(date '+%Y-%m-%d %H:%M:%S')\"}" > "$HOME/.dotfiles_update_status"
   fi
 else
   echo -e "${YELLOW}Homebrew is not installed. Skipping package check.${NC}"
