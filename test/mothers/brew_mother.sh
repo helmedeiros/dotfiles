@@ -56,3 +56,69 @@ a_brew_with_outdated_packages() {
   brew_mother_create_mock "$test_dir" true "package1 1.0.0 -> 1.1.0
 package2 2.0.0 -> 2.1.0"
 }
+
+# Function to create a brew mock for cleanup-brew testing
+a_brew_with_disabled_packages() {
+  local test_dir="$1"
+  local installed_packages="$2"
+  local dependencies="$3"
+
+  mkdir -p "${test_dir}/bin"
+
+  cat > "${test_dir}/bin/brew" <<EOF
+#!/bin/bash
+if [[ "\$1" == "list" ]]; then
+  if [[ "${installed_packages}" == *"\$2"* ]]; then
+    exit 0
+  else
+    exit 1
+  fi
+elif [[ "\$1" == "uses" && "\$2" == "--installed" ]]; then
+  if [[ "${dependencies}" == *"\$3"* ]]; then
+    echo "some-dependent-package"
+    exit 0
+  else
+    echo ""
+    exit 0
+  fi
+elif [[ "\$1" == "uninstall" ]]; then
+  if [[ "\$2" == "--ignore-dependencies" ]]; then
+    echo "Uninstalling \$3 (ignoring dependencies)..."
+    exit 0
+  else
+    echo "Uninstalling \$2..."
+    exit 0
+  fi
+else
+  echo "Mock brew: Unknown command: \$@" >&2
+  exit 1
+fi
+EOF
+  chmod +x "${test_dir}/bin/brew"
+}
+
+# A brew environment with no disabled packages installed
+a_brew_with_no_disabled_packages() {
+  local test_dir="$1"
+  a_brew_with_disabled_packages "$test_dir" "" ""
+}
+
+# A brew environment with a disabled package that has no dependencies
+a_brew_with_disabled_package_no_dependencies() {
+  local test_dir="$1"
+  local package="${2:-vault}"
+  a_brew_with_disabled_packages "$test_dir" "$package" ""
+}
+
+# A brew environment with a disabled package that has dependencies
+a_brew_with_disabled_package_with_dependencies() {
+  local test_dir="$1"
+  local package="${2:-openssl@1.1}"
+  a_brew_with_disabled_packages "$test_dir" "$package" "$package"
+}
+
+# A brew environment with multiple disabled packages
+a_brew_with_multiple_disabled_packages() {
+  local test_dir="$1"
+  a_brew_with_disabled_packages "$test_dir" "vault openssl@1.1 youtube-dl" "openssl@1.1 youtube-dl"
+}
