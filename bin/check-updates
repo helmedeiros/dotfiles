@@ -150,7 +150,7 @@ if command -v npm &> /dev/null; then
     fi
   fi
   
-  echo -e "${GREEN}Checking npm packages (this may take a moment)...${NC}"
+  echo -e "${BLUE}==>${NC} Checking npm packages (this may take a moment)..."
   
   # Create a temporary directory for our work
   TEMP_DIR=$(mktemp -d)
