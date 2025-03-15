@@ -30,6 +30,8 @@ bats test/lib/status_test.bats
 
 - `test/lib/` - Tests for library functions
   - `status_test.bats` - Tests for the status.sh library
+- `test/bin/` - Tests for bin scripts
+  - `check_updates_test.bats` - Tests for the check-updates script
 
 ## Writing Tests
 

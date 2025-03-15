@@ -30,4 +30,8 @@ echo -e "${BLUE}=== Running all tests ===${NC}"
 echo -e "${BLUE}=== Running lib tests ===${NC}"
 bats "${SCRIPT_DIR}/lib/"
 
+# Run bin tests
+echo -e "${BLUE}=== Running bin tests ===${NC}"
+bats "${SCRIPT_DIR}/bin/"
+
 echo -e "\n${GREEN}All tests completed!${NC}" 
