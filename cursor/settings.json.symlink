@@ -45,6 +45,11 @@
   
   "extensions.ignoreRecommendations": true,
   
+  // BATS testing framework settings
+  "bats.shellcheck.enabled": true,
+  "bats.shellcheck.arguments": ["--shell=bats", "--enable=all"],
+  "bats.run.showCommandLine": true,
+  
   // Cursor-specific settings
   "cursor.showStatusBarItemsInActivity": true,
   "cursor.showCompletionLengthHint": true,

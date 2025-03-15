@@ -34,6 +34,14 @@ The settings include file associations for various file types:
 
 This ensures that `.bats` files (Bash Automated Testing System) are properly highlighted as shell scripts in VSCode.
 
+## BATS Testing Support
+
+The configuration includes support for BATS testing framework:
+
+- The `jetmartin.bats` extension provides syntax highlighting and snippets for BATS files
+- ShellCheck integration for BATS files is enabled
+- Test runner shows command line output for better debugging
+
 ## Manual Installation
 
 If you prefer to install manually:
