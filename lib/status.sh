@@ -5,10 +5,10 @@
 # Shared library for handling status updates across dotfiles scripts
 
 # Status file for prompt integration
-DOTFILES_STATUS_FILE="$HOME/.dotfiles_update_status"
+DOTFILES_STATUS_FILE="${DOTFILES_STATUS_FILE:-$HOME/.dotfiles_update_status}"
 
 # Log file for debugging
-DOTFILES_STATUS_LOG="$HOME/.dotfiles_update.log"
+DOTFILES_STATUS_LOG="${DOTFILES_STATUS_LOG:-$HOME/.dotfiles_update.log}"
 
 # Maximum log file size in bytes (1MB)
 MAX_LOG_SIZE=1048576
@@ -118,7 +118,7 @@ function status_get_prompt() {
 
 # Function to check when the last update check was performed
 function status_last_check() {
-  local check_file="$HOME/.dotfiles_last_check"
+  local check_file="${DOTFILES_LAST_CHECK_FILE:-$HOME/.dotfiles_last_check}"
   
   # If the file doesn't exist, create it with yesterday's date
   if [ ! -f "$check_file" ]; then
@@ -145,6 +145,7 @@ function status_last_check() {
 
 # Function to force a check by resetting the last check date
 function status_force_check() {
-  rm -f "$HOME/.dotfiles_last_check"
+  local check_file="${DOTFILES_LAST_CHECK_FILE:-$HOME/.dotfiles_last_check}"
+  rm -f "$check_file"
   status_log "Forced check by removing last check file"
 } 

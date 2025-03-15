@@ -49,6 +49,7 @@ brew 'hub'
 brew 'plantuml'
 brew 'groovy'
 brew 'gometalinter'
+brew 'bats-core'  # Testing framework for Bash scripts
 
 ## COCOA - MACOS NATIVE APPS
 brew 'cocoapods'
