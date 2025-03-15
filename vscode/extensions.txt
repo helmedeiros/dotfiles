@@ -11,6 +11,7 @@ ms-python.python
 ms-azuretools.vscode-docker
 batisteo.vscode-django
 wholroyd.jinja
+jetmartin.bats
 
 # Python Specific
 ms-python.vscode-pylance

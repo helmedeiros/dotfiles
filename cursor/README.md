@@ -42,6 +42,14 @@ Additionally, Cursor-specific settings include:
 "cursor.showCompletionContribution": true
 ```
 
+## BATS Testing Support
+
+The configuration includes support for BATS testing framework:
+
+- The `jetmartin.bats` extension provides syntax highlighting and snippets for BATS files
+- ShellCheck integration for BATS files is enabled
+- Test runner shows command line output for better debugging
+
 ## Manual Installation
 
 If you prefer to install manually:
