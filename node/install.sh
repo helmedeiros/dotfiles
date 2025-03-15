@@ -4,19 +4,19 @@
 #
 # This installs npm packages using npm.
 function installglobal() {
-	echo "  Installing $*"
-	npm install -g --no-fund "${@}" 2>/dev/null || echo "  Failed to install $*"
+	echo "Installing $*..."
+	npm install -g --no-fund "${@}" 2>/dev/null || echo "Error: Failed to install $*"
 }
 
 function installNVM() {
-	echo "  Installing NVM..."
 	# Check if NVM directory exists
 	if [ ! -d "$HOME/.nvm" ]; then
 		mkdir -p "$HOME/.nvm"
 	fi
 	
 	# Install NVM
-	curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+	echo "Installing NVM..."
+	curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 	
 	# Source NVM immediately without auto-use
 	export NVM_DIR="$HOME/.nvm"
@@ -25,30 +25,26 @@ function installNVM() {
 	
 	# Verify NVM installation
 	if command -v nvm &> /dev/null; then
-		echo "  NVM installed successfully"
-		
 		# Install latest LTS version of Node.js
+		echo "Installing Node.js..."
 		nvm install --lts
 		nvm use --lts
-		
-		echo "  Node.js $(node -v) installed"
 	else
-		echo "  NVM installation failed"
+		echo "Error: NVM installation failed"
+		return 1
 	fi
 }
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
-	echo " Node.js not found. Installing NVM and Node.js..."
-	installNVM
+	installNVM || echo "Error: Node.js installation failed"
 fi
 
 # Check for npm
 if command -v npm &> /dev/null; then
-  echo "  Installing npm packages for you."
+  echo "Installing npm packages..."
 
   # First, remove any deprecated packages that might be installed
-  echo "  Removing deprecated packages if they exist..."
   npm uninstall -g request superagent cross-spawn-async formidable 2>/dev/null || true
 
 	# Modern networking tools
@@ -85,8 +81,7 @@ if command -v npm &> /dev/null; then
 	installglobal eslint
 	installglobal prettier
 	
-	echo "  Global npm packages have been installed/updated!"
-	echo "  Some warnings may still appear for packages that depend on deprecated packages."
+	echo "npm packages installation completed"
 else
-	echo "  npm not found even after Node.js installation. Something went wrong."
+	echo "Error: npm not found even after Node.js installation. Something went wrong."
 fi
