@@ -10,6 +10,7 @@ load "../mothers/npm_mother.sh"
 load "../mothers/macos_mother.sh"
 load "../mothers/mas_mother.sh"
 load "../mothers/editor_mother.sh"
+load "../mothers/script_mother.sh"
 
 # Setup function that runs before each test
 setup() {
@@ -40,6 +41,9 @@ setup() {
 
   # Create editor-related mocks
   create_dot_editor_mocks "${TEST_DIR}"
+
+  # Create script-related mocks
+  create_dot_script_mocks "${TEST_DIR}"
 
   # Add mock commands to PATH (at the beginning to take precedence)
   export PATH="${TEST_DIR}/bin:${PATH}"
