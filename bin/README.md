@@ -6,60 +6,57 @@ This directory contains executable scripts that are added to your `$PATH` when u
 
 ### General Utilities
 
-| Script | Description |
-|--------|-------------|
-| `headers` | View HTTP headers from web requests without the clutter of response bodies. |
-| `res` | Toggle between screen resolutions on macOS (supports Ventura, Sonoma, and Sequoia). |
-| `search` | Search for a string in a directory. |
-| `todo` | Create a simple TODO file in the current directory. |
-| `unzip-all` | Unzip all zip files in the current directory. |
-| `yt` | Download a YouTube video as an MP4. |
+| Script      | Description                                                                         |
+| ----------- | ----------------------------------------------------------------------------------- |
+| `headers`   | View HTTP headers from web requests without the clutter of response bodies.         |
+| `res`       | Toggle between screen resolutions on macOS (supports Ventura, Sonoma, and Sequoia). |
+| `search`    | Search for a string in a directory.                                                 |
+| `todo`      | Create a simple TODO file in the current directory.                                 |
+| `unzip-all` | Unzip all zip files in the current directory.                                       |
+| `yt`        | Download a YouTube video as an MP4.                                                 |
 
 ### Git Utilities
 
-| Script | Description |
-|--------|-------------|
-| `git-all` | Run a git command on all repositories in the current directory. |
-| `git-amend` | Amend the currently staged files to the latest commit. |
-| `git-copy-branch-name` | Copy the current branch name to the clipboard. |
-| `git-credit` | Add a user as an author to the latest commit. |
-| `git-credit-all` | Add multiple users as authors to the latest commit. |
+| Script                    | Description                                                              |
+| ------------------------- | ------------------------------------------------------------------------ |
+| `git-all`                 | Run a git command on all repositories in the current directory.          |
+| `git-amend`               | Amend the currently staged files to the latest commit.                   |
+| `git-copy-branch-name`    | Copy the current branch name to the clipboard.                           |
+| `git-credit`              | Add a user as an author to the latest commit.                            |
+| `git-credit-all`          | Add multiple users as authors to the latest commit.                      |
 | `git-delete-local-merged` | Delete all local branches that have been merged into the current branch. |
-| `git-nuke` | Delete a branch locally and on the remote. |
-| `git-promote` | Promote a local branch to a remote tracking branch. |
-| `git-pull-requests` | Open the pull requests page for the current repository. |
-| `git-rank-contributors` | Rank contributors by the number of commits. |
-| `git-track` | Track a remote branch. |
-| `git-undo` | Undo the last commit. |
-| `git-unpushed` | Show the diff of what hasn't been pushed yet. |
-| `git-unpushed-stat` | Show the diffstat of what hasn't been pushed yet. |
-| `git-up` | Fetch and rebase all locally tracked branches. |
-| `git-wtf` | Display the state of your repository in a readable format. |
-| `gitio` | Create a git.io short URL. |
+| `git-nuke`                | Delete a branch locally and on the remote.                               |
+| `git-promote`             | Promote a local branch to a remote tracking branch.                      |
+| `git-pull-requests`       | Open the pull requests page for the current repository.                  |
+| `git-rank-contributors`   | Rank contributors by the number of commits.                              |
+| `git-track`               | Track a remote branch.                                                   |
+| `git-undo`                | Undo the last commit.                                                    |
+| `git-unpushed`            | Show the diff of what hasn't been pushed yet.                            |
+| `git-unpushed-stat`       | Show the diffstat of what hasn't been pushed yet.                        |
+| `git-up`                  | Fetch and rebase all locally tracked branches.                           |
+| `git-wtf`                 | Display the state of your repository in a readable format.               |
+| `gitio`                   | Create a git.io short URL.                                               |
 
 ### System Utilities
 
-| Script | Description |
-|--------|-------------|
+| Script          | Description                                                                |
+| --------------- | -------------------------------------------------------------------------- |
 | `check-updates` | Check for updates to dotfiles, Homebrew packages, and npm global packages. |
-| `dot` | Set up environment, install dependencies, and configure macOS defaults. |
-| `e` | Quick shortcut to open files in the editor. |
-| `history-clean` | Securely remove specific entries from your shell history. |
-| `movieme` | Create a movie from a series of images. |
-| `mustacheme` | Add a mustache to an image. |
-| `set-defaults` | Set macOS defaults. |
+| `dot`           | Set up environment, install dependencies, and configure macOS defaults.    |
+| `e`             | Quick shortcut to open files in the editor.                                |
+| `history-clean` | Securely remove specific entries from your shell history.                  |
+| `set-defaults`  | Set macOS defaults.                                                        |
 
 ### Kubernetes Utilities
 
-| Script | Description |
-|--------|-------------|
+| Script       | Description                                |
+| ------------ | ------------------------------------------ |
 | `kube-setup` | Set up Kubernetes configuration and tools. |
 
 ### Cloud Utilities
 
-| Script | Description |
-|--------|-------------|
-| `cloudapp` | Upload files to CloudApp. |
+| Script        | Description                            |
+| ------------- | -------------------------------------- |
 | `gh-packages` | List GitHub packages for a repository. |
 
 ## Detailed Documentation
@@ -153,4 +150,4 @@ When adding new scripts to this directory:
 3. Update this README.md with information about your script
 4. Consider adding a detailed usage section if the script has multiple options
 
-Scripts in this directory are automatically added to your `$PATH` when using these dotfiles, making them available from anywhere in your terminal. 
+Scripts in this directory are automatically added to your `$PATH` when using these dotfiles, making them available from anywhere in your terminal.
