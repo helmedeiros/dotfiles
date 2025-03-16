@@ -43,3 +43,19 @@ exit 0
 EOL
   chmod +x "$mock_path"
 }
+
+# Create macOS mocks for dot script testing
+create_dot_macos_mocks() {
+  local test_dir="$1"
+
+  # Create dotfiles directory structure if it doesn't exist
+  mkdir -p "${test_dir}/.dotfiles/macos"
+
+  # Create mock set-defaults.sh script
+  cat > "${test_dir}/.dotfiles/macos/set-defaults.sh" << 'EOL'
+#!/bin/sh
+echo "$0" >> "$(dirname "$0")/../../macos.log"
+exit 0
+EOL
+  chmod +x "${test_dir}/.dotfiles/macos/set-defaults.sh"
+}

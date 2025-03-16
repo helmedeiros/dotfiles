@@ -7,6 +7,7 @@ DOT_SCRIPT="${BATS_TEST_DIRNAME}/../../bin/dot"
 load "../mothers/test_mother.sh"
 load "../mothers/brew_mother.sh"
 load "../mothers/npm_mother.sh"
+load "../mothers/macos_mother.sh"
 
 # Setup function that runs before each test
 setup() {
@@ -45,6 +46,9 @@ EOL
   # Create npm-related mocks
   create_dot_npm_mocks "${TEST_DIR}"
 
+  # Create macOS-related mocks
+  create_dot_macos_mocks "${TEST_DIR}"
+
   # Set the mock editor as the EDITOR
   export EDITOR="${TEST_DIR}/bin/mock-editor"
 
@@ -58,31 +62,6 @@ echo "$0" >> "$(dirname "$0")/../../install.log"
 exit 0
 EOL
   chmod +x "${ZSH}/homebrew/install.sh"
-
-  # Create mock set-defaults.sh script
-  cat > "${ZSH}/macos/set-defaults.sh" << 'EOL'
-#!/bin/sh
-echo "$0" >> "$(dirname "$0")/../../macos.log"
-exit 0
-EOL
-  chmod +x "${ZSH}/macos/set-defaults.sh"
-
-  # Create mock node/path.zsh script
-  mkdir -p "${ZSH}/node"
-  cat > "${ZSH}/node/path.zsh" << 'EOL'
-#!/bin/sh
-echo "Mock NVM configuration loaded"
-exit 0
-EOL
-  chmod +x "${ZSH}/node/path.zsh"
-
-  # Create mock node/install.sh script
-  cat > "${ZSH}/node/install.sh" << 'EOL'
-#!/bin/sh
-echo "$0" >> "$(dirname "$0")/../../node_install.log"
-exit 0
-EOL
-  chmod +x "${ZSH}/node/install.sh"
 
   # Create mock script/install script
   mkdir -p "${ZSH}/script"
