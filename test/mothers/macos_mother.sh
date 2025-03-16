@@ -58,4 +58,8 @@ echo "$0" >> "$(dirname "$0")/../../macos.log"
 exit 0
 EOL
   chmod +x "${test_dir}/.dotfiles/macos/set-defaults.sh"
+
+  # Initialize the macOS log
+  MOCK_MACOS_LOG="${test_dir}/macos.log"
+  touch "$MOCK_MACOS_LOG"
 }

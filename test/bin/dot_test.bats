@@ -48,40 +48,6 @@ setup() {
   # Add mock commands to PATH (at the beginning to take precedence)
   export PATH="${TEST_DIR}/bin:${PATH}"
 
-  # Create mock install.sh script that just logs the call
-  cat > "${ZSH}/homebrew/install.sh" << 'EOL'
-#!/bin/sh
-echo "$0" >> "$(dirname "$0")/../../install.log"
-exit 0
-EOL
-  chmod +x "${ZSH}/homebrew/install.sh"
-
-  # Create mock script/install script
-  mkdir -p "${ZSH}/script"
-  cat > "${ZSH}/script/install" << 'EOL'
-#!/bin/sh
-echo "$0" >> "$(dirname "$0")/../../script_install.log"
-exit 0
-EOL
-  chmod +x "${ZSH}/script/install"
-
-  # Create mock Brewfile
-  echo "# Brewfile for testing" > "${TEST_DIR}/Brewfile"
-
-  # Initialize the mock command logs
-  MOCK_BREW_LOG="${TEST_DIR}/brew.log"
-  MOCK_MAS_LOG="${TEST_DIR}/mas.log"
-  MOCK_INSTALL_LOG="${TEST_DIR}/install.log"
-  MOCK_MACOS_LOG="${TEST_DIR}/macos.log"
-  MOCK_NODE_LOG="${TEST_DIR}/node.log"
-  MOCK_NPM_LOG="${TEST_DIR}/npm.log"
-  MOCK_NVM_LOG="${TEST_DIR}/nvm.log"
-  MOCK_NODE_INSTALL_LOG="${TEST_DIR}/node_install.log"
-  MOCK_SCRIPT_INSTALL_LOG="${TEST_DIR}/script_install.log"
-  touch "$MOCK_BREW_LOG" "$MOCK_MAS_LOG" "$MOCK_INSTALL_LOG" "$MOCK_MACOS_LOG" \
-        "$MOCK_NODE_LOG" "$MOCK_NPM_LOG" "$MOCK_NVM_LOG" "$MOCK_NODE_INSTALL_LOG" \
-        "$MOCK_SCRIPT_INSTALL_LOG"
-
   # Create a modified version of the script that uses our mocked environment
   MOCK_SCRIPT="${TEST_DIR}/dot"
   cp "${DOT_SCRIPT}" "${MOCK_SCRIPT}"
