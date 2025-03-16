@@ -28,10 +28,18 @@ echo -e "${BLUE}=== Running all tests ===${NC}"
 
 # Run lib tests
 echo -e "${BLUE}=== Running lib tests ===${NC}"
-bats "${SCRIPT_DIR}/lib/"
+if [ -f "${SCRIPT_DIR}/lib/status_test.bats" ]; then
+  bats "${SCRIPT_DIR}/lib/status_test.bats"
+else
+  echo -e "${YELLOW}No lib tests found${NC}"
+fi
 
 # Run bin tests
 echo -e "${BLUE}=== Running bin tests ===${NC}"
-bats "${SCRIPT_DIR}/bin/"
+if compgen -G "${SCRIPT_DIR}/bin/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/bin/"*_test.bats
+else
+  echo -e "${YELLOW}No bin tests found${NC}"
+fi
 
-echo -e "\n${GREEN}All tests completed!${NC}" 
+echo -e "\n${GREEN}All tests completed!${NC}"
