@@ -8,6 +8,7 @@ load "../mothers/test_mother.sh"
 load "../mothers/brew_mother.sh"
 load "../mothers/npm_mother.sh"
 load "../mothers/macos_mother.sh"
+load "../mothers/mas_mother.sh"
 
 # Setup function that runs before each test
 setup() {
@@ -35,13 +36,8 @@ EOL
   # Create mock brew command
   create_mock_brew "${TEST_DIR}/bin/brew"
 
-  # Create mock mas command
-  cat > "${TEST_DIR}/bin/mas" << 'EOL'
-#!/bin/sh
-echo "$0 $*" >> "$(dirname "$0")/../mas.log"
-exit 0
-EOL
-  chmod +x "${TEST_DIR}/bin/mas"
+  # Create Mac App Store (mas) mocks
+  create_dot_mas_mocks "${TEST_DIR}"
 
   # Create npm-related mocks
   create_dot_npm_mocks "${TEST_DIR}"
