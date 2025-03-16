@@ -99,3 +99,53 @@ an_npm_with_outdated_packages() {
 
   npm_mother_create_mock "$test_dir" true "$current_json" "${latest_versions[@]}"
 }
+
+# Create npm mocks for dot script testing
+create_dot_npm_mocks() {
+  local test_dir="$1"
+
+  # Create mock nvm command
+  cat > "${test_dir}/bin/nvm" << 'EOL'
+#!/bin/sh
+echo "$0 $*" >> "$(dirname "$0")/../nvm.log"
+exit 0
+EOL
+  chmod +x "${test_dir}/bin/nvm"
+
+  # Create mock npm command
+  cat > "${test_dir}/bin/npm" << 'EOL'
+#!/bin/sh
+echo "$0 $*" >> "$(dirname "$0")/../npm.log"
+exit 0
+EOL
+  chmod +x "${test_dir}/bin/npm"
+
+  # Create mock node command
+  cat > "${test_dir}/bin/node" << 'EOL'
+#!/bin/sh
+if [ "$1" = "-v" ]; then
+  echo "v20.17.0"
+else
+  echo "$0 $*" >> "$(dirname "$0")/../node.log"
+fi
+exit 0
+EOL
+  chmod +x "${test_dir}/bin/node"
+
+  # Create mock node/path.zsh script
+  mkdir -p "${test_dir}/.dotfiles/node"
+  cat > "${test_dir}/.dotfiles/node/path.zsh" << 'EOL'
+#!/bin/sh
+echo "Mock NVM configuration loaded"
+exit 0
+EOL
+  chmod +x "${test_dir}/.dotfiles/node/path.zsh"
+
+  # Create mock node/install.sh script
+  cat > "${test_dir}/.dotfiles/node/install.sh" << 'EOL'
+#!/bin/sh
+echo "$0" >> "$(dirname "$0")/../../node_install.log"
+exit 0
+EOL
+  chmod +x "${test_dir}/.dotfiles/node/install.sh"
+}
