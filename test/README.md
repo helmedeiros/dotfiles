@@ -33,6 +33,7 @@ bats test/lib/status_test.bats
 - `test/bin/` - Tests for bin scripts
   - `check_updates_test.bats` - Tests for the check-updates script
   - `cleanup_brew_test.bats` - Tests for the cleanup-brew script
+  - `macos_defaults_test.bats` - Tests for macOS system preferences configuration
 - `test/mothers/` - Object Mother pattern implementations for test fixtures
   - `git_mother.sh` - Test fixtures for git-related tests
   - `brew_mother.sh` - Test fixtures for brew-related tests
@@ -40,6 +41,7 @@ bats test/lib/status_test.bats
   - `dot_mother.sh` - Test fixtures for dot script-related tests
   - `status_mother.sh` - Test fixtures for status-related tests
   - `test_mother.sh` - Main Object Mother that combines all other mothers
+  - `macos_mother.sh` - Test fixtures for macOS system commands
 
 ## Writing Tests
 
