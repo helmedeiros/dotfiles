@@ -18,4 +18,8 @@ echo "$0 $*" >> "$(dirname "$0")/../mas.log"
 exit 0
 EOL
   chmod +x "${test_dir}/bin/mas"
+
+  # Initialize the mas log
+  MOCK_MAS_LOG="${test_dir}/mas.log"
+  touch "$MOCK_MAS_LOG"
 }

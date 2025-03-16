@@ -100,9 +100,13 @@ an_npm_with_outdated_packages() {
   npm_mother_create_mock "$test_dir" true "$current_json" "${latest_versions[@]}"
 }
 
-# Create npm mocks for dot script testing
+# Create npm-related mocks for dot script testing
 create_dot_npm_mocks() {
   local test_dir="$1"
+  local dotfiles_dir="${test_dir}/.dotfiles"
+
+  # Create mock commands directory if it doesn't exist
+  mkdir -p "${test_dir}/bin"
 
   # Create mock nvm command
   cat > "${test_dir}/bin/nvm" << 'EOL'
@@ -133,19 +137,26 @@ EOL
   chmod +x "${test_dir}/bin/node"
 
   # Create mock node/path.zsh script
-  mkdir -p "${test_dir}/.dotfiles/node"
-  cat > "${test_dir}/.dotfiles/node/path.zsh" << 'EOL'
+  mkdir -p "${dotfiles_dir}/node"
+  cat > "${dotfiles_dir}/node/path.zsh" << 'EOL'
 #!/bin/sh
 echo "Mock NVM configuration loaded"
 exit 0
 EOL
-  chmod +x "${test_dir}/.dotfiles/node/path.zsh"
+  chmod +x "${dotfiles_dir}/node/path.zsh"
 
   # Create mock node/install.sh script
-  cat > "${test_dir}/.dotfiles/node/install.sh" << 'EOL'
+  cat > "${dotfiles_dir}/node/install.sh" << 'EOL'
 #!/bin/sh
 echo "$0" >> "$(dirname "$0")/../../node_install.log"
 exit 0
 EOL
-  chmod +x "${test_dir}/.dotfiles/node/install.sh"
+  chmod +x "${dotfiles_dir}/node/install.sh"
+
+  # Initialize the npm-related logs
+  MOCK_NODE_LOG="${test_dir}/node.log"
+  MOCK_NPM_LOG="${test_dir}/npm.log"
+  MOCK_NVM_LOG="${test_dir}/nvm.log"
+  MOCK_NODE_INSTALL_LOG="${test_dir}/node_install.log"
+  touch "$MOCK_NODE_LOG" "$MOCK_NPM_LOG" "$MOCK_NVM_LOG" "$MOCK_NODE_INSTALL_LOG"
 }

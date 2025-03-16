@@ -122,3 +122,21 @@ a_brew_with_multiple_disabled_packages() {
   local test_dir="$1"
   a_brew_with_disabled_packages "$test_dir" "vault openssl@1.1 youtube-dl" "openssl@1.1 youtube-dl"
 }
+
+# Creates a mock brew command that logs its arguments for dot script testing
+create_mock_brew() {
+  local mock_path="$1"
+  local test_dir="$(dirname "$(dirname "$mock_path")")"
+
+  # Create mock brew command
+  cat > "$mock_path" << 'EOL'
+#!/bin/sh
+echo "$0 $*" >> "$(dirname "$0")/../brew.log"
+exit 0
+EOL
+  chmod +x "$mock_path"
+
+  # Initialize the brew log
+  MOCK_BREW_LOG="${test_dir}/brew.log"
+  touch "$MOCK_BREW_LOG"
+}
