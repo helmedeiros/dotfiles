@@ -9,6 +9,7 @@ load "../mothers/brew_mother.sh"
 load "../mothers/npm_mother.sh"
 load "../mothers/macos_mother.sh"
 load "../mothers/mas_mother.sh"
+load "../mothers/editor_mother.sh"
 
 # Setup function that runs before each test
 setup() {
@@ -25,14 +26,6 @@ setup() {
   # Create mock commands directory
   mkdir -p "${TEST_DIR}/bin"
 
-  # Create a mock editor that just echoes its arguments
-  cat > "${TEST_DIR}/bin/mock-editor" << 'EOL'
-#!/bin/sh
-echo "Would edit: $@"
-exit 0
-EOL
-  chmod +x "${TEST_DIR}/bin/mock-editor"
-
   # Create mock brew command
   create_mock_brew "${TEST_DIR}/bin/brew"
 
@@ -45,8 +38,8 @@ EOL
   # Create macOS-related mocks
   create_dot_macos_mocks "${TEST_DIR}"
 
-  # Set the mock editor as the EDITOR
-  export EDITOR="${TEST_DIR}/bin/mock-editor"
+  # Create editor-related mocks
+  create_dot_editor_mocks "${TEST_DIR}"
 
   # Add mock commands to PATH (at the beginning to take precedence)
   export PATH="${TEST_DIR}/bin:${PATH}"
