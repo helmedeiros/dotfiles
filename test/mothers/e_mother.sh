@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #
 # e_mother.sh
 #
@@ -9,13 +9,11 @@ create_dot_e_mocks() {
   local test_dir="$1"
   local script_path="$2"
 
-  # Create a modified version of the script that uses our mocked environment
-  MOCK_SCRIPT="${test_dir}/e"
-  cp "${script_path}" "${MOCK_SCRIPT}"
-  chmod +x "${MOCK_SCRIPT}"
+  # Copy the original script to the test directory
+  cp "${script_path}" "${test_dir}/e"
+  chmod +x "${test_dir}/e"
 
-  # Use the modified script for testing
-  echo "${MOCK_SCRIPT}"
+  echo "${test_dir}/e"
 }
 
 # Creates a test directory for e script tests
@@ -26,6 +24,33 @@ create_dot_e_test_dir() {
   local test_path="${test_dir}/${dir_name}"
   mkdir -p "${test_path}"
   echo "${test_path}"
+}
+
+# Create test directories with special paths
+create_special_test_dirs() {
+  local test_dir="$1"
+  local result=()
+
+  # Directory with spaces
+  local space_dir="${test_dir}/path with spaces"
+  mkdir -p "${space_dir}"
+  result+=("${space_dir}")
+
+  # Directory with special characters
+  local special_dir="${test_dir}/test-dir_with!special@chars"
+  mkdir -p "${special_dir}"
+  result+=("${special_dir}")
+
+  # Absolute path directory
+  local abs_dir="${test_dir}/absolute/path/test"
+  mkdir -p "${abs_dir}"
+  result+=("${abs_dir}")
+
+  # Non-existent directory (don't create it)
+  local nonexistent_dir="${test_dir}/does/not/exist"
+  result+=("${nonexistent_dir}")
+
+  echo "${result[@]}"
 }
 
 # Sets up environment for testing editor variable
@@ -46,6 +71,30 @@ exit 0
 EOF
       chmod +x "${test_dir}/bin/mock-editor"
       export EDITOR="${test_dir}/bin/mock-editor"
+      ;;
+
+    "with_args")
+      # Create a mock editor that handles arguments
+      cat > "${test_dir}/bin/mock-editor" << 'EOF'
+#!/bin/sh
+echo "Would edit: $1"
+exit 0
+EOF
+      chmod +x "${test_dir}/bin/mock-editor"
+      export EDITOR="${test_dir}/bin/mock-editor -R --some-flag"
+      ;;
+
+    "with_spaces")
+      # Create a mock editor in a path with spaces
+      local editor_dir="${test_dir}/Mock Editor.app/Contents/MacOS"
+      mkdir -p "${editor_dir}"
+      cat > "${editor_dir}/mock-editor" << 'EOF'
+#!/bin/sh
+echo "Would edit: $1"
+exit 0
+EOF
+      chmod +x "${editor_dir}/mock-editor"
+      export EDITOR="${editor_dir}/mock-editor"
       ;;
 
     "full_path")

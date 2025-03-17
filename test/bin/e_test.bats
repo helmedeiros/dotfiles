@@ -87,3 +87,51 @@ teardown() {
   run -127 "${E_SCRIPT}"
   [ "$status" -eq 127 ]
 }
+
+# Test path handling scenarios
+@test "e handles paths with spaces" {
+  setup_editor_env "${TEST_DIR}" "valid"
+  local test_dirs=($(create_special_test_dirs "${TEST_DIR}"))
+  local space_dir="${test_dirs[0]}"
+
+  run "${E_SCRIPT}" "${space_dir}"
+  [ "$status" -eq 0 ]
+  [ "$output" = "Would edit: ${space_dir}" ]
+}
+
+@test "e handles paths with special characters" {
+  setup_editor_env "${TEST_DIR}" "valid"
+  local test_dirs=($(create_special_test_dirs "${TEST_DIR}"))
+  local special_dir="${test_dirs[1]}"
+
+  run "${E_SCRIPT}" "${special_dir}"
+  [ "$status" -eq 0 ]
+  [ "$output" = "Would edit: ${special_dir}" ]
+}
+
+@test "e handles absolute paths" {
+  setup_editor_env "${TEST_DIR}" "valid"
+  local test_dirs=($(create_special_test_dirs "${TEST_DIR}"))
+  local abs_dir="${test_dirs[2]}"
+
+  run "${E_SCRIPT}" "${abs_dir}"
+  [ "$status" -eq 0 ]
+  [ "$output" = "Would edit: ${abs_dir}" ]
+}
+
+@test "e handles non-existent paths" {
+  setup_editor_env "${TEST_DIR}" "valid"
+  local test_dirs=($(create_special_test_dirs "${TEST_DIR}"))
+  local nonexistent_dir="${test_dirs[3]}"
+
+  run "${E_SCRIPT}" "${nonexistent_dir}"
+  [ "$status" -eq 0 ]
+  [ "$output" = "Would edit: ${nonexistent_dir}" ]
+}
+
+@test "e handles editor command with spaces in path" {
+  setup_editor_env "${TEST_DIR}" "with_spaces"
+  run "${E_SCRIPT}"
+  [ "$status" -eq 0 ]
+  [ "$output" = "Would edit: ." ]
+}

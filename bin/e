@@ -21,7 +21,10 @@ if [ -z "${EDITOR}" ]; then
 fi
 
 if [ "$1" = "" ] ; then
-  exec $EDITOR .
+  # Use quotes around $EDITOR to preserve spaces in paths
+  # Use exec to replace the current process
+  exec "${EDITOR}" .
 else
-  exec $EDITOR "$1"
+  # Use quotes around both $EDITOR and $1 to preserve spaces
+  exec "${EDITOR}" "$1"
 fi
