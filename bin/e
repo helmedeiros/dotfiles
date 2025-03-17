@@ -14,6 +14,12 @@
 #   $ e /usr/local
 #   # => opens the specified directory in your editor
 
+# Check if EDITOR is set and not empty
+if [ -z "${EDITOR}" ]; then
+  echo "EDITOR is not set" >&2
+  exit 1
+fi
+
 if [ "$1" = "" ] ; then
   exec $EDITOR .
 else
