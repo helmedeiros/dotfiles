@@ -6,6 +6,7 @@ E_SCRIPT="${BATS_TEST_DIRNAME}/../../bin/e"
 # Load the Object Mother
 load "../mothers/test_mother.sh"
 load "../mothers/editor_mother.sh"
+load "../mothers/e_mother.sh"
 
 # Setup function that runs before each test
 setup() {
@@ -18,13 +19,8 @@ setup() {
   # Create editor-related mocks
   create_dot_editor_mocks "${TEST_DIR}"
 
-  # Create a modified version of the script that uses our mocked environment
-  MOCK_SCRIPT="${TEST_DIR}/e"
-  cp "${E_SCRIPT}" "${MOCK_SCRIPT}"
-  chmod +x "${MOCK_SCRIPT}"
-
-  # Use the modified script for testing
-  E_SCRIPT="${MOCK_SCRIPT}"
+  # Create e script mocks
+  E_SCRIPT="$(create_dot_e_mocks "${TEST_DIR}" "${E_SCRIPT}")"
 }
 
 # Teardown function that runs after each test
@@ -48,8 +44,7 @@ teardown() {
 
 # Test opening specified directory
 @test "e opens specified directory when argument is provided" {
-  local test_dir="${TEST_DIR}/test_dir"
-  mkdir -p "${test_dir}"
+  local test_dir="$(create_dot_e_test_dir "${TEST_DIR}" "test_dir")"
 
   run "${E_SCRIPT}" "${test_dir}"
   [ "$status" -eq 0 ]
