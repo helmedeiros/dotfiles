@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # GitHub Packages Cleanup Script
-# 
+#
 # This script cleans up old versions of npm packages in GitHub Packages.
 # Configuration is sourced from .dot-secrets if available.
 # Usage: ./gh-packages.sh
@@ -34,31 +34,54 @@ if [ -z "$GH_PACKAGES_TOKEN" ] || [ -z "$ORG" ] || [ -z "$REPO" ]; then
 fi
 
 fetch_number_of_versions () {
-    curl -s \
+    local response
+    response=$(curl -s \
         -H "Accept: application/vnd.github.v3+json" \
         -H "Authorization: Bearer ${GH_PACKAGES_TOKEN}" \
-        "https://api.github.com/orgs/${ORG}/packages/npm/${REPO}" \
-    | jq .version_count
+        "https://api.github.com/orgs/${ORG}/packages/npm/${REPO}")
+
+    # Check if the response contains an error message
+    if echo "$response" | jq -e '.message' >/dev/null 2>&1; then
+        echo "Error: $(echo "$response" | jq -r '.message')" >&2
+        exit 1
+    fi
+
+    echo "$response" | jq .version_count
 }
 
 fetch_oldest_version () {
-    version_count=${1}
-    last_page=$(((version_count + 29) / 30))
+    local version_count="${1}"
+    local last_page=$(((version_count + 29) / 30))
+    local response
 
-    curl -s \
+    response=$(curl -s \
         -H "Accept: application/vnd.github.v3+json" \
         -H "Authorization: Bearer ${GH_PACKAGES_TOKEN}" \
-        "https://api.github.com/orgs/${ORG}/packages/npm/${REPO}/versions?page=${last_page}" \
-    | jq .[-1]
+        "https://api.github.com/orgs/${ORG}/packages/npm/${REPO}/versions?page=${last_page}")
+
+    # Check if the response contains an error message
+    if echo "$response" | jq -e '.message' >/dev/null 2>&1; then
+        echo "Error: $(echo "$response" | jq -r '.message')" >&2
+        exit 1
+    fi
+
+    echo "$response" | jq .[-1]
 }
 
 delete_version () {
-    version_id=${1}
+    local version_id="${1}"
+    local response
 
-    curl -s -XDELETE \
+    response=$(curl -s -XDELETE \
         -H "Accept: application/vnd.github.v3+json" \
         -H "Authorization: Bearer ${GH_PACKAGES_TOKEN}" \
-        "https://api.github.com/orgs/${ORG}/packages/npm/${REPO}/versions/${version_id}"
+        "https://api.github.com/orgs/${ORG}/packages/npm/${REPO}/versions/${version_id}")
+
+    # Check if the response contains an error message
+    if echo "$response" | jq -e '.message' >/dev/null 2>&1; then
+        echo "Error: $(echo "$response" | jq -r '.message')" >&2
+        exit 1
+    fi
 }
 
 package_version () {
