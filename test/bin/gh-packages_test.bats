@@ -94,3 +94,85 @@ teardown() {
   [ "$status" -eq 1 ]
   [[ "$output" == *"Error: Missing required parameters"* ]]
 }
+
+# Test GitHub API interaction
+@test "fetches number of versions correctly" {
+  # Setup test configuration
+  setup_github_config "${TEST_DIR}"
+
+  # Run the script and capture output
+  run "${GH_PACKAGES_SCRIPT}"
+
+  # Assert the script found the correct number of versions
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Found 25 versions"* ]]
+}
+
+@test "handles API errors gracefully" {
+  # Setup test configuration
+  setup_github_config "${TEST_DIR}"
+
+  # Modify mock to simulate API error
+  cat > "${TEST_DIR}/mocks/curl" << 'EOF'
+#!/usr/bin/env bash
+echo '{"message": "API Error"}'
+exit 1
+EOF
+
+  # Run the script and capture output
+  run "${GH_PACKAGES_SCRIPT}"
+
+  # Assert the script handled the error
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"API Error"* ]]
+}
+
+@test "skips cleanup when versions count is within limit" {
+  # Setup test configuration with high version limit
+  setup_github_config "${TEST_DIR}"
+  echo "export VERSIONS_TO_KEEP=30" >> "${TEST_DIR}/.dot-secrets/github/packages.sh"
+
+  # Run the script and capture output
+  run "${GH_PACKAGES_SCRIPT}"
+
+  # Assert the script skipped cleanup
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"No cleanup needed"* ]]
+}
+
+@test "deletes old versions correctly" {
+  # Setup test configuration with low version limit
+  setup_github_config "${TEST_DIR}"
+  echo "export VERSIONS_TO_KEEP=1" >> "${TEST_DIR}/.dot-secrets/github/packages.sh"
+
+  # Run the script and capture output
+  run "${GH_PACKAGES_SCRIPT}"
+
+  # Assert the script deleted old versions
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Deleting version"* ]]
+  [[ "$output" == *"Cleanup complete"* ]]
+}
+
+@test "handles empty version list" {
+  # Setup test configuration
+  setup_github_config "${TEST_DIR}"
+
+  # Modify mock to return empty version list
+  cat > "${TEST_DIR}/mocks/curl" << 'EOF'
+#!/usr/bin/env bash
+if [[ "$*" == *"/versions?"* ]]; then
+    echo '[]'
+else
+    echo '{"version_count": 0}'
+fi
+EOF
+
+  # Run the script and capture output
+  run "${GH_PACKAGES_SCRIPT}"
+
+  # Assert the script handled empty version list
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Found 0 versions"* ]]
+  [[ "$output" == *"No cleanup needed"* ]]
+}
