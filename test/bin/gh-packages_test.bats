@@ -176,3 +176,42 @@ EOF
   [[ "$output" == *"Found 0 versions"* ]]
   [[ "$output" == *"No cleanup needed"* ]]
 }
+
+# Test package version management
+@test "respects custom version retention limit" {
+  # Setup test configuration with custom version limit
+  setup_github_config "${TEST_DIR}"
+  echo "export VERSIONS_TO_KEEP=5" >> "${TEST_DIR}/.dot-secrets/github/packages.sh"
+
+  # Run the script and capture output
+  run "${GH_PACKAGES_SCRIPT}"
+
+  # Assert the script respects the custom limit
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Will keep the 5 most recent versions"* ]]
+}
+
+@test "handles version deletion in correct order" {
+  # Setup test configuration with low version limit
+  setup_github_config "${TEST_DIR}"
+  echo "export VERSIONS_TO_KEEP=1" >> "${TEST_DIR}/.dot-secrets/github/packages.sh"
+
+  # Modify mock to return ordered versions
+  cat > "${TEST_DIR}/mocks/curl" << 'EOF'
+#!/usr/bin/env bash
+if [[ "$*" == *"/versions?"* ]]; then
+    echo '[{"id": "1", "name": "1.0.0"}, {"id": "2", "name": "1.0.1"}, {"id": "3", "name": "1.0.2"}]'
+else
+    echo '{"version_count": 3}'
+fi
+EOF
+
+  # Run the script and capture output
+  run "${GH_PACKAGES_SCRIPT}"
+
+  # Assert the script deletes versions in correct order
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Deleting version 1.0.0"* ]]
+  [[ "$output" == *"Deleting version 1.0.1"* ]]
+  [[ "$output" != *"Deleting version 1.0.2"* ]]
+}
