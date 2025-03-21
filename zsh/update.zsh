@@ -9,24 +9,24 @@ fi
 # Function to check for dotfiles updates
 function check_dotfiles_updates() {
   status_log "Starting dotfiles update check"
-  
+
   # Only check once per day
   if status_last_check; then
     return 0
   fi
-  
+
   # Check for updates
   if [ -x "$HOME/.dotfiles/bin/check-updates" ]; then
     status_log "Running check-updates script"
-    
+
     # Create a temporary file to capture the output
     local temp_output=$(mktemp)
-    
+
     # Run the check-updates script and capture its output
     $HOME/.dotfiles/bin/check-updates > "$temp_output" 2>&1
     local exit_code=$?
     status_log "Finished check-updates script with exit code $exit_code"
-    
+
     # Check if updates are available by looking for specific patterns in the output
     if grep -q "Your dotfiles are behind by" "$temp_output"; then
       # Extract the number of commits behind
@@ -43,10 +43,10 @@ function check_dotfiles_updates() {
       # No updates needed, clear the status file
       status_clear
     fi
-    
+
     # Append the output to the log file
     cat "$temp_output" >> "$DOTFILES_STATUS_LOG"
-    
+
     # Clean up
     rm -f "$temp_output"
   else
@@ -58,18 +58,18 @@ function check_dotfiles_updates() {
 function dotfiles-update-check() {
   echo "Manually checking for dotfiles updates and dependencies..."
   status_log "Manual update check triggered"
-  
+
   # Force check by removing the last check file
   status_force_check
-  
+
   # Run the check
   check_dotfiles_updates
-  
+
   # Show the log
   echo "Update check complete. Log file: $DOTFILES_STATUS_LOG"
   echo "Last 10 log entries:"
   tail -n 10 "$DOTFILES_STATUS_LOG"
-  
+
   # Show status if available
   if [ -f "$DOTFILES_STATUS_FILE" ]; then
     echo ""
@@ -98,7 +98,7 @@ function dotfiles-apply-updates() {
 # Function to clean up old log files
 function dotfiles-cleanup-logs() {
   echo "Cleaning up dotfiles log files..."
-  
+
   # Remove all but the 5 most recent log backups
   local backup_count=$(ls -1 "${DOTFILES_STATUS_LOG}."* 2>/dev/null | wc -l)
   if [ $backup_count -gt 5 ]; then
@@ -108,10 +108,10 @@ function dotfiles-cleanup-logs() {
   else
     echo "No cleanup needed. Found $backup_count log backups."
   fi
-  
+
   # Rotate current log if it's too large
   status_check_log_rotation
-  
+
   echo "Log cleanup complete."
 }
 
@@ -124,5 +124,10 @@ function dotfiles-clear-status() {
 
 # Run the update check when a new shell is started
 # This is done in the background to avoid slowing down shell startup
-status_log "Shell started, triggering background update check"
-(check_dotfiles_updates &) >/dev/null 2>&1 
+status_log "Shell started, checking if update check is needed"
+if ! status_last_check; then
+  status_log "Running background update check"
+  (check_dotfiles_updates &) >/dev/null 2>&1
+else
+  status_log "Skipping update check - already checked today"
+fi
