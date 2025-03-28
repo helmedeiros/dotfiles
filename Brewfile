@@ -50,6 +50,7 @@ brew 'plantuml'
 brew 'groovy'
 brew 'gometalinter'
 brew 'bats-core'  # Testing framework for Bash scripts
+brew 'ollama'     # Local LLM runner
 
 ## COCOA - MACOS NATIVE APPS
 brew 'cocoapods'
@@ -80,7 +81,6 @@ cask 'google-cloud-sdk'
 cask 'visual-studio-code'
 cask 'rar'
 cask 'via'
-cask 'ollama'
 
 mas 'Xcode', id: 497799835
 mas 'Telegram', id: 747648890
