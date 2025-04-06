@@ -11,11 +11,18 @@ setup () {
   if [[ ! -d "$dot_path" ]]
   then
     git clone "$2" "$dot_path"
-    chmod +x "$dot_path"/$1
+    cd "$dot_path"
+    go mod tidy
+    go install
+    chmod +x "$(go env GOPATH)/bin/$1"
 
     tracer configure --autocomplete
   else
-    echo "  $1 already installed."
+    echo "  $1 already installed. Updating..."
+    cd "$dot_path"
+    git pull
+    go mod tidy
+    go install
   fi
 }
 
