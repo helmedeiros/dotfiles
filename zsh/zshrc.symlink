@@ -40,7 +40,6 @@ done
 
 unset config_files
 
-fpath=($HOME/.tracer/completion/zsh $fpath)
 autoload -U compinit
 compinit
 
@@ -67,3 +66,8 @@ source <(ng completion script)
 
 # Kubernetes configuration
 export KUBECONFIG="$HOME/.kube/goeuro-debug.conf"
+
+export TRACER_HOME=/Users/helio.medeiros/.tracer
+fpath=($TRACER_HOME/completion/zsh $fpath)
+autoload -U compinit
+compinit
