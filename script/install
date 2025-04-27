@@ -20,16 +20,16 @@ echo "Running ${length} post-install scripts..."
 executed=1
 for val in "${fileItemArray[@]}"; do
   app=$(echo "$val" | awk -F'/' '{print $2}' )
-  
+
   # Show a simple progress indicator and then move to a new line
   # This ensures password prompts appear on their own line
-  printf "\rProgress: [%s/%s] %s\n" "$executed" "$length" "$app"
-  
+  printf "\r\033[32mProgress: [%s/%s] %s\033[0m\n" "$executed" "$length" "$app"
+
   # Execute the install script, capturing output in case of errors
   sh -c "${val}" || {
     echo "Error in ${app} installation"
   }
-  
+
   let "executed++"
 done
 
