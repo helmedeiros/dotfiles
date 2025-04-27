@@ -71,3 +71,5 @@ export TRACER_HOME=/Users/helio.medeiros/.tracer
 fpath=($TRACER_HOME/completion/zsh $fpath)
 autoload -U compinit
 compinit
+export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
+export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
