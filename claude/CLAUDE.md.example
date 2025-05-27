@@ -1,0 +1,63 @@
+# Project Guide for Claude Code
+
+This is an example CLAUDE.md file that provides guidance to Claude Code about your project. When you run `/init` in Claude Code, it will create a file similar to this one.
+
+## Project Overview
+
+Brief description of your project goes here.
+
+## Code Structure
+
+Explain the main directories and files, for example:
+
+- `src/`: Source code
+- `tests/`: Test files
+- `docs/`: Documentation
+- `scripts/`: Utility scripts
+
+## Development Workflow
+
+Describe your development workflow, such as:
+
+1. Create a feature branch: `git checkout -b feature/name`
+2. Implement changes
+3. Run tests: `npm test`
+4. Submit a PR
+
+## Coding Standards
+
+List your project's coding standards, for example:
+
+- Use ESLint for linting
+- Follow the project's style guide
+- Write tests for new features
+
+## Common Tasks
+
+Common commands to run, such as:
+
+- Build: `npm run build`
+- Test: `npm test`
+- Deploy: `npm run deploy`
+
+## Memory
+
+This section is used by Claude Code to store important information about your project.
+
+### Project Context
+
+Claude should remember that this is a project that uses [your tech stack].
+
+### Coding Guidelines
+
+Claude should follow these guidelines when writing code:
+- Prefer [specific patterns or practices]
+- Avoid [anti-patterns specific to your project]
+
+### Custom Instructions
+
+Claude should [specific instructions relevant to your project].
+
+---
+
+Note: This is just an example. When you run `/init` in Claude Code, it will generate a CLAUDE.md file tailored to your specific project.

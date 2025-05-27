@@ -59,19 +59,19 @@ if [ $LOCAL = $REMOTE ]; then
 elif [ $LOCAL = $BASE ]; then
   # Count the number of commits behind
   COMMITS_BEHIND=$(git rev-list --count HEAD..@{u})
-  
+
   echo -e "${YELLOW}Your dotfiles are behind by $COMMITS_BEHIND commit(s).${NC}"
   echo -e "${YELLOW}Run 'cd $DOTFILES_DIR && git pull' to update.${NC}"
-  
+
   # Show a summary of the changes
   echo -e "\n${GREEN}Summary of changes:${NC}"
   git log --oneline --pretty=format:"%h %s" HEAD..@{u} | head -n 5
-  
+
   # If there are more than 5 commits, show a message
   if [ $COMMITS_BEHIND -gt 5 ]; then
     echo -e "${YELLOW}... and $(($COMMITS_BEHIND - 5)) more commit(s)${NC}"
   fi
-  
+
   echo -e "\n${YELLOW}Would you like to update your dotfiles now? (y/n)${NC}"
   read -r response
   if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
@@ -96,17 +96,17 @@ echo -e "\n${BLUE}=== Checking for outdated dependencies ===${NC}"
 # Check if Homebrew is installed
 if command -v brew &> /dev/null; then
   echo -e "${GREEN}Checking for outdated Homebrew packages...${NC}"
-  
+
   # Update Homebrew formulae
   brew update > /dev/null
-  
+
   # Get outdated packages
   OUTDATED_PACKAGES=$(brew outdated)
   BREW_OUTDATED=false
-  
+
   if [ -z "$OUTDATED_PACKAGES" ]; then
     echo -e "${GREEN}All Homebrew packages are up to date!${NC}"
-    
+
     # Clear the status file if it exists and contains brew updates
     if status_exists "brew"; then
       echo -e "${GREEN}Clearing previous brew update status${NC}"
@@ -116,10 +116,10 @@ if command -v brew &> /dev/null; then
     echo -e "${YELLOW}The following Homebrew packages are outdated:${NC}"
     echo "$OUTDATED_PACKAGES"
     BREW_OUTDATED=true
-    
+
     # Count the number of outdated packages
     OUTDATED_COUNT=$(echo "$OUTDATED_PACKAGES" | wc -l | tr -d ' ')
-    
+
     # Update the status file
     status_update "brew" "Homebrew updates available ($OUTDATED_COUNT packages)"
   fi
@@ -130,15 +130,15 @@ fi
 # Check for outdated npm packages if Node.js is installed
 if command -v npm &> /dev/null; then
   echo -e "\n${GREEN}Checking for outdated global npm packages...${NC}"
-  
+
   # Load NVM if available to ensure we're using the same Node.js environment as bin/dot
   export NVM_DIR="$HOME/.nvm"
   export NVM_AUTO_USE=false
-  
+
   if [ -f "$DOTFILES_DIR/node/path.zsh" ]; then
     echo -e "${GREEN}Loading NVM environment...${NC}"
     source "$DOTFILES_DIR/node/path.zsh" > /dev/null 2>&1
-    
+
     # Check if NVM is available and use the same Node.js version as bin/dot
     if command -v nvm &> /dev/null; then
       # Use Node.js 20.17.0 to match bin/dot
@@ -149,43 +149,49 @@ if command -v npm &> /dev/null; then
       echo -e "${GREEN}Using Node.js $(node -v) for package check${NC}"
     fi
   fi
-  
+
   echo -e "${BLUE}==>${NC} Checking npm packages (this may take a moment)..."
-  
+
   # Create a temporary directory for our work
   TEMP_DIR=$(mktemp -d)
-  
+
   # Get list of globally installed packages
   npm list -g --depth=0 --json > "$TEMP_DIR/installed.json" 2>/dev/null
-  
+
   # Check if we got valid JSON
   if jq -e . "$TEMP_DIR/installed.json" >/dev/null 2>&1; then
     # Extract package names and versions
     jq -r '.dependencies | to_entries[] | "\(.key)@\(.value.version)"' "$TEMP_DIR/installed.json" > "$TEMP_DIR/installed_packages.txt"
-    
+
     # Initialize outdated packages array
     OUTDATED_PACKAGES=()
     HAS_OUTDATED=false
-    
+
     # Check each package individually
     while IFS= read -r package_info; do
-      package_name=$(echo "$package_info" | cut -d@ -f1)
-      current_version=$(echo "$package_info" | cut -d@ -f2)
-      
+      # Handle scoped packages correctly by finding the last @ symbol
+      package_name=$(echo "$package_info" | sed 's/@\([^@]*\)$//' | sed 's/^@//')
+      current_version=$(echo "$package_info" | sed 's/.*@\([^@]*\)$/\1/')
+
+      # For scoped packages, add the @ back
+      if [[ "$package_info" == @* ]]; then
+        package_name="@$package_name"
+      fi
+
       # Skip npm itself as it's handled separately
       if [ "$package_name" = "npm" ]; then
         continue
       fi
-      
+
       # Try to get the latest version
       latest_version=$(npm view "$package_name" version 2>/dev/null)
-      
+
       if [ -n "$latest_version" ] && [ "$current_version" != "$latest_version" ]; then
         OUTDATED_PACKAGES+=("$package_name@$current_version → $latest_version")
         HAS_OUTDATED=true
       fi
     done < "$TEMP_DIR/installed_packages.txt"
-    
+
     # Check if we found any outdated packages
     if [ "$HAS_OUTDATED" = true ]; then
       echo -e "${YELLOW}You have outdated global npm packages:${NC}"
@@ -193,13 +199,13 @@ if command -v npm &> /dev/null; then
         echo "  $pkg"
       done
       OUTDATED_NPM="yes"
-      
+
       # Update the status file
       status_update "npm" "npm updates available"
     else
       echo -e "${GREEN}All global npm packages are up to date!${NC}"
       OUTDATED_NPM=""
-      
+
       # Clear the status file if it exists and contains npm updates
       if status_exists "npm"; then
         echo -e "${GREEN}Clearing previous npm update status${NC}"
@@ -210,7 +216,7 @@ if command -v npm &> /dev/null; then
     echo -e "${YELLOW}Could not parse npm package information. Try running 'npm outdated -g' manually.${NC}"
     OUTDATED_NPM="unknown"
   fi
-  
+
   # Clean up
   rm -rf "$TEMP_DIR"
 else
@@ -230,4 +236,4 @@ if [ "$DOTFILES_UPDATED" = true ] || [ "$BREW_OUTDATED" = true ] || [ ! -z "$OUT
   fi
 fi
 
-echo -e "\n${GREEN}Update check completed!${NC}" 
+echo -e "\n${GREEN}Update check completed!${NC}"
