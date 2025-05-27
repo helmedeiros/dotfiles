@@ -1,0 +1,29 @@
+{
+  "theme": "default",
+  "model": "claude-3-opus-20240229",
+  "user": {
+    "name": ""
+  },
+  "input": {
+    "lineEnterMode": "opt",
+    "enterSendEnabled": true,
+    "enterPreviewEnabled": true,
+    "vimModeEnabled": false
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info"
+  },
+  "ui": {
+    "showTokenCosts": true,
+    "compactMode": false
+  },
+  "codeSearch": {
+    "defaultMaxFiles": 100
+  },
+  "autoUpdate": true,
+  "telemetry": {
+    "enabled": true
+  },
+  "dangerouslySkipPermissions": false
+}

@@ -5,6 +5,7 @@ tap 'homebrew/cask-versions'
 tap 'pivotal/tap'
 tap 'spring-io/tap'
 tap 'alecthomas/homebrew-tap'
+# tap 'anthropic/tools'  # Anthropic tools tap for Claude CLI - Currently not publicly available
 
 cask 'xquartz'
 cask 'temurin@17'
@@ -51,6 +52,7 @@ brew 'groovy'
 brew 'gometalinter'
 brew 'bats-core'  # Testing framework for Bash scripts
 brew 'ollama'     # Local LLM runner
+# brew 'anthropic/tools/claude-cli'  # Claude CLI tool - Currently not publicly available
 
 ## COCOA - MACOS NATIVE APPS
 brew 'cocoapods'
@@ -81,6 +83,7 @@ cask 'google-cloud-sdk'
 cask 'visual-studio-code'
 cask 'rar'
 cask 'via'
+cask 'claude'  # Official Anthropic Claude desktop app
 
 # mas 'Xcode', id: 497799835
 # mas 'Telegram', id: 747648890
