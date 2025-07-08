@@ -1,7 +1,6 @@
 cask_args appdir: '/Applications'
 
 tap 'homebrew/bundle'
-tap 'homebrew/cask-versions'
 tap 'pivotal/tap'
 tap 'spring-io/tap'
 tap 'alecthomas/homebrew-tap'
