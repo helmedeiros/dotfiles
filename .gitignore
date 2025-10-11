@@ -42,5 +42,43 @@ default.profraw
 !*.conf
 !*.symlink
 
+# Security - Environment and credential files
+*.env
+*.env.local
+*.env.development
+*.env.test
+*.env.production
+.env.*
+!.env.example
+
+# Security - SSH and GPG keys
+*_rsa
+*_rsa.pub
+*_ed25519
+*_ed25519.pub
+*_ecdsa
+*_ecdsa.pub
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_*
+!id_*.pub.example
+
+# Security - API keys and tokens
+*.token
+*.secret
+*secret*
+*password*
+*credential*
+.aws/credentials
+.gcp/credentials.json
+
+# Security - Database files
+*.db
+*.sqlite3
+*.db-journal
+
 # Specific files to ignore (these override the above inclusions)
 git/gitconfig.symlink
