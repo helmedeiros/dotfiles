@@ -66,8 +66,7 @@ if command -v ng &> /dev/null; then
   source <(ng completion script)
 fi
 
-# Kubernetes configuration
-export KUBECONFIG="$HOME/.kube/goeuro-debug.conf"
+# Kubernetes configuration is handled by kubernetes/path.zsh
 
 export TRACER_HOME=/Users/helio.medeiros/.tracer
 fpath=($TRACER_HOME/completion/zsh $fpath)
