@@ -4,7 +4,13 @@
 #
 # Uninstalls disabled or problematic Homebrew packages that are no longer supported
 
-set -e
+set -euo pipefail
+
+# Check if Homebrew is installed
+if ! command -v brew &> /dev/null; then
+  echo "Error: Homebrew is not installed or not in PATH"
+  exit 1
+fi
 
 echo "Checking for disabled Homebrew packages..."
 
@@ -13,18 +19,28 @@ DISABLED_PACKAGES=("openssl@1.1" "vault" "xmlto" "pre-commit" "youtube-dl" "spac
 
 # Check for force flag
 FORCE=false
-if [ "$1" = "--force" ]; then
+if [ "${1:-}" = "--force" ]; then
   FORCE=true
   echo "Force mode enabled. Will ignore dependencies."
 fi
 
 # Check and uninstall disabled packages
 for pkg in "${DISABLED_PACKAGES[@]}"; do
+  # Validate package name
+  if [ -z "$pkg" ]; then
+    echo "Warning: Empty package name in DISABLED_PACKAGES, skipping..."
+    continue
+  fi
+  
   if brew list "$pkg" &>/dev/null; then
     echo "Found disabled package: $pkg"
     
-    # Check for dependencies
-    DEPS=$(brew uses --installed "$pkg" 2>/dev/null || echo "")
+    # Check for dependencies with error handling
+    DEPS=""
+    if ! DEPS=$(brew uses --installed "$pkg" 2>/dev/null); then
+      echo "Warning: Could not check dependencies for $pkg, proceeding with caution..."
+      DEPS=""
+    fi
     
     if [ -n "$DEPS" ]; then
       echo "Warning: $pkg is required by: $DEPS"
