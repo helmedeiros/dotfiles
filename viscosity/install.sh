@@ -12,7 +12,11 @@ function preventing_network_leaks() {
     echo "  Viscosity was already configured."
   else
     echo "  Configuring viscosity network leak prevention."
-    /Applications/Viscosity.app/Contents/MacOS/Viscosity -setSecureGlobalSetting YES -setting AllowOpenVPNScripts -value YES
+    # Try to set the secure global setting, but don't fail if it doesn't work
+    # This may require Viscosity to be running or have specific permissions
+    /Applications/Viscosity.app/Contents/MacOS/Viscosity -setSecureGlobalSetting YES -setting AllowOpenVPNScripts -value YES 2>/dev/null || {
+      echo "  Warning: Could not set Viscosity secure global setting (may need to configure manually in Viscosity preferences)"
+    }
 
     sudo mkdir -p "/Library/Application Support/ViscosityScripts"
     sudo cp $DOTFILES_ROOT/viscosity/disablenetwork.py "/Library/Application Support/ViscosityScripts"

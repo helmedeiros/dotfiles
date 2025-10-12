@@ -75,13 +75,13 @@ echo "› Updating Node.js and npm"
 
 		# Check if NVM is available
 		if command -v nvm &> /dev/null; then
-			# Install Node.js 20.17.0 explicitly
-			echo "Using NVM to install Node.js 20.17.0"
-			nvm install 20.17.0 || echo "Failed to install Node.js 20.17.0"
+			# Install Node.js 20.19.0 explicitly (required for modern packages like vite 7.x)
+			echo "Using NVM to install Node.js 20.19.0"
+			nvm install 20.19.0 || echo "Failed to install Node.js 20.19.0"
 
 			# Explicitly use this version (no auto-use)
-			nvm use 20.17.0 || {
-				echo "Failed to use Node.js 20.17.0, trying to install LTS version"
+			nvm use 20.19.0 || {
+				echo "Failed to use Node.js 20.19.0, trying to install LTS version"
 				nvm install --lts
 				nvm use --lts || echo "Failed to use LTS version, continuing with system Node.js"
 			}
@@ -147,8 +147,12 @@ echo "› Updating Node.js and npm"
 
 						# Install latest version of each outdated package
 						for package in "${OUTDATED_PACKAGES[@]}"; do
-							echo "  Updating $package to latest version"
-							npm install -g "$package@latest" --no-fund --silent || echo "Failed to update $package"
+							echo "  Updating $package to latest version..."
+							if npm install -g "$package@latest" --no-fund 2>&1; then
+								echo "  ✅ Successfully updated $package"
+							else
+								echo "  ❌ Failed to update $package"
+							fi
 						done
 					else
 						echo "› All global npm packages are up to date"
