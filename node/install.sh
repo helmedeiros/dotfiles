@@ -67,7 +67,7 @@ if command -v npm &> /dev/null; then
 	# Package management and utilities
 	installglobal npm-check-updates # Check for outdated packages
 	installglobal npm-check # Interactive update utility
-	installglobal npx # Package runner (usually comes with npm)
+	# Note: npx comes bundled with npm (since npm 5.2.0), no separate installation needed
 
 	# Development tools
 	installglobal typescript
