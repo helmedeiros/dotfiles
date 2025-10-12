@@ -29,8 +29,13 @@ do
 done
 
 # initialize autocomplete here, otherwise functions won't be loaded
-autoload -U compinit
-compinit
+# Use lazy loading for better performance - only rebuild if needed
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
 
 # load every completion after autocomplete loads
 for file in ${(M)config_files:#*/completion.zsh}
@@ -40,12 +45,30 @@ done
 
 unset config_files
 
-autoload -U compinit
-compinit
-
+# Lazy load NVM for better startup performance
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  # Create lazy loading function for nvm
+  nvm() {
+    unset -f nvm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    nvm "$@"
+  }
+  
+  # Create lazy loading for node and npm
+  node() {
+    unset -f node
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    node "$@"
+  }
+  
+  npm() {
+    unset -f npm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    npm "$@"
+  }
+fi
 
 # Better history
 # Credits to https://coderwall.com/p/jpj_6q/zsh-better-history-searching-with-arrow-keys
@@ -56,21 +79,35 @@ zle -N down-line-or-beginning-search
 bindkey "^[[A" up-line-or-beginning-search # Up
 bindkey "^[[B" down-line-or-beginning-search # Down
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+# Lazy load SDKMAN for better startup performance
 export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
+  sdk() {
+    unset -f sdk
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+    sdk "$@"
+  }
+fi
 
 
-# Load Angular CLI autocompletion if available
+# Lazy load Angular CLI completion for better startup performance
 if command -v ng &> /dev/null; then
-  source <(ng completion script)
+  ng() {
+    unset -f ng
+    # Load completion when first used
+    if command -v ng &> /dev/null; then
+      source <(ng completion script) 2>/dev/null || true
+    fi
+    command ng "$@"
+  }
 fi
 
 # Kubernetes configuration is handled by kubernetes/path.zsh
 
-export TRACER_HOME=/Users/helio.medeiros/.tracer
-fpath=($TRACER_HOME/completion/zsh $fpath)
-autoload -U compinit
-compinit
+# Use dynamic path instead of hardcoded user path
+if [ -d "$HOME/.tracer" ]; then
+  export TRACER_HOME="$HOME/.tracer"
+  fpath=($TRACER_HOME/completion/zsh $fpath)
+fi
 export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
