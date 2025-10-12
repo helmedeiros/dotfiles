@@ -2,10 +2,18 @@
 #
 # npm
 #
-# This installs npm packages using npm.
+# This installs modern npm packages using npm.
+
+set -eo pipefail
+
 function installglobal() {
 	echo "Installing $*..."
-	npm install -g --no-fund "${@}" 2>/dev/null || echo "Error: Failed to install $*"
+	if npm install -g --no-fund "${@}" 2>/dev/null; then
+		echo "✅ Successfully installed $*"
+	else
+		echo "❌ Error: Failed to install $*, continuing with other packages..."
+		# Don't exit, just continue with other packages
+	fi
 }
 
 function installNVM() {
@@ -45,41 +53,50 @@ if command -v npm &> /dev/null; then
   echo "Installing npm packages..."
 
   # First, remove any deprecated packages that might be installed
-  npm uninstall -g request superagent cross-spawn-async formidable 2>/dev/null || true
+  npm uninstall -g request superagent cross-spawn-async formidable grunt grunt-cli 2>/dev/null || true
 
 	# Modern networking tools
-	installglobal spoof
+	installglobal axios # Modern HTTP client
+	installglobal got # Alternative HTTP client with better API
 	
-	# Modern web development frameworks
-	installglobal express
-	installglobal axios # Modern alternative to request
-	installglobal got # Modern alternative to superagent
+	# Modern build tools (replacing grunt/gulp)
+	installglobal vite # Modern build tool
+	installglobal esbuild # Fast JavaScript bundler
+	installglobal rollup # Module bundler
 	
-	# Testing frameworks
-	installglobal mocha
-	
-	# Build tools
-	installglobal grunt-cli
-	installglobal grunt
-	installglobal gulp
-	
-	# Utility tools
-	installglobal speed-test
-	installglobal postman-cli # Modern alternative to newman
-	installglobal cross-spawn # Modern alternative to cross-spawn-async
-	installglobal uuid@latest # Modern version of uuid
-	installglobal glob@latest # Modern version of glob
-	
-	# Media tools
-	installglobal spotify-cli-mac
-	
-	# Testing tools
-	installglobal selenium-side-runner
+	# Package management and utilities
+	installglobal npm-check-updates # Check for outdated packages
+	installglobal npm-check # Interactive update utility
+	installglobal npx # Package runner (usually comes with npm)
 	
 	# Development tools
 	installglobal typescript
 	installglobal eslint
 	installglobal prettier
+	installglobal nodemon # Auto-restart for development
+	
+	# Testing frameworks
+	installglobal vitest # Modern test runner
+	installglobal jest # Popular testing framework
+	
+	# Utility tools
+	installglobal cross-spawn # Modern alternative to cross-spawn-async
+	installglobal uuid@latest # UUID generation
+	installglobal glob@latest # File pattern matching
+	installglobal rimraf # Cross-platform rm -rf
+	
+	# Modern CLI tools
+	installglobal serve # Static file server
+	installglobal http-server # Simple HTTP server
+	installglobal live-server # Development server with live reload
+	
+	# Media and system tools
+	installglobal spotify-cli-mac
+	installglobal speed-test
+	
+	# Optional: Keep gulp for legacy projects (commented out by default)
+	# installglobal gulp
+	# installglobal gulp-cli
 	
 	echo "npm packages installation completed"
 else
