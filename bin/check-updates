@@ -142,19 +142,31 @@ if command -v npm &> /dev/null; then
   export NVM_DIR="$HOME/.nvm"
   export NVM_AUTO_USE=false
 
-  if [ -f "$DOTFILES_DIR/node/path.zsh" ]; then
-    echo -e "${GREEN}Loading NVM environment...${NC}"
-    source "$DOTFILES_DIR/node/path.zsh" > /dev/null 2>&1
-
-    # Check if NVM is available and use the same Node.js version as bin/dot
+  # Try to load NVM for npm package checking
+  echo -e "${GREEN}Loading NVM environment...${NC}"
+  
+  # Simple approach: try to load NVM, but don't fail if it doesn't work
+  if [ -s "$NVM_DIR/nvm.sh" ]; then
+    # Temporarily disable all strict modes for NVM loading
+    set +euo pipefail
+    source "$NVM_DIR/nvm.sh" > /dev/null 2>&1 || true
+    [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion" > /dev/null 2>&1 || true
+    # Re-enable strict modes
+    set -euo pipefail
+    
+    # Try to use a Node.js version if NVM loaded
     if command -v nvm &> /dev/null; then
-      # Use Node.js 20.17.0 to match bin/dot
-      nvm use 20.17.0 --silent > /dev/null 2>&1 || {
-        # If that fails, try LTS
-        nvm use --lts --silent > /dev/null 2>&1
-      }
-      echo -e "${GREEN}Using Node.js $(node -v) for package check${NC}"
+      nvm use --lts --silent > /dev/null 2>&1 || nvm use node --silent > /dev/null 2>&1 || true
     fi
+  fi
+  
+  # Check if we have node available for npm checking
+  if command -v node &> /dev/null; then
+    echo -e "${GREEN}Using Node.js $(node -v) for package check${NC}"
+  else
+    echo -e "${YELLOW}Node.js not available, skipping npm package check${NC}"
+    echo -e "\n${GREEN}Update check completed!${NC}"
+    return 0
   fi
 
   echo -e "${BLUE}==>${NC} Checking npm packages (this may take a moment)..."
