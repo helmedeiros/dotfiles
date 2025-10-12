@@ -45,30 +45,7 @@ done
 
 unset config_files
 
-# Lazy load NVM for better startup performance
-export NVM_DIR="$HOME/.nvm"
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-  # Create lazy loading function for nvm
-  nvm() {
-    unset -f nvm
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-    nvm "$@"
-  }
-  
-  # Create lazy loading for node and npm
-  node() {
-    unset -f node
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    node "$@"
-  }
-  
-  npm() {
-    unset -f npm
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    npm "$@"
-  }
-fi
+# NVM configuration is handled by node/path.zsh
 
 # Better history
 # Credits to https://coderwall.com/p/jpj_6q/zsh-better-history-searching-with-arrow-keys
@@ -104,10 +81,6 @@ fi
 
 # Kubernetes configuration is handled by kubernetes/path.zsh
 
-# Use dynamic path instead of hardcoded user path
-if [ -d "$HOME/.tracer" ]; then
-  export TRACER_HOME="$HOME/.tracer"
-  fpath=($TRACER_HOME/completion/zsh $fpath)
-fi
+# TRACER configuration is handled by tracer/path.zsh
 export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
