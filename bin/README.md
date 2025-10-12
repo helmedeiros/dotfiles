@@ -141,6 +141,34 @@ NOTES:
   - Particularly useful when you accidentally paste sensitive information like passwords
 ```
 
+### git-delete-local-merged
+
+Delete all local branches that have been merged into HEAD. This helps keep your repository clean by removing branches that are no longer needed.
+
+```
+USAGE:
+  git-delete-local-merged
+
+EXAMPLES:
+  git-delete-local-merged                         - Delete all merged branches
+
+NOTES:
+  - Safely deletes only branches that have been fully merged into HEAD
+  - Never deletes the current branch (the one you're on)
+  - Never deletes the 'master' branch
+  - Preserves any branches with unmerged commits
+  - Handles branch names with special characters (e.g., feature/my-feature)
+  - Works from anywhere within the repository (including subdirectories)
+  - Safe to run - will not delete branches with unmerged work
+  - If no branches need deletion, the command completes successfully without errors
+
+WORKFLOW:
+  A typical workflow would be:
+  1. git checkout master
+  2. git pull origin master
+  3. git-delete-local-merged    # Cleans up old feature branches
+```
+
 ## Adding New Scripts
 
 When adding new scripts to this directory:
