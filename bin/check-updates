@@ -144,7 +144,7 @@ if command -v npm &> /dev/null; then
 
   # Try to load NVM for npm package checking
   echo -e "${GREEN}Loading NVM environment...${NC}"
-  
+
   # Simple approach: try to load NVM, but don't fail if it doesn't work
   if [ -s "$NVM_DIR/nvm.sh" ]; then
     # Temporarily disable all strict modes for NVM loading
@@ -153,13 +153,13 @@ if command -v npm &> /dev/null; then
     [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion" > /dev/null 2>&1 || true
     # Re-enable strict modes
     set -euo pipefail
-    
+
     # Try to use a Node.js version if NVM loaded
     if command -v nvm &> /dev/null; then
       nvm use --lts --silent > /dev/null 2>&1 || nvm use node --silent > /dev/null 2>&1 || true
     fi
   fi
-  
+
   # Check if we have node available for npm checking
   if command -v node &> /dev/null; then
     echo -e "${GREEN}Using Node.js $(node -v) for package check${NC}"
