@@ -31,32 +31,32 @@ for pkg in "${DISABLED_PACKAGES[@]}"; do
     echo "Warning: Empty package name in DISABLED_PACKAGES, skipping..."
     continue
   fi
-  
+
   if brew list "$pkg" &>/dev/null; then
     echo "Found disabled package: $pkg"
-    
+
     # Check for dependencies with error handling
     DEPS=""
     if ! DEPS=$(brew uses --installed "$pkg" 2>/dev/null); then
       echo "Warning: Could not check dependencies for $pkg, proceeding with caution..."
       DEPS=""
     fi
-    
+
     if [ -n "$DEPS" ]; then
       echo "Warning: $pkg is required by: $DEPS"
-      
+
       if [ "$FORCE" = true ]; then
         echo "Forcing uninstall of $pkg (ignoring dependencies)..."
         brew uninstall --ignore-dependencies "$pkg" || echo "Failed to uninstall $pkg, continuing..."
       else
         echo "Skipping $pkg. To force removal, run: bin/cleanup-brew --force"
         echo "Note: This may break packages that depend on it."
-        
+
         # Special handling for youtube-dl
         if [ "$pkg" = "youtube-dl" ]; then
           echo "Recommendation: Use yt-dlp instead of youtube-dl (already in your Brewfile)"
         fi
-        
+
         # Special handling for openssl@1.1
         if [ "$pkg" = "openssl@1.1" ]; then
           echo "Note: openssl@1.1 is required by grc. Consider updating grc or accepting this dependency."
@@ -79,4 +79,4 @@ echo "1. Run 'bin/cleanup-brew --force' to force removal (may break dependencies
 echo "2. Accept that some disabled packages are needed by your installed software"
 echo "3. Consider updating your Brewfile to use newer alternatives"
 echo ""
-echo "Run 'bin/dot' to ensure your system is up-to-date." 
+echo "Run 'bin/dot' to ensure your system is up-to-date."

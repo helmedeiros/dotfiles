@@ -18,14 +18,14 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
     nvm "$@"
   }
-  
+
   # Create lazy loading for node and npm
   node() {
     unset -f node
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
     node "$@"
   }
-  
+
   npm() {
     unset -f npm
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"

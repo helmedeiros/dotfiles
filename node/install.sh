@@ -21,16 +21,16 @@ function installNVM() {
 	if [ ! -d "$HOME/.nvm" ]; then
 		mkdir -p "$HOME/.nvm"
 	fi
-	
+
 	# Install NVM
 	echo "Installing NVM..."
 	curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-	
+
 	# Source NVM immediately without auto-use
 	export NVM_DIR="$HOME/.nvm"
 	export NVM_AUTO_USE=false
 	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
-	
+
 	# Verify NVM installation
 	if command -v nvm &> /dev/null; then
 		# Install latest LTS version of Node.js
@@ -58,46 +58,46 @@ if command -v npm &> /dev/null; then
 	# Modern networking tools
 	installglobal axios # Modern HTTP client
 	installglobal got # Alternative HTTP client with better API
-	
+
 	# Modern build tools (replacing grunt/gulp)
 	installglobal vite # Modern build tool
 	installglobal esbuild # Fast JavaScript bundler
 	installglobal rollup # Module bundler
-	
+
 	# Package management and utilities
 	installglobal npm-check-updates # Check for outdated packages
 	installglobal npm-check # Interactive update utility
 	installglobal npx # Package runner (usually comes with npm)
-	
+
 	# Development tools
 	installglobal typescript
 	installglobal eslint
 	installglobal prettier
 	installglobal nodemon # Auto-restart for development
-	
+
 	# Testing frameworks
 	installglobal vitest # Modern test runner
 	installglobal jest # Popular testing framework
-	
+
 	# Utility tools
 	installglobal cross-spawn # Modern alternative to cross-spawn-async
 	installglobal uuid@latest # UUID generation
 	installglobal glob@latest # File pattern matching
 	installglobal rimraf # Cross-platform rm -rf
-	
+
 	# Modern CLI tools
 	installglobal serve # Static file server
 	installglobal http-server # Simple HTTP server
 	installglobal live-server # Development server with live reload
-	
+
 	# Media and system tools
 	installglobal spotify-cli-mac
 	installglobal speed-test
-	
+
 	# Optional: Keep gulp for legacy projects (commented out by default)
 	# installglobal gulp
 	# installglobal gulp-cli
-	
+
 	echo "npm packages installation completed"
 else
 	echo "Error: npm not found even after Node.js installation. Something went wrong."
