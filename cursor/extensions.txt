@@ -21,7 +21,6 @@ donjayamanne.python-extension-pack
 donjayamanne.python-environment-manager
 kevinrose.vsc-python-indent
 njpwerner.autodocstring
-wolfieshorizon.python-auto-venv
 
 # Java Specific
 vscjava.vscode-java-pack
@@ -82,4 +81,4 @@ withfig.fig
 
 # AI Assistance
 visualstudioexptteam.vscodeintellicode
-visualstudioexptteam.intellicode-api-usage-examples 
+visualstudioexptteam.intellicode-api-usage-examples
