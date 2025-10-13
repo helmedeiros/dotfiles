@@ -2,59 +2,27 @@
 
 ## Current Test Coverage
 
-Currently tested scripts (6 out of 32):
+Currently tested scripts (9 out of 32):
 
 - ✅ `check-updates` - Comprehensive tests with multiple scenarios
 - ✅ `cleanup-brew` - Tests for package removal logic
 - ✅ `dot` - Tests for dotfiles setup
 - ✅ `e` - Extensive tests for editor functionality
 - ✅ `gh-packages` - Tests for GitHub packages
+- ✅ `git-delete-local-merged` - Tests for merged branch deletion (11 tests)
+- ✅ `git-undo` - Tests for undoing commits (11 tests)
+- ✅ `history-clean` - Comprehensive tests for history cleaning (28 tests)
 - ✅ `macos/set-defaults.sh` - Tests for macOS defaults
 
-## Missing Test Coverage (26 scripts)
+**Total Tests: 111**
+
+## Missing Test Coverage (23 scripts)
 
 ### Priority 1: High-Value Scripts That Should Be Tested Next
 
 These scripts have complex logic, handle critical operations, or are frequently used:
 
-#### 1. **`git-delete-local-merged`** (HIGH PRIORITY)
-
-- **Why test**: Destructive operation (deletes branches)
-- **Complexity**: Moderate - uses git commands and filters
-- **Test scenarios**:
-  - Should identify merged branches correctly
-  - Should not delete current branch
-  - Should not delete master/main branch
-  - Should handle no merged branches case
-  - Should handle branches with special characters in names
-- **Risk**: Could accidentally delete important branches
-
-#### 2. **`git-undo`** (HIGH PRIORITY)
-
-- **Why test**: Destructive operation (modifies git history)
-- **Complexity**: Low - simple reset command
-- **Test scenarios**:
-  - Should undo last commit but keep changes staged
-  - Should work when there's only one commit
-  - Should handle detached HEAD state
-  - Should preserve working directory changes
-- **Risk**: Could lose uncommitted work if misused
-
-#### 3. **`history-clean`** (HIGH PRIORITY)
-
-- **Why test**: Modifies important user data (shell history)
-- **Complexity**: High - multiple modes, backup creation, pattern matching
-- **Test scenarios**:
-  - Should remove specific line numbers
-  - Should remove lines matching pattern (-p flag)
-  - Should remove last N lines (--last flag)
-  - Should create backups before modifying
-  - Should handle invalid line numbers
-  - Should clean autocompletion history
-  - Should handle edge cases (empty history, invalid patterns)
-- **Risk**: Could lose important history if buggy
-
-#### 4. **`headers`** (MEDIUM-HIGH PRIORITY)
+#### 1. **`headers`** (MEDIUM-HIGH PRIORITY)
 
 - **Why test**: Has options/flags, makes network requests
 - **Complexity**: Medium - argument parsing, curl wrapper
@@ -67,7 +35,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should handle network errors
 - **Value**: Frequently used for debugging
 
-#### 5. **`unzip-all`** (MEDIUM-HIGH PRIORITY)
+#### 2. **`unzip-all`** (MEDIUM-HIGH PRIORITY)
 
 - **Why test**: File operations with trash/deletion
 - **Complexity**: Medium - file detection, unzip, trash
@@ -80,7 +48,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should handle empty directories
 - **Risk**: Could accidentally delete files
 
-#### 6. **`git-nuke`** (HIGH PRIORITY)
+#### 3. **`git-nuke`** (HIGH PRIORITY)
 
 - **Why test**: Destructive operation (deletes branches locally and remotely)
 - **Complexity**: Medium
@@ -94,7 +62,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
 
 ### Priority 2: Moderate Complexity Scripts Worth Testing
 
-#### 7. **`git-unpushed`**
+#### 4. **`git-unpushed`**
 
 - **Why test**: Useful git utility
 - **Complexity**: Low - git difftool wrapper
@@ -103,7 +71,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should handle branches with no upstream
   - Should handle no unpushed changes
 
-#### 8. **`git-unpushed-stat`**
+#### 5. **`git-unpushed-stat`**
 
 - **Why test**: Similar to git-unpushed but with stats
 - **Complexity**: Low
@@ -111,7 +79,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should show diffstat of unpushed changes
   - Should handle branches with no upstream
 
-#### 9. **`git-up`**
+#### 6. **`git-up`**
 
 - **Why test**: Modifies git state (pull/rebase)
 - **Complexity**: Medium - handles both merge and rebase
@@ -121,7 +89,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should show diffstat when rebasing
   - Should handle conflicts
 
-#### 10. **`git-promote`**
+#### 7. **`git-promote`**
 
 - **Why test**: Creates remote tracking branches
 - **Complexity**: Medium
@@ -130,7 +98,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should set up tracking
   - Should handle already-tracked branches
 
-#### 11. **`search`**
+#### 8. **`search`**
 
 - **Why test**: Text search utility
 - **Complexity**: Low - ack wrapper
@@ -139,7 +107,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should handle missing ack
   - Should pass arguments correctly
 
-#### 12. **`todo`**
+#### 9. **`todo`**
 
 - **Why test**: File creation
 - **Complexity**: Very low - just creates a file
@@ -164,27 +132,27 @@ These are very simple and unlikely to break:
 
 These would require more sophisticated test setups:
 
-#### 13. **`git-wtf`**
+#### 10. **`git-wtf`**
 
 - **Why defer**: Very complex Ruby script (360+ lines)
 - **Complexity**: Very high - extensive git operations
 - **Why hard to test**: Requires complex git repository setups with multiple branches, remotes, and states
 - **Recommendation**: Test if bugs are reported, otherwise defer
 
-#### 14. **`res`**
+#### 11. **`res`**
 
 - **Why defer**: AppleScript that automates UI
 - **Complexity**: High - UI automation
 - **Why hard to test**: Requires mocking macOS System Settings UI
 - **Recommendation**: Manual testing only
 
-#### 15. **`kube-setup`**
+#### 12. **`kube-setup`**
 
 - **Why defer**: Requires Kubernetes environment
 - **Complexity**: Unknown (would need to review)
 - **Recommendation**: Test if issues arise
 
-#### 16. **`yt`**
+#### 13. **`yt`**
 
 - **Why defer**: Depends on external yt-dlp tool
 - **Complexity**: Unknown
@@ -200,11 +168,11 @@ These are too simple or trivial:
 
 ## Recommended Testing Roadmap
 
-### Phase 1 (Next 2 weeks)
+### Phase 1 (Next 2 weeks) ✅ **COMPLETED**
 
-1. `git-delete-local-merged` - Critical destructive operation
-2. `git-undo` - Critical destructive operation
-3. `history-clean` - Complex with multiple modes
+1. ~~`git-delete-local-merged`~~ ✅ **COMPLETED** (11 tests) - Critical destructive operation
+2. ~~`git-undo`~~ ✅ **COMPLETED** (11 tests) - Critical destructive operation
+3. ~~`history-clean`~~ ✅ **COMPLETED** (28 tests) - Complex with multiple modes
 
 ### Phase 2 (Following 2 weeks)
 
@@ -229,9 +197,9 @@ Based on existing tests, continue using:
 - **Temporary directories** - Already used for isolation
 - **Mock commands** - Already used for brew, git, etc.
 
-### New Test Mothers to Create
+### New Test Mothers Created
 
-1. **`git_mother.sh`** - Helper functions for:
+1. ~~**`git_mother.sh`**~~ ✅ **COMPLETED** - Helper functions for:
 
    - Creating test git repositories
    - Setting up branches and commits
@@ -243,8 +211,9 @@ Based on existing tests, continue using:
    - Creating test files and directories
    - Creating zip files for testing
    - Managing test fixtures
+   - ⚠️ **Not yet created** - Will be needed for Phase 2
 
-3. **`history_mother.sh`** - Helper functions for:
+3. ~~**`history_mother.sh`**~~ ✅ **COMPLETED** - Helper functions for:
    - Creating test history files
    - Populating with test data
    - Simulating different history formats
@@ -252,8 +221,9 @@ Based on existing tests, continue using:
 ## Summary Statistics
 
 - **Total bin scripts**: 32
-- **Currently tested**: 6 (19%)
-- **High priority to test**: 6 scripts
+- **Currently tested**: 9 (28%)
+- **Total tests**: 111
+- **High priority to test**: 3 scripts (headers, unzip-all, git-nuke)
 - **Medium priority to test**: 6 scripts
 - **Low priority to test**: 3 scripts
 - **Too complex/defer**: 4 scripts
@@ -261,12 +231,16 @@ Based on existing tests, continue using:
 
 **Target coverage**: ~60% (19 scripts) would give excellent practical coverage while focusing on scripts that matter most.
 
+**Current progress**: 47% toward target (9 out of 19 target scripts)
+
 ## Next Immediate Action
 
-**Start with `git-delete-local-merged`** because:
+**✅ Phase 1 Complete! Move to Phase 2:**
 
-1. It's a destructive operation (deletes branches)
-2. It's moderately complex with filtering logic
-3. It's commonly used in development workflows
-4. The test will establish patterns for other git utility tests
-5. There's real risk of data loss if it has bugs
+**Start with `headers`** because:
+
+1. Useful utility with options and flags
+2. Makes network requests (important to test error handling)
+3. Frequently used for debugging
+4. Medium complexity with argument parsing
+5. Part of Phase 2 priority scripts

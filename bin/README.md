@@ -169,6 +169,51 @@ WORKFLOW:
   3. git-delete-local-merged    # Cleans up old feature branches
 ```
 
+### git-undo
+
+Undo your last commit while keeping all changes staged. This is useful when you want to modify your commit message, add more files, or split a commit into multiple commits.
+
+```
+USAGE:
+  git-undo
+
+EXAMPLES:
+  git-undo                                        - Undo the last commit, keep changes staged
+
+NOTES:
+  - Moves HEAD back one commit (using git reset --soft HEAD^)
+  - All changes from the undone commit remain staged (ready to commit again)
+  - Working directory changes are preserved
+  - Does NOT affect your files - they remain exactly as they were
+  - Safe to use - doesn't lose any work
+  - Can be run multiple times to undo multiple commits
+  - Only affects the current branch
+  - Works from anywhere within the repository (including subdirectories)
+
+WORKFLOW:
+  Common workflows:
+
+  1. Fix a commit message:
+     - git-undo
+     - git commit -m "Better commit message"
+
+  2. Add forgotten files to the last commit:
+     - git-undo
+     - git add forgotten-file.txt
+     - git commit -m "Original message with forgotten file"
+
+  3. Split a large commit:
+     - git-undo
+     - git reset HEAD some-file.txt        # Unstage specific files
+     - git commit -m "First part"
+     - git commit -m "Second part"
+
+CAUTION:
+  - Will fail if you're on the first commit (no parent to reset to)
+  - If you've already pushed the commit, consider using this before pushing
+  - If you need to undo a pushed commit, consider 'git revert' instead
+```
+
 ## Adding New Scripts
 
 When adding new scripts to this directory:
