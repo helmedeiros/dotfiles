@@ -6,7 +6,7 @@
 # Source the company-specific configuration if it exists
 if [ -f "$HOME/.dot-secrets/kubernetes/config.sh" ]; then
   source "$HOME/.dot-secrets/kubernetes/config.sh"
-  
+
   # Set KUBECONFIG if the company configuration file exists and KUBE_CONFIG_FILENAME is defined
   if [ -n "$KUBE_CONFIG_FILENAME" ] && [ -f "$HOME/.kube/$KUBE_CONFIG_FILENAME" ]; then
     export KUBECONFIG="$HOME/.kube/$KUBE_CONFIG_FILENAME"
@@ -24,4 +24,4 @@ fi
 if [[ $- == *i* ]] && command -v kubectl &> /dev/null && command -v compdef &> /dev/null; then
   # Add kubectl completion only in interactive shells
   source <(kubectl completion zsh 2>/dev/null)
-fi 
+fi
