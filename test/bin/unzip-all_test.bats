@@ -7,24 +7,24 @@ UNZIP_ALL_SCRIPT="${BATS_TEST_DIRNAME}/../../bin/unzip-all"
 setup() {
   # Create a temporary directory for test files
   TEST_DIR="$(mktemp -d)"
-  
+
   # Save the current directory to return to it later
   ORIGINAL_DIR="$(pwd)"
-  
+
   # Change to test directory
   cd "${TEST_DIR}"
-  
+
   # Create mock bin directory
   MOCK_BIN="${TEST_DIR}/mock-bin"
   mkdir -p "${MOCK_BIN}"
-  
+
   # Add mock bin to PATH
   export PATH="${MOCK_BIN}:${PATH}"
-  
+
   # Track which files were trashed
   export TRASHED_FILES="${TEST_DIR}/trashed_files.log"
   : > "${TRASHED_FILES}"
-  
+
   # Track which files were unzipped
   export UNZIPPED_FILES="${TEST_DIR}/unzipped_files.log"
   : > "${UNZIPPED_FILES}"
@@ -34,10 +34,10 @@ setup() {
 teardown() {
   # Return to the original directory
   cd "${ORIGINAL_DIR}"
-  
+
   # Clean up the temporary directory
   rm -rf "${TEST_DIR}"
-  
+
   # Clean up environment variables
   unset TRASHED_FILES
   unset UNZIPPED_FILES
@@ -51,7 +51,7 @@ create_mock_file_cmd() {
 
 if [[ "$1" == "-b" ]]; then
   filename="$2"
-  
+
   # Simulate file type detection
   if [[ "$filename" == *.zip ]] && [[ "$filename" != "fake.zip" ]] && [[ "$filename" != "not-a-zip.zip" ]]; then
     echo "Zip archive data, at least v2.0 to extract"
@@ -157,20 +157,20 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create a test zip file
   touch test.zip
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify file was unzipped
   grep -q "test.zip" "${UNZIPPED_FILES}"
-  
+
   # Verify file was trashed
   grep -q "test.zip" "${TRASHED_FILES}"
-  
+
   # Verify original zip file is gone
   [ ! -f "test.zip" ]
 }
@@ -180,19 +180,19 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create multiple test zip files
   create_test_zip_files
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify all files were unzipped
   grep -q "file1.zip" "${UNZIPPED_FILES}"
   grep -q "file2.zip" "${UNZIPPED_FILES}"
   grep -q "file3.zip" "${UNZIPPED_FILES}"
-  
+
   # Verify all files were trashed
   grep -q "file1.zip" "${TRASHED_FILES}"
   grep -q "file2.zip" "${TRASHED_FILES}"
@@ -204,20 +204,20 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create a file with .zip extension that's not actually a zip
   touch not-a-zip.zip
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify file was NOT unzipped
   ! grep -q "not-a-zip.zip" "${UNZIPPED_FILES}"
-  
+
   # Verify file was NOT trashed
   ! grep -q "not-a-zip.zip" "${TRASHED_FILES}"
-  
+
   # Verify file still exists
   [ -f "not-a-zip.zip" ]
 }
@@ -227,17 +227,17 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create a zip file with spaces in name
   touch "my archive.zip"
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify file was unzipped
   grep -q "my archive.zip" "${UNZIPPED_FILES}"
-  
+
   # Verify file was trashed
   grep -q "my archive.zip" "${TRASHED_FILES}"
 }
@@ -247,14 +247,14 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create a non-zip file to ensure the pattern doesn't match
   touch README.txt
-  
+
   # Run unzip-all with pattern that won't match
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # When no files match, bash treats the pattern literally
   # The script will try to process "*.zip" as a filename
   # Since it doesn't exist as a real file, it's handled gracefully
@@ -266,21 +266,21 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create mixed file types
   touch file1.zip
   touch file2.txt
   touch file3.jpg
-  
+
   # Run unzip-all with wildcard that matches all
   run bash "${UNZIP_ALL_SCRIPT}" "*"
   [ "$status" -eq 0 ]
-  
+
   # Verify only zip file was processed
   grep -q "file1.zip" "${UNZIPPED_FILES}"
   ! grep -q "file2.txt" "${UNZIPPED_FILES}"
   ! grep -q "file3.jpg" "${UNZIPPED_FILES}"
-  
+
   # Verify non-zip files still exist
   [ -f "file2.txt" ]
   [ -f "file3.jpg" ]
@@ -291,14 +291,14 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create a test zip file
   touch archive.zip
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify extracted directory was created
   [ -d "archive" ]
   [ -f "archive/file1.txt" ]
@@ -310,16 +310,16 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create multiple files
   touch test-archive.zip
   touch prod-archive.zip
   touch other.zip
-  
+
   # Run unzip-all with specific pattern
   run bash "${UNZIP_ALL_SCRIPT}" "test-*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify only matching file was processed
   grep -q "test-archive.zip" "${UNZIPPED_FILES}"
   ! grep -q "prod-archive.zip" "${UNZIPPED_FILES}"
@@ -331,16 +331,16 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip_failing
   create_mock_trash
-  
+
   # Create a test zip file
   touch corrupted.zip
-  
+
   # Run unzip-all (should fail because unzip fails)
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
-  
+
   # Should exit with error due to set -e
   [ "$status" -ne 0 ]
-  
+
   # File should not be trashed if unzip fails
   ! grep -q "corrupted.zip" "${TRASHED_FILES}"
 }
@@ -350,16 +350,16 @@ create_test_zip_files() {
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash_failing
-  
+
   # Create a test zip file
   touch test.zip
-  
+
   # Run unzip-all (should fail because trash fails)
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
-  
+
   # Should exit with error due to set -e
   [ "$status" -ne 0 ]
-  
+
   # File should have been unzipped
   grep -q "test.zip" "${UNZIPPED_FILES}"
 }
@@ -376,17 +376,17 @@ if [[ "\$1" == "-b" ]]; then
 fi
 EOF
   chmod +x "${MOCK_BIN}/file"
-  
+
   create_mock_unzip
   create_mock_trash
-  
+
   # Create a test file
   touch test.zip
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify file command was called
   [ -f "${FILE_CALLS_LOG}" ]
   grep -q "file command called" "${FILE_CALLS_LOG}"
@@ -397,15 +397,15 @@ EOF
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create files in current directory
   touch archive1.zip
   touch archive2.zip
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify both files were processed
   UNZIPPED_COUNT=$(grep -c ".zip" "${UNZIPPED_FILES}" || true)
   [ "$UNZIPPED_COUNT" -eq 2 ]
@@ -416,13 +416,13 @@ EOF
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Run without arguments
   run bash "${UNZIP_ALL_SCRIPT}"
-  
+
   # Should complete (will just iterate over nothing)
   [ "$status" -eq 0 ]
-  
+
   # No files should be processed
   [ ! -s "${UNZIPPED_FILES}" ]
 }
@@ -431,7 +431,7 @@ EOF
 @test "unzip-all exits immediately on error due to set -e" {
   create_mock_file_cmd
   create_mock_trash
-  
+
   # Create a mock unzip that fails
   cat > "${MOCK_BIN}/unzip" <<'EOF'
 #!/bin/bash
@@ -439,21 +439,21 @@ echo "$1" >> "$UNZIPPED_FILES"
 exit 1
 EOF
   chmod +x "${MOCK_BIN}/unzip"
-  
+
   # Create multiple files
   touch file1.zip
   touch file2.zip
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
-  
+
   # Should fail
   [ "$status" -ne 0 ]
-  
+
   # At least one file should have been attempted
   # The exact number depends on loop iteration order
   [ -s "${UNZIPPED_FILES}" ]
-  
+
   # Verify it failed due to unzip error
   [[ "$output" == *"" ]] || [ "$status" -ne 0 ]
 }
@@ -463,16 +463,16 @@ EOF
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create files with different prefixes
   touch backup-2024.zip
   touch backup-2023.zip
   touch archive-2024.zip
-  
+
   # Run with specific glob
   run bash "${UNZIP_ALL_SCRIPT}" "backup-*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify only backup files were processed
   grep -q "backup-2024.zip" "${UNZIPPED_FILES}"
   grep -q "backup-2023.zip" "${UNZIPPED_FILES}"
@@ -484,14 +484,14 @@ EOF
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create a test zip file
   touch test.zip
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify unzip output is shown
   [[ "$output" == *"Archive:"* ]]
   [[ "$output" == *"inflating:"* ]]
@@ -502,19 +502,19 @@ EOF
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create test files
   touch file1.zip
   touch file2.zip
-  
+
   # Verify files exist before
   [ -f "file1.zip" ]
   [ -f "file2.zip" ]
-  
+
   # Run unzip-all
   run bash "${UNZIP_ALL_SCRIPT}" "*.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify files are gone after
   [ ! -f "file1.zip" ]
   [ ! -f "file2.zip" ]
@@ -525,17 +525,16 @@ EOF
   create_mock_file_cmd
   create_mock_unzip
   create_mock_trash
-  
+
   # Create multiple files
   touch specific.zip
   touch other.zip
-  
+
   # Run with specific file (not glob)
   run bash "${UNZIP_ALL_SCRIPT}" "specific.zip"
   [ "$status" -eq 0 ]
-  
+
   # Verify only specific file was processed
   grep -q "specific.zip" "${UNZIPPED_FILES}"
   ! grep -q "other.zip" "${UNZIPPED_FILES}"
 }
-
