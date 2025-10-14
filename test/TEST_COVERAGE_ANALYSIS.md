@@ -2,7 +2,7 @@
 
 ## Current Test Coverage
 
-Currently tested scripts (10 out of 32):
+Currently tested scripts (11 out of 32):
 
 - ✅ `check-updates` - Comprehensive tests with multiple scenarios
 - ✅ `cleanup-brew` - Tests for package removal logic
@@ -14,29 +14,17 @@ Currently tested scripts (10 out of 32):
 - ✅ `headers` - Tests for HTTP header utility (21 tests)
 - ✅ `history-clean` - Comprehensive tests for history cleaning (28 tests)
 - ✅ `macos/set-defaults.sh` - Tests for macOS defaults
+- ✅ `unzip-all` - Tests for file extraction and trash operations (19 tests)
 
-**Total Tests: 132**
+**Total Tests: 151**
 
-## Missing Test Coverage (22 scripts)
+## Missing Test Coverage (21 scripts)
 
 ### Priority 1: High-Value Scripts That Should Be Tested Next
 
 These scripts have complex logic, handle critical operations, or are frequently used:
 
-#### 1. **`unzip-all`** (MEDIUM-HIGH PRIORITY)
-
-- **Why test**: File operations with trash/deletion
-- **Complexity**: Medium - file detection, unzip, trash
-- **Test scenarios**:
-  - Should unzip all zip files matching pattern
-  - Should move processed files to trash
-  - Should handle invalid zip files
-  - Should handle files with spaces in names
-  - Should skip non-zip files
-  - Should handle empty directories
-- **Risk**: Could accidentally delete files
-
-#### 2. **`git-nuke`** (HIGH PRIORITY)
+#### 1. **`git-nuke`** (HIGH PRIORITY)
 
 - **Why test**: Destructive operation (deletes branches locally and remotely)
 - **Complexity**: Medium
@@ -50,7 +38,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
 
 ### Priority 2: Moderate Complexity Scripts Worth Testing
 
-#### 3. **`git-unpushed`**
+#### 2. **`git-unpushed`**
 
 - **Why test**: Useful git utility
 - **Complexity**: Low - git difftool wrapper
@@ -59,7 +47,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should handle branches with no upstream
   - Should handle no unpushed changes
 
-#### 4. **`git-unpushed-stat`**
+#### 3. **`git-unpushed-stat`**
 
 - **Why test**: Similar to git-unpushed but with stats
 - **Complexity**: Low
@@ -67,7 +55,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should show diffstat of unpushed changes
   - Should handle branches with no upstream
 
-#### 5. **`git-up`**
+#### 4. **`git-up`**
 
 - **Why test**: Modifies git state (pull/rebase)
 - **Complexity**: Medium - handles both merge and rebase
@@ -77,7 +65,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should show diffstat when rebasing
   - Should handle conflicts
 
-#### 6. **`git-promote`**
+#### 5. **`git-promote`**
 
 - **Why test**: Creates remote tracking branches
 - **Complexity**: Medium
@@ -86,7 +74,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should set up tracking
   - Should handle already-tracked branches
 
-#### 7. **`search`**
+#### 6. **`search`**
 
 - **Why test**: Text search utility
 - **Complexity**: Low - ack wrapper
@@ -95,7 +83,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should handle missing ack
   - Should pass arguments correctly
 
-#### 8. **`todo`**
+#### 7. **`todo`**
 
 - **Why test**: File creation
 - **Complexity**: Very low - just creates a file
@@ -120,27 +108,27 @@ These are very simple and unlikely to break:
 
 These would require more sophisticated test setups:
 
-#### 9. **`git-wtf`**
+#### 8. **`git-wtf`**
 
 - **Why defer**: Very complex Ruby script (360+ lines)
 - **Complexity**: Very high - extensive git operations
 - **Why hard to test**: Requires complex git repository setups with multiple branches, remotes, and states
 - **Recommendation**: Test if bugs are reported, otherwise defer
 
-#### 10. **`res`**
+#### 9. **`res`**
 
 - **Why defer**: AppleScript that automates UI
 - **Complexity**: High - UI automation
 - **Why hard to test**: Requires mocking macOS System Settings UI
 - **Recommendation**: Manual testing only
 
-#### 11. **`kube-setup`**
+#### 10. **`kube-setup`**
 
 - **Why defer**: Requires Kubernetes environment
 - **Complexity**: Unknown (would need to review)
 - **Recommendation**: Test if issues arise
 
-#### 12. **`yt`**
+#### 11. **`yt`**
 
 - **Why defer**: Depends on external yt-dlp tool
 - **Complexity**: Unknown
@@ -165,7 +153,7 @@ These are too simple or trivial:
 ### Phase 2 (Following 2 weeks) - IN PROGRESS
 
 4. ~~`headers`~~ ✅ **COMPLETED** (21 tests) - Useful utility with options
-5. `unzip-all` - File operations
+5. ~~`unzip-all`~~ ✅ **COMPLETED** (19 tests) - File operations
 6. `git-nuke` - Destructive remote operations
 
 ### Phase 3 (As time permits)
@@ -209,9 +197,9 @@ Based on existing tests, continue using:
 ## Summary Statistics
 
 - **Total bin scripts**: 32
-- **Currently tested**: 10 (31%)
-- **Total tests**: 132
-- **High priority to test**: 2 scripts (unzip-all, git-nuke)
+- **Currently tested**: 11 (34%)
+- **Total tests**: 151
+- **High priority to test**: 1 script (git-nuke)
 - **Medium priority to test**: 6 scripts
 - **Low priority to test**: 3 scripts
 - **Too complex/defer**: 4 scripts
@@ -219,16 +207,16 @@ Based on existing tests, continue using:
 
 **Target coverage**: ~60% (19 scripts) would give excellent practical coverage while focusing on scripts that matter most.
 
-**Current progress**: 53% toward target (10 out of 19 target scripts)
+**Current progress**: 58% toward target (11 out of 19 target scripts)
 
 ## Next Immediate Action
 
-**✅ Phase 1 Complete! Phase 2 in progress (1/3 done):**
+**✅ Phase 1 Complete! Phase 2 nearly done (2/3 complete):**
 
-**Next: `unzip-all`** because:
+**Next: `git-nuke`** because:
 
-1. File operations with trash/deletion (important to test safety)
-2. Medium complexity with file detection and processing
-3. Risk of accidentally deleting files if buggy
-4. Handles edge cases (spaces in names, invalid files)
-5. Part of Phase 2 priority scripts
+1. Destructive operation (deletes branches locally AND remotely)
+2. High risk - could delete important remote branches
+3. Medium complexity with both local and remote git operations
+4. Important to test error handling for network failures
+5. Final script in Phase 2 priorities
