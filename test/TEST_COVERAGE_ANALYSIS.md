@@ -2,7 +2,7 @@
 
 ## Current Test Coverage
 
-Currently tested scripts (9 out of 32):
+Currently tested scripts (10 out of 32):
 
 - ✅ `check-updates` - Comprehensive tests with multiple scenarios
 - ✅ `cleanup-brew` - Tests for package removal logic
@@ -11,31 +11,19 @@ Currently tested scripts (9 out of 32):
 - ✅ `gh-packages` - Tests for GitHub packages
 - ✅ `git-delete-local-merged` - Tests for merged branch deletion (11 tests)
 - ✅ `git-undo` - Tests for undoing commits (11 tests)
+- ✅ `headers` - Tests for HTTP header utility (21 tests)
 - ✅ `history-clean` - Comprehensive tests for history cleaning (28 tests)
 - ✅ `macos/set-defaults.sh` - Tests for macOS defaults
 
-**Total Tests: 111**
+**Total Tests: 132**
 
-## Missing Test Coverage (23 scripts)
+## Missing Test Coverage (22 scripts)
 
 ### Priority 1: High-Value Scripts That Should Be Tested Next
 
 These scripts have complex logic, handle critical operations, or are frequently used:
 
-#### 1. **`headers`** (MEDIUM-HIGH PRIORITY)
-
-- **Why test**: Has options/flags, makes network requests
-- **Complexity**: Medium - argument parsing, curl wrapper
-- **Test scenarios**:
-  - Should display help with -h/--help
-  - Should show only response headers by default
-  - Should include request headers with -i flag
-  - Should pass through curl arguments correctly
-  - Should handle invalid URLs
-  - Should handle network errors
-- **Value**: Frequently used for debugging
-
-#### 2. **`unzip-all`** (MEDIUM-HIGH PRIORITY)
+#### 1. **`unzip-all`** (MEDIUM-HIGH PRIORITY)
 
 - **Why test**: File operations with trash/deletion
 - **Complexity**: Medium - file detection, unzip, trash
@@ -48,7 +36,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should handle empty directories
 - **Risk**: Could accidentally delete files
 
-#### 3. **`git-nuke`** (HIGH PRIORITY)
+#### 2. **`git-nuke`** (HIGH PRIORITY)
 
 - **Why test**: Destructive operation (deletes branches locally and remotely)
 - **Complexity**: Medium
@@ -62,7 +50,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
 
 ### Priority 2: Moderate Complexity Scripts Worth Testing
 
-#### 4. **`git-unpushed`**
+#### 3. **`git-unpushed`**
 
 - **Why test**: Useful git utility
 - **Complexity**: Low - git difftool wrapper
@@ -71,7 +59,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should handle branches with no upstream
   - Should handle no unpushed changes
 
-#### 5. **`git-unpushed-stat`**
+#### 4. **`git-unpushed-stat`**
 
 - **Why test**: Similar to git-unpushed but with stats
 - **Complexity**: Low
@@ -79,7 +67,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should show diffstat of unpushed changes
   - Should handle branches with no upstream
 
-#### 6. **`git-up`**
+#### 5. **`git-up`**
 
 - **Why test**: Modifies git state (pull/rebase)
 - **Complexity**: Medium - handles both merge and rebase
@@ -89,7 +77,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should show diffstat when rebasing
   - Should handle conflicts
 
-#### 7. **`git-promote`**
+#### 6. **`git-promote`**
 
 - **Why test**: Creates remote tracking branches
 - **Complexity**: Medium
@@ -98,7 +86,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should set up tracking
   - Should handle already-tracked branches
 
-#### 8. **`search`**
+#### 7. **`search`**
 
 - **Why test**: Text search utility
 - **Complexity**: Low - ack wrapper
@@ -107,7 +95,7 @@ These scripts have complex logic, handle critical operations, or are frequently 
   - Should handle missing ack
   - Should pass arguments correctly
 
-#### 9. **`todo`**
+#### 8. **`todo`**
 
 - **Why test**: File creation
 - **Complexity**: Very low - just creates a file
@@ -132,27 +120,27 @@ These are very simple and unlikely to break:
 
 These would require more sophisticated test setups:
 
-#### 10. **`git-wtf`**
+#### 9. **`git-wtf`**
 
 - **Why defer**: Very complex Ruby script (360+ lines)
 - **Complexity**: Very high - extensive git operations
 - **Why hard to test**: Requires complex git repository setups with multiple branches, remotes, and states
 - **Recommendation**: Test if bugs are reported, otherwise defer
 
-#### 11. **`res`**
+#### 10. **`res`**
 
 - **Why defer**: AppleScript that automates UI
 - **Complexity**: High - UI automation
 - **Why hard to test**: Requires mocking macOS System Settings UI
 - **Recommendation**: Manual testing only
 
-#### 12. **`kube-setup`**
+#### 11. **`kube-setup`**
 
 - **Why defer**: Requires Kubernetes environment
 - **Complexity**: Unknown (would need to review)
 - **Recommendation**: Test if issues arise
 
-#### 13. **`yt`**
+#### 12. **`yt`**
 
 - **Why defer**: Depends on external yt-dlp tool
 - **Complexity**: Unknown
@@ -174,9 +162,9 @@ These are too simple or trivial:
 2. ~~`git-undo`~~ ✅ **COMPLETED** (11 tests) - Critical destructive operation
 3. ~~`history-clean`~~ ✅ **COMPLETED** (28 tests) - Complex with multiple modes
 
-### Phase 2 (Following 2 weeks)
+### Phase 2 (Following 2 weeks) - IN PROGRESS
 
-4. `headers` - Useful utility with options
+4. ~~`headers`~~ ✅ **COMPLETED** (21 tests) - Useful utility with options
 5. `unzip-all` - File operations
 6. `git-nuke` - Destructive remote operations
 
@@ -221,9 +209,9 @@ Based on existing tests, continue using:
 ## Summary Statistics
 
 - **Total bin scripts**: 32
-- **Currently tested**: 9 (28%)
-- **Total tests**: 111
-- **High priority to test**: 3 scripts (headers, unzip-all, git-nuke)
+- **Currently tested**: 10 (31%)
+- **Total tests**: 132
+- **High priority to test**: 2 scripts (unzip-all, git-nuke)
 - **Medium priority to test**: 6 scripts
 - **Low priority to test**: 3 scripts
 - **Too complex/defer**: 4 scripts
@@ -231,16 +219,16 @@ Based on existing tests, continue using:
 
 **Target coverage**: ~60% (19 scripts) would give excellent practical coverage while focusing on scripts that matter most.
 
-**Current progress**: 47% toward target (9 out of 19 target scripts)
+**Current progress**: 53% toward target (10 out of 19 target scripts)
 
 ## Next Immediate Action
 
-**✅ Phase 1 Complete! Move to Phase 2:**
+**✅ Phase 1 Complete! Phase 2 in progress (1/3 done):**
 
-**Start with `headers`** because:
+**Next: `unzip-all`** because:
 
-1. Useful utility with options and flags
-2. Makes network requests (important to test error handling)
-3. Frequently used for debugging
-4. Medium complexity with argument parsing
+1. File operations with trash/deletion (important to test safety)
+2. Medium complexity with file detection and processing
+3. Risk of accidentally deleting files if buggy
+4. Handles edge cases (spaces in names, invalid files)
 5. Part of Phase 2 priority scripts
