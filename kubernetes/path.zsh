@@ -11,6 +11,9 @@ if [ -f "$HOME/.dot-secrets/kubernetes/config.sh" ]; then
   if [ -n "$KUBE_CONFIG_FILENAME" ] && [ -f "$HOME/.kube/$KUBE_CONFIG_FILENAME" ]; then
     export KUBECONFIG="$HOME/.kube/$KUBE_CONFIG_FILENAME"
   fi
+# Check for goeuro-debug.conf
+elif [ -f "$HOME/.kube/goeuro-debug.conf" ]; then
+  export KUBECONFIG="$HOME/.kube/goeuro-debug.conf"
 # Fallback to a default name if the config doesn't exist
 elif [ -f "$HOME/.kube/config" ]; then
   export KUBECONFIG="$HOME/.kube/config"
@@ -20,5 +23,5 @@ fi
 # or if compdef isn't available (which means completion system isn't initialized)
 if [[ $- == *i* ]] && command -v kubectl &> /dev/null && command -v compdef &> /dev/null; then
   # Add kubectl completion only in interactive shells
-  kubectl completion zsh 2>/dev/null > "${ZSH}/completions/_kubectl"
+  source <(kubectl completion zsh 2>/dev/null)
 fi 

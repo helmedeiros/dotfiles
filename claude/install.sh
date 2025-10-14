@@ -33,15 +33,15 @@ export NVM_AUTO_USE=false
 DOTFILES_DIR="$HOME/.dotfiles"
 if [ -f "$DOTFILES_DIR/node/path.zsh" ]; then
     echo -e "${BLUE}Loading NVM environment...${NC}"
-    source "$DOTFILES_DIR/node/path.zsh" > /dev/null 2>&1
+    source "$DOTFILES_DIR/node/path.zsh"
 
-    # Check if NVM is available and use Node.js 20.17.0 like bin/dot
+    # Check if NVM is available and use Node.js 20.19.0 like bin/dot
     if command -v nvm &> /dev/null; then
-        # Use Node.js 20.17.0 to match bin/dot
-        nvm use 20.17.0 --silent > /dev/null 2>&1 || {
-            echo -e "${YELLOW}Node.js 20.17.0 not found, installing...${NC}"
-            nvm install 20.17.0
-            nvm use 20.17.0 --silent > /dev/null 2>&1
+        # Use Node.js 20.19.0 to match bin/dot (updated from 20.17.0)
+        nvm use 20.19.0 --silent > /dev/null 2>&1 || {
+            echo -e "${YELLOW}Node.js 20.19.0 not found, installing...${NC}"
+            nvm install 20.19.0
+            nvm use 20.19.0 --silent > /dev/null 2>&1
         }
         echo -e "${GREEN}Using Node.js $(node -v) for Claude Code installation${NC}"
     else
