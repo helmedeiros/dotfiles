@@ -1,0 +1,141 @@
+#!/bin/bash
+#
+# git-push-timed
+#
+# DESCRIPTION:
+#   Push commits one by one according to their commit times. This script waits
+#   until each commit's original timestamp before pushing it to the remote,
+#   allowing you to replay commit history with proper timing.
+#
+# USAGE:
+#   git-push-timed [options]
+#
+# OPTIONS:
+#   --dry-run          Show what would be pushed without actually pushing
+#   -h, --help         Display this help message
+#
+# EXAMPLES:
+#   git-push-timed                    # Push all unpushed commits with timing
+#   git-push-timed --dry-run          # Preview what would be pushed
+#
+# NOTES:
+#   - Requires a clean working directory
+#   - Only pushes commits ahead of the remote tracking branch
+#   - Waits until each commit's timestamp before pushing
+
+set -e
+
+# Color codes for output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# Display help if requested
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  grep "^#" "$0" | grep -v "!/bin/bash" | sed 's/^# \?//'
+  exit 0
+fi
+
+# Check for dry-run mode
+DRY_RUN=false
+if [ "$1" = "--dry-run" ]; then
+  DRY_RUN=true
+  echo -e "${YELLOW}=== DRY RUN MODE ===${NC}"
+fi
+
+# Check if we're in a git repository
+if ! git rev-parse --git-dir > /dev/null 2>&1; then
+  echo -e "${RED}Error: Not a git repository${NC}" >&2
+  exit 1
+fi
+
+# Get current branch
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Get the remote tracking branch
+REMOTE_BRANCH=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")
+
+if [ -z "$REMOTE_BRANCH" ]; then
+  echo -e "${RED}Error: No remote tracking branch found for '${CURRENT_BRANCH}'${NC}" >&2
+  echo -e "${YELLOW}Hint: Set up remote tracking with: git push -u origin ${CURRENT_BRANCH}${NC}" >&2
+  exit 1
+fi
+
+echo -e "${BLUE}=== Timed Commit Pusher ===${NC}"
+echo -e "Current branch: ${CURRENT_BRANCH}"
+echo -e "Remote branch: ${REMOTE_BRANCH}"
+echo ""
+
+# Get the list of commits to push (newest first, so we reverse it)
+COMMITS=($(git log ${REMOTE_BRANCH}..HEAD --format="%H" --reverse 2>/dev/null || echo ""))
+COMMIT_COUNT=${#COMMITS[@]}
+
+if [ $COMMIT_COUNT -eq 0 ]; then
+    echo -e "${GREEN}No commits to push! Everything is up to date.${NC}"
+    exit 0
+fi
+
+echo -e "${GREEN}Found $COMMIT_COUNT commits to push${NC}"
+echo ""
+
+# Function to wait until a specific time
+wait_until() {
+    local target_timestamp=$1
+    local commit_msg=$2
+    local current_timestamp=$(date +%s)
+
+    if [ $current_timestamp -lt $target_timestamp ]; then
+        local wait_seconds=$((target_timestamp - current_timestamp))
+        local target_date=$(date -r $target_timestamp "+%Y-%m-%d %H:%M:%S")
+        echo -e "${YELLOW}Waiting until $target_date to push: $commit_msg${NC}"
+        echo -e "${YELLOW}(${wait_seconds} seconds remaining)${NC}"
+        sleep $wait_seconds
+    fi
+}
+
+# Process each commit
+for i in "${!COMMITS[@]}"; do
+    COMMIT_HASH="${COMMITS[$i]}"
+    COMMIT_NUM=$((i + 1))
+
+    # Get commit details
+    COMMIT_DATE=$(git show -s --format=%ad --date=format:"%Y-%m-%d %H:%M:%S" $COMMIT_HASH)
+    COMMIT_TIMESTAMP=$(git show -s --format=%at $COMMIT_HASH)
+    COMMIT_MSG=$(git show -s --format=%s $COMMIT_HASH)
+
+    echo ""
+    echo -e "${BLUE}[$COMMIT_NUM/$COMMIT_COUNT] Processing commit:${NC}"
+    echo -e "  Hash: $COMMIT_HASH"
+    echo -e "  Date: $COMMIT_DATE"
+    echo -e "  Message: $COMMIT_MSG"
+
+    # Wait until the commit time
+    wait_until $COMMIT_TIMESTAMP "$COMMIT_MSG"
+
+    # Push up to this commit
+    if [ "$DRY_RUN" = true ]; then
+        echo -e "${YELLOW}[DRY RUN] Would push commit $COMMIT_NUM/$COMMIT_COUNT${NC}"
+    else
+        echo -e "${GREEN}Pushing commit $COMMIT_NUM/$COMMIT_COUNT...${NC}"
+
+        # Extract remote name from REMOTE_BRANCH (e.g., "origin/master" -> "origin")
+        REMOTE_NAME=$(echo "$REMOTE_BRANCH" | cut -d'/' -f1)
+
+        # Push this specific commit to the current branch on remote
+        if git push "$REMOTE_NAME" "$COMMIT_HASH:refs/heads/$CURRENT_BRANCH"; then
+            echo -e "${GREEN}✓ Pushed successfully${NC}"
+        else
+            echo -e "${RED}✗ Push failed${NC}" >&2
+            exit 1
+        fi
+    fi
+done
+
+echo ""
+if [ "$DRY_RUN" = true ]; then
+    echo -e "${YELLOW}=== Dry run complete! No commits were actually pushed. ===${NC}"
+else
+    echo -e "${GREEN}=== All commits pushed successfully! ===${NC}"
+fi
