@@ -237,3 +237,88 @@ a_git_repository_with_special_branch_names() {
   git checkout master
   cd - > /dev/null
 }
+
+# Create a git repository with a remote repository for testing push operations
+a_git_repository_with_remote_tracking() {
+  local repo_dir="$1"
+  local remote_dir="$2"
+
+  # Create the remote (bare) repository
+  mkdir -p "${remote_dir}"
+  cd "${remote_dir}"
+  git init --bare
+  cd - > /dev/null
+
+  # Create the local repository
+  mkdir -p "${repo_dir}"
+  cd "${repo_dir}"
+
+  git init
+  git config user.name "Test User"
+  git config user.email "test@example.com"
+  git config init.defaultBranch master
+
+  # Create initial commit
+  echo "Initial content" > README.md
+  git add README.md
+  git commit -m "Initial commit"
+
+  # Ensure we're on master branch
+  git branch -M master
+
+  # Add remote and push
+  git remote add origin "${remote_dir}"
+  git push -u origin master
+
+  cd - > /dev/null
+}
+
+# Create a git repository with remote and unpushed commits
+a_git_repository_with_unpushed_commits() {
+  local repo_dir="$1"
+  local remote_dir="$2"
+
+  # First create a repository with remote tracking
+  a_git_repository_with_remote_tracking "${repo_dir}" "${remote_dir}"
+
+  # Add unpushed commits
+  cd "${repo_dir}"
+
+  echo "New feature" > feature.txt
+  git add feature.txt
+  git commit -m "Add feature"
+
+  cd - > /dev/null
+}
+
+# Create a git repository with main branch and remote
+a_git_repository_with_main_and_remote() {
+  local repo_dir="$1"
+  local remote_dir="$2"
+
+  # Create the remote (bare) repository
+  mkdir -p "${remote_dir}"
+  cd "${remote_dir}"
+  git init --bare
+  cd - > /dev/null
+
+  # Create the local repository
+  mkdir -p "${repo_dir}"
+  cd "${repo_dir}"
+
+  git init
+  git config user.name "Test User"
+  git config user.email "test@example.com"
+
+  # Create initial commit on main
+  echo "Initial content" > README.md
+  git add README.md
+  git commit -m "Initial commit"
+  git branch -M main
+
+  # Add remote and push
+  git remote add origin "${remote_dir}"
+  git push -u origin main
+
+  cd - > /dev/null
+}
