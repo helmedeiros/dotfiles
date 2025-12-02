@@ -35,6 +35,8 @@ brew 'tig'
 brew 'zsh-autosuggestions'
 brew 'zsh-syntax-highlighting'
 brew 'python'
+brew 'pyenv'          # Python version management
+brew 'pyenv-virtualenv' # Virtual environment support for pyenv
 brew 'uncrustify'
 brew 'ngrep'
 brew 'trash'
