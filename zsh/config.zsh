@@ -15,6 +15,9 @@ HISTFILE=~/.zsh_history
 HISTSIZE=100000
 SAVEHIST=100000
 
+# Disable macOS session restore for zsh to prevent interference with history
+SHELL_SESSIONS_DISABLE=1
+
 setopt NO_BG_NICE # don't nice background tasks
 setopt NO_HUP
 setopt NO_LIST_BEEP

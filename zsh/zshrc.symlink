@@ -84,3 +84,6 @@ fi
 # TRACER configuration is handled by tracer/path.zsh
 export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
+
+# Kubernetes configuration
+export KUBECONFIG="$HOME/.kube/goeuro-debug.conf"
