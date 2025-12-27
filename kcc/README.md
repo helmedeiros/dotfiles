@@ -87,6 +87,15 @@ Complete conversion: CBZ/CBR → EPUB → AZW3 in one command.
 kcc-to-azw3 ~/Downloads/onepiece ~/Desktop/onepiece-kindle KCS
 ```
 
+#### `kcc-to-azw3-asin <input_dir> <epub_dir> <azw3_dir> <csv_file> [profile]`
+Complete workflow with ASIN metadata: CBZ/CBR → EPUB (with ASIN) → AZW3.
+
+```bash
+# Convert with proper ASIN metadata in one command
+kcc-to-azw3-asin ~/Downloads/manga ~/Desktop/manga-epub \
+                 ~/Desktop/manga-azw3 ~/.dotfiles/kcc/asins/series.csv KCS
+```
+
 ## Usage Examples
 
 ### Convert Single File
@@ -190,6 +199,105 @@ See full options: `kcc-c2e --help`
 
 This will pull the latest changes from GitHub and reinstall dependencies.
 
+## ASIN Metadata for Kindle
+
+### What is ASIN?
+
+ASIN (Amazon Standard Identification Number) is a unique identifier for products on Amazon. For sideloaded Kindle books, having the correct ASIN prevents "Invalid ASIN" errors and enables features like:
+- Proper book opening (without workarounds)
+- Cover art display
+- Goodreads integration
+- Reading progress sync
+
+### Available Commands
+
+#### `set-asin <file> <asin>`
+Set ASIN metadata on a single ebook file.
+
+```bash
+set-asin ~/Desktop/manga-epub/"Vol. 01.epub" B00XXXXXXX
+```
+
+#### `get-asin <file>`
+Display the current ASIN metadata from an ebook.
+
+```bash
+get-asin ~/Desktop/manga-epub/"Vol. 01.epub"
+```
+
+#### `set-asin-batch <directory> <csv_file>`
+Batch set ASINs from a CSV file.
+
+```bash
+set-asin-batch ~/Desktop/manga-epub ~/.dotfiles/kcc/asins/series.csv
+```
+
+### Finding ASINs
+
+1. Go to Amazon.com and search for your manga/book
+2. Open the Kindle edition product page
+3. Find the ASIN in "Product details" or in the URL
+
+Example URL:
+```
+https://www.amazon.com/Series-Name-Vol-1-Subtitle-ebook/dp/B00XXXXXXX/
+                                                            ^^^^^^^^^^
+                                                            This is the ASIN
+```
+
+### Creating ASIN Reference Files
+
+Create CSV files in `~/.dotfiles/kcc/asins/` for your manga series:
+
+**Format:** `filename,asin,title,author` (no headers)
+
+```csv
+Vol. 01.epub,B00XXXXXXX,My Series Vol. 1: First Chapter,Author Name
+Vol. 02.epub,B00YYYYYYY,My Series Vol. 2: Second Chapter,Author Name
+Vol. 03.epub,B00ZZZZZZZ,My Series Vol. 3: Third Chapter,Author Name
+```
+
+**Important:** Use `.epub` extension in the CSV (not `.azw3`) because metadata must be set on EPUB files before converting to AZW3.
+
+**Documentation:**
+- `HOW_TO_FIND_ASINS.md` - Detailed guide for finding ASIN information
+
+### Workflow with ASIN
+
+**Recommended: All-in-one command**
+```bash
+# Complete workflow with ASIN metadata
+kcc-to-azw3-asin ~/Downloads/manga ~/Desktop/manga-epub \
+                 ~/Desktop/manga-azw3 ~/.dotfiles/kcc/asins/series.csv KCS
+```
+
+**Manual workflow (step-by-step)**
+```bash
+# 1. Convert manga to EPUB
+kcc-batch-manga ~/Downloads/manga ~/Desktop/manga-epub KCS
+
+# 2. Set ASIN metadata on EPUB files
+set-asin-batch ~/Desktop/manga-epub ~/.dotfiles/kcc/asins/series.csv
+
+# 3. Convert EPUB to AZW3 (metadata carries over)
+epub2azw3-batch ~/Desktop/manga-epub ~/Desktop/manga-azw3
+
+# 4. Transfer AZW3 files to Kindle via USB or email
+```
+
+### "Invalid ASIN" Error Workaround
+
+If you see "Invalid ASIN" errors on Kindle:
+
+**Temporary fix (firmware bug):**
+1. Turn on Airplane mode
+2. Tap the three dots next to the book (not the cover)
+3. Select "Go To" to open the first chapter
+4. Once opened, the book should work normally
+
+**Permanent fix:**
+Set the correct ASIN metadata using `set-asin` command before transferring to Kindle.
+
 ## Troubleshooting
 
 ### KindleGen Missing Error
@@ -231,7 +339,11 @@ When helping users with KCC conversion tasks:
    - AZW3 is the latest Kindle format (KF8)
    - Avoid MOBI (legacy format)
 6. **Color preservation:** Use `--forcecolor` for Kindle Colorsoft
-7. **Common errors:** Check for sevenzip/unar, use correct paths, verify Python version
+7. **ASIN metadata:**
+   - If user reports "Invalid ASIN" errors, use `set-asin` or `set-asin-batch`
+   - Create ASIN reference files in `~/.dotfiles/kcc/asins/` for batch operations
+   - ASINs can be found in Amazon product URLs or product details
+8. **Common errors:** Check for sevenzip/unar, use correct paths, verify Python version
 
 ## Resources
 

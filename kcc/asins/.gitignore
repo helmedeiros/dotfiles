@@ -1,0 +1,5 @@
+# Ignore all CSV files (they contain specific book/series information)
+*.csv
+
+# Keep the documentation
+!.gitignore
