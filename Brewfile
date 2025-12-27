@@ -30,6 +30,8 @@ brew 'roundup'
 brew 'spark'
 brew 'wget'
 brew 'yt-dlp'
+brew 'sevenzip'  # Archive utility for KCC (Kindle Comic Converter)
+brew 'unar'      # Alternative archive handler for KCC
 brew 'gradle'
 brew 'tig'
 brew 'zsh-autosuggestions'
@@ -48,6 +50,7 @@ brew 'maven'
 brew 'openshift-cli'
 brew 'hugo'
 brew 'hub'
+brew 'gh'          # GitHub CLI - official GitHub command-line tool
 brew 'plantuml'
 brew 'groovy'
 brew 'gometalinter'
@@ -85,6 +88,7 @@ cask 'visual-studio-code'
 cask 'rar'
 cask 'via'
 cask 'claude'  # Official Anthropic Claude desktop app
+cask 'calibre'  # E-book management and conversion (for EPUB to AZW3)
 
 # mas 'Xcode', id: 497799835
 # mas 'Telegram', id: 747648890
