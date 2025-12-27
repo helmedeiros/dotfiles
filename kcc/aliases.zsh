@@ -45,7 +45,7 @@ kcc-batch-manga() {
         [ -f "$file" ] || continue
         count=$((count + 1))
         echo "[$count/$total] Converting: $(basename "$file")"
-        kcc-c2e --manga-style --forcecolor --profile "$profile" --format EPUB --output "$output_dir" "$file"
+        ~/.local/bin/kcc-c2e --manga-style --forcecolor --profile "$profile" --format EPUB --output "$output_dir" "$file"
     done
 
     echo ""
