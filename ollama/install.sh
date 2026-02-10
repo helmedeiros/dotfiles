@@ -13,12 +13,16 @@ if ! brew services list | grep -q "ollama.*started"; then
     sleep 5
 fi
 
-# Check if llama3 model is already pulled
-if ! ollama list | grep -q "llama3"; then
-    echo "Pulling llama3 model..."
-    ollama pull llama3
-else
-    echo "llama3 model is already installed"
-fi
+# Models to install
+MODELS=("llama3" "llama4")
 
-echo "Ollama is ready to use! You can run 'ollama run llama3' to start using it."
+for model in "${MODELS[@]}"; do
+    if ! ollama list | grep -q "$model"; then
+        echo "Pulling $model model..."
+        ollama pull "$model"
+    else
+        echo "$model model is already installed"
+    fi
+done
+
+echo "Ollama is ready to use! Run 'ollama run llama3' or 'ollama run llama4' to start."

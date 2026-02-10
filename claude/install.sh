@@ -4,7 +4,7 @@
 #
 # This follows the dotfiles contract and installs:
 # 1. The Claude desktop app via Homebrew cask
-# 2. Claude Code for AI-assisted development
+# 2. Claude Code CLI via Homebrew cask
 
 set -e
 
@@ -25,65 +25,30 @@ else
     echo -e "${GREEN}Claude desktop app already installed${NC}"
 fi
 
-# Setup NVM environment like bin/dot does
-export NVM_DIR="$HOME/.nvm"
-export NVM_AUTO_USE=false
-
-# Source the existing NVM configuration
-DOTFILES_DIR="$HOME/.dotfiles"
-if [ -f "$DOTFILES_DIR/node/path.zsh" ]; then
-    echo -e "${BLUE}Loading NVM environment...${NC}"
-    source "$DOTFILES_DIR/node/path.zsh"
-
-    # Check if NVM is available and use Node.js 20.19.0 like bin/dot
-    if command -v nvm &> /dev/null; then
-        # Use Node.js 20.19.0 to match bin/dot (updated from 20.17.0)
-        nvm use 20.19.0 --silent > /dev/null 2>&1 || {
-            echo -e "${YELLOW}Node.js 20.19.0 not found, installing...${NC}"
-            nvm install 20.19.0
-            nvm use 20.19.0 --silent > /dev/null 2>&1
-        }
-        echo -e "${GREEN}Using Node.js $(node -v) for Claude Code installation${NC}"
-    else
-        echo -e "${RED}NVM not properly loaded. Please run node/install.sh first${NC}"
-        exit 1
-    fi
+# Install Claude Code CLI via Homebrew (idempotent)
+# Note: Homebrew casks don't auto-update, run 'brew upgrade claude-code' periodically
+if ! brew list --cask claude-code &>/dev/null; then
+    echo -e "${BLUE}Installing Claude Code CLI...${NC}"
+    brew install --cask claude-code
 else
-    echo -e "${RED}NVM configuration not found. Please run node/install.sh first${NC}"
-    exit 1
-fi
-
-# Install or update Claude Code using the NVM Node.js environment
-if command -v claude &> /dev/null; then
-    current_version=$(claude --version 2>/dev/null | awk '{print $1}' || echo "unknown")
-    echo -e "${GREEN}Claude Code is installed (version: ${current_version})${NC}"
-
-    # Check if it's outdated and update if needed
+    echo -e "${GREEN}Claude Code CLI already installed${NC}"
+    # Check for updates
     echo -e "${BLUE}Checking for Claude Code updates...${NC}"
-    npm update -g @anthropic-ai/claude-code --silent || {
-        echo -e "${YELLOW}Update check failed, reinstalling...${NC}"
-        npm install -g @anthropic-ai/claude-code
-    }
-
-    new_version=$(claude --version 2>/dev/null | awk '{print $1}' || echo "unknown")
-    if [ "$current_version" != "$new_version" ]; then
-        echo -e "${GREEN}Claude Code updated from ${current_version} to ${new_version}${NC}"
+    if brew outdated --cask claude-code &>/dev/null; then
+        echo -e "${YELLOW}Updating Claude Code...${NC}"
+        brew upgrade --cask claude-code || echo -e "${YELLOW}Update not yet available in Homebrew, try again later${NC}"
     else
         echo -e "${GREEN}Claude Code is up to date${NC}"
     fi
-else
-    echo -e "${BLUE}Installing Claude Code...${NC}"
-    npm install -g @anthropic-ai/claude-code
+fi
 
-    # Check if installation succeeded
-    if command -v claude &> /dev/null; then
-        echo -e "${GREEN}Claude Code installed successfully!${NC}"
-        echo -e "Version: $(claude --version)"
-    else
-        echo -e "${RED}Failed to install Claude Code${NC}"
-        echo -e "Please check the error messages above"
-        exit 1
-    fi
+# Verify installation
+if command -v claude &> /dev/null; then
+    echo -e "${GREEN}Claude Code installed successfully!${NC}"
+    claude --version
+else
+    echo -e "${RED}Claude Code installation could not be verified${NC}"
+    echo -e "${YELLOW}You may need to restart your terminal${NC}"
 fi
 
 # Install ripgrep for enhanced file search (idempotent)

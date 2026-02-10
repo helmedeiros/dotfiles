@@ -16,8 +16,8 @@ Run the install script:
 This will install:
 
 - The Claude desktop app via Homebrew cask
-- Claude Code via npm
-- Required dependencies (Node.js 18+ and ripgrep)
+- Claude Code CLI via Homebrew cask
+- ripgrep for enhanced file search
 - Setup the Claude Code configuration file
 
 ## Claude Desktop App
@@ -30,13 +30,23 @@ Claude Code is an agentic coding tool that lives in your terminal, understands y
 
 ### System Requirements
 
-- **Operating Systems**: macOS 10.15+ (your system meets this requirement)
+- **Operating Systems**: macOS 10.15+
 - **Hardware**: 4GB RAM minimum
 - **Software**:
-  - Node.js 18+ (installed by our script)
+  - Homebrew (for installation)
   - git 2.23+ (optional)
   - GitHub or GitLab CLI for PR workflows (optional)
   - ripgrep (rg) for enhanced file search (installed by our script)
+
+### Updating Claude Code
+
+Homebrew casks don't auto-update. To get the latest features and security fixes:
+
+```bash
+brew upgrade --cask claude-code
+```
+
+Note: Claude Code may notify you of updates before the new version is available in Homebrew. If an upgrade fails, wait and try again later.
 
 ### Authentication
 
