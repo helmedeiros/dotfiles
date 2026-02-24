@@ -97,6 +97,9 @@ echo "› Updating Node.js and npm"
 				# Remove Angular CLI as it's no longer needed
 				npm uninstall -g @angular/cli 2>/dev/null || true
 
+				# Remove Claude Code from npm (now installed via Homebrew cask)
+				npm uninstall -g @anthropic-ai/claude-code 2>/dev/null || true
+
 				# Get list of outdated packages using the same logic as check-updates
 				echo "› Checking for outdated global npm packages"
 
