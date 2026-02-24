@@ -14,7 +14,7 @@ if ! brew services list | grep -q "ollama.*started"; then
 fi
 
 # Models to install
-MODELS=("llama3" "llama4")
+MODELS=("llama3")
 
 for model in "${MODELS[@]}"; do
     if ! ollama list | grep -q "$model"; then
@@ -25,4 +25,4 @@ for model in "${MODELS[@]}"; do
     fi
 done
 
-echo "Ollama is ready to use! Run 'ollama run llama3' or 'ollama run llama4' to start."
+echo "Ollama is ready to use! Run 'ollama run llama3' to start."
