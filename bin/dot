@@ -129,8 +129,8 @@ echo "› Updating Node.js and npm"
 							package_name="@$package_name"
 						fi
 
-						# Skip npm itself as it's handled separately
-						if [ "$package_name" = "npm" ]; then
+						# Skip npm (handled separately) and corepack (bundled with Node.js)
+						if [ "$package_name" = "npm" ] || [ "$package_name" = "corepack" ]; then
 							continue
 						fi
 
