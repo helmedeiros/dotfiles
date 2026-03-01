@@ -27,7 +27,7 @@ function install_python_version() {
     echo "✅ Python $version is already installed"
   else
     echo "📦 Installing Python $version..."
-    if pyenv install "$version"; then
+    if pyenv install -s "$version"; then
       echo "✅ Successfully installed Python $version"
     else
       echo "❌ Failed to install Python $version"
