@@ -55,6 +55,7 @@ brew 'groovy'
 brew 'gometalinter'
 brew 'bats-core'  # Testing framework for Bash scripts
 brew 'ollama'     # Local LLM runner
+brew 'tmux'
 
 ## COCOA - MACOS NATIVE APPS
 brew 'cocoapods'
@@ -87,6 +88,7 @@ cask 'rar'
 cask 'via'
 cask 'claude'  # Official Anthropic Claude desktop app
 cask 'claude-code'  # Claude Code CLI - AI-assisted development tool
+cask 'ghostty'
 cask 'calibre'  # E-book management and conversion (for EPUB to AZW3)
 
 # mas 'Xcode', id: 497799835

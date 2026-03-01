@@ -1,0 +1,56 @@
+# Tmux Configuration
+
+# Remap prefix from C-b to C-a
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
+
+# Enable mouse support
+set -g mouse on
+
+# Start windows and panes at 1
+set -g base-index 1
+setw -g pane-base-index 1
+
+# Scrollback buffer
+set -g history-limit 10000
+
+# True color support
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",*256col*:Tc,ghostty:Tc,xterm-ghostty:Tc"
+
+# Vim-style pane navigation
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+# Intuitive splits (open in current path)
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+unbind '"'
+unbind %
+
+# Reload config
+bind r source-file ~/.tmux.conf \; display "Config reloaded"
+
+# macOS clipboard integration
+set -g default-command "reattach-to-user-namespace -l ${SHELL} 2>/dev/null || ${SHELL}"
+bind -T copy-mode-vi y send -X copy-pipe-and-cancel "pbcopy"
+
+# Status bar theme (minimal, dark)
+set -g status-style "bg=colour235,fg=colour248"
+set -g status-left " #S "
+set -g status-right " %H:%M "
+set -g window-status-current-style "bg=colour239,fg=colour223,bold"
+set -g window-status-format " #I:#W "
+set -g window-status-current-format " #I:#W "
+
+# TPM - Tmux Plugin Manager
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-yank'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+
+# Initialize TPM (keep at bottom)
+run '~/.tmux/plugins/tpm/tpm'
