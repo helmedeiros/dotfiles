@@ -87,3 +87,8 @@ export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
 
 # Kubernetes configuration
 export KUBECONFIG="$HOME/.kube/goeuro-debug.conf"
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/helio.medeiros/.docker/completions $fpath)
+autoload -Uz compinit
+compinit
+# End of Docker CLI completions
