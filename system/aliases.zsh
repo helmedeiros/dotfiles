@@ -9,11 +9,17 @@ then
   alias la='gls -A --color'
 fi
 
-# Always enable colored `grep` output
-# Note: `GREP_OPTIONS="--color=auto"` is deprecated, hence the alias usage.
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
+# Prefer ripgrep for interactive grep usage (faster, smarter defaults).
+# Scripts using piped grep are unaffected since aliases don't apply in scripts.
+if command -v rg > /dev/null 2>&1; then
+  alias grep='rg'
+  alias fgrep='rg -F'
+  alias egrep='rg'
+else
+  alias grep='grep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
+fi
 
 # Google Chrome
 alias chrome='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome'
