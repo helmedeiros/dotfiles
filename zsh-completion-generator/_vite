@@ -1,28 +1,42 @@
 #compdef vite
 
 # zsh completions for 'vite'
-# automatically generated with http://github.com/RobSis/zsh-completion-generator
-local arguments
+# handcrafted from vite --help output
 
-arguments=(
-  '--host[\[string\] specify hostname]'
-  '--port[\[number\] specify port]'
-  '--open[\[boolean | string\] open browser on startup]'
-  '--cors[\[boolean\] enable CORS]'
-  '--strictPort[\[boolean\] exit if specified port is already in use]'
-  '--force[\[boolean\] force the optimizer to ignore the cache and re-bundle]'
-  '--experimentalBundle[\[boolean\] use experimental full bundle mode (this is highly experimental)]'
-  {-c,--config}'[\[string\] use specified config file]'
-  '--base[\[string\] public base path (default: /)]'
-  {-l,--logLevel}'[\[string\] info | warn | error | silent]'
-  '--clearScreen[\[boolean\] allow/disable clear screen when logging]'
-  '--configLoader[\[string\] use bundle to bundle the config with Rolldown, or runner (experimental) to process it on the fly, or native (experimental) to load using the native runtime (default: bundle)]'
-  {-d,--debug}'[\[string | boolean\] show debug logs]'
-  {-f,--filter}'[\[string\] filter debug logs]'
-  {-m,--mode}'[\[string\] set env mode]'
-  {-h,--help}'[display this message]'
-  {-v,--version}'[display version number]'
-  '*:filename:_files'
-)
+_vite() {
+  local -a commands
+  commands=(
+    'build:Build for production'
+    'optimize:Pre-bundle dependencies'
+    'preview:Locally preview production build'
+  )
 
-_arguments -s $arguments
+  _arguments \
+    '--host[specify hostname]' \
+    '--port[specify port]:port' \
+    '--open[open browser on startup]' \
+    '--cors[enable CORS]' \
+    '--strictPort[exit if specified port is already in use]' \
+    '--force[force the optimizer to ignore the cache and re-bundle]' \
+    '--experimentalBundle[use experimental full bundle mode]' \
+    {-c,--config}'[use specified config file]:file:_files' \
+    '--base[public base path]:path' \
+    {-l,--logLevel}'[log level]:level:(info warn error silent)' \
+    '--clearScreen[allow/disable clear screen when logging]' \
+    '--configLoader[config loader to use]:loader:(bundle runner native)' \
+    {-d,--debug}'[show debug logs]' \
+    {-f,--filter}'[filter debug logs]:filter' \
+    {-m,--mode}'[set env mode]:mode' \
+    {-h,--help}'[display this message]' \
+    {-v,--version}'[display version number]' \
+    '1:command:->cmds' \
+    '*::arg:->args'
+
+  case "$state" in
+    cmds)
+      _describe -t commands 'vite command' commands
+      ;;
+  esac
+}
+
+_vite "$@"

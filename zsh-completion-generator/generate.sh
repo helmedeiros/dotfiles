@@ -26,11 +26,13 @@ vendor_fpath_dirs=(
   "/usr/local/share/zsh/site-functions"
 )
 
-# CLI tools to generate completions for
+# CLI tools to generate completions for (flags-only tools).
+# Tools with subcommands (spotify, vite, vitest) have handcrafted
+# completions checked into this directory — do not auto-generate.
 tools=(
-  spotify speed-test http-server live-server serve nodemon
+  speed-test http-server live-server serve nodemon
   prettier eslint rimraf npm-check npm-check-updates
-  vite esbuild rollup vitest
+  esbuild rollup
 )
 
 for tool in "${tools[@]}"; do
