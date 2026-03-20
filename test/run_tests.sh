@@ -42,4 +42,12 @@ else
   echo -e "${YELLOW}No bin tests found${NC}"
 fi
 
+# Run zsh-completion-generator tests
+echo -e "${BLUE}=== Running zsh-completion-generator tests ===${NC}"
+if compgen -G "${SCRIPT_DIR}/zsh-completion-generator/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/zsh-completion-generator/"*_test.bats
+else
+  echo -e "${YELLOW}No zsh-completion-generator tests found${NC}"
+fi
+
 echo -e "\n${GREEN}All tests completed!${NC}"

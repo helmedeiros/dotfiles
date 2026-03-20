@@ -11,6 +11,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/npm_mother.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/dot_mother.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/status_mother.sh"
 source "$(dirname "${BASH_SOURCE[0]}")/history_mother.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/gencomp_mother.sh"
 
 # Function to set up a test environment with the specified fixtures
 a_scenario_with() {
