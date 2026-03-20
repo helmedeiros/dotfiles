@@ -4,9 +4,12 @@
 #
 set -e
 
-# use -iru to search directories ack usually ignores (like .git)
-if [ -x /usr/bin/ack-grep ]; then
-    ack-grep -i $1
+if command -v rg > /dev/null 2>&1; then
+    rg -i "$1"
+elif [ -x /usr/bin/ack-grep ]; then
+    ack-grep -i "$1"
+elif command -v ack > /dev/null 2>&1; then
+    ack -i "$1"
 else
-    ack -i $1
+    grep -ri "$1" .
 fi
