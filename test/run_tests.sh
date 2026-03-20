@@ -23,8 +23,26 @@ fi
 # Get the directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Get the root of the dotfiles repository
+DOTFILES_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
 # Run all tests
 echo -e "${BLUE}=== Running all tests ===${NC}"
+
+# Run shellcheck lint on shell scripts
+echo -e "${BLUE}=== Running shellcheck ===${NC}"
+if command -v shellcheck &> /dev/null; then
+  SHELL_SCRIPTS=()
+  for f in "${DOTFILES_DIR}"/bin/*; do
+    [ -f "$f" ] || continue
+    head -1 "$f" | grep -qE '^#!.*\b(sh|bash)\b' && SHELL_SCRIPTS+=("$f")
+  done
+  if [ ${#SHELL_SCRIPTS[@]} -gt 0 ]; then
+    shellcheck -S warning "${SHELL_SCRIPTS[@]}"
+  fi
+else
+  echo -e "${YELLOW}shellcheck not installed, skipping lint${NC}"
+fi
 
 # Run lib tests
 echo -e "${BLUE}=== Running lib tests ===${NC}"

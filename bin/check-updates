@@ -56,8 +56,10 @@ git fetch origin --quiet
 
 # Check if there are any changes
 LOCAL=$(git rev-parse @)
-REMOTE=$(git rev-parse @{u})
-BASE=$(git merge-base @ @{u})
+# shellcheck disable=SC1083
+REMOTE=$(git rev-parse '@{u}')
+# shellcheck disable=SC1083
+BASE=$(git merge-base @ '@{u}')
 
 DOTFILES_UPDATED=false
 
@@ -65,14 +67,16 @@ if [ $LOCAL = $REMOTE ]; then
   echo -e "${GREEN}Your dotfiles are up to date!${NC}"
 elif [ $LOCAL = $BASE ]; then
   # Count the number of commits behind
-  COMMITS_BEHIND=$(git rev-list --count HEAD..@{u})
+  # shellcheck disable=SC1083
+  COMMITS_BEHIND=$(git rev-list --count 'HEAD..@{u}')
 
   echo -e "${YELLOW}Your dotfiles are behind by $COMMITS_BEHIND commit(s).${NC}"
   echo -e "${YELLOW}Run 'cd $DOTFILES_DIR && git pull' to update.${NC}"
 
   # Show a summary of the changes
   echo -e "\n${GREEN}Summary of changes:${NC}"
-  git log --oneline --pretty=format:"%h %s" HEAD..@{u} | head -n 5
+  # shellcheck disable=SC1083
+  git log --oneline --pretty=format:"%h %s" 'HEAD..@{u}' | head -n 5
 
   # If there are more than 5 commits, show a message
   if [ $COMMITS_BEHIND -gt 5 ]; then

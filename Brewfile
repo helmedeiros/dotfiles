@@ -55,6 +55,7 @@ brew 'plantuml'
 brew 'groovy'
 brew 'gometalinter'
 brew 'bats-core'       # Testing framework for Bash scripts
+brew 'shellcheck'      # Static analysis for shell scripts
 brew 'git-filter-repo' # Rewrite git history (replaces filter-branch)
 brew 'ollama'     # Local LLM runner
 brew 'tmux'
