@@ -1,13 +1,66 @@
 #compdef spotify
 
 # zsh completions for 'spotify'
-# automatically generated with http://github.com/RobSis/zsh-completion-generator
-local arguments
+# handcrafted from spotify --help output
 
-arguments=(
-  {-V,--version}'[output the version number]'
-  {-h,--help}'[output usage information]'
-  '*:filename:_files'
-)
+_spotify() {
+  local -a commands
+  commands=(
+    'search:Search for a track, artist, album, or playlist'
+    's:Search (shorthand)'
+    'info:Display current track information and player status'
+    'i:Info (shorthand)'
+    'play:Continue playing or play a track by URI'
+    'playlist:Get all playlists by user'
+    'pl:Playlist (shorthand)'
+    'pause:Pause the current track'
+    'next:Play the next track in the queue'
+    'n:Next (shorthand)'
+    'back:Play the previous track'
+    'b:Back (shorthand)'
+    'mute:Mute player'
+    'm:Mute (shorthand)'
+    'unmute:Unmute player'
+    'u:Unmute (shorthand)'
+    'volume:Display or set player volume'
+    'v:Volume (shorthand)'
+    'p:Toggle play/pause'
+    'replay:Replay current track'
+    'r:Replay (shorthand)'
+    'position:Get or set player position'
+    'pos:Position (shorthand)'
+    'quit:Quit Spotify'
+    'q:Quit (shorthand)'
+    'open:Open Spotify'
+    'o:Open (shorthand)'
+    'shuffle:Toggle shuffle on/off'
+    'ts:Shuffle (shorthand)'
+    'repeat:Toggle repeat on/off'
+    'tr:Repeat (shorthand)'
+    'share:Display and copy share uri/url'
+    'sh:Share (shorthand)'
+    'token:Change Client Spotify tokens'
+    'tk:Token (shorthand)'
+    'user:Change Client Spotify Username'
+    'me:User (shorthand)'
+    'reset:Reset config back to default settings'
+    'lyrics:Display lyrics of currently playing track'
+    'ly:Lyrics (shorthand)'
+    'recommend:Recommend songs based on current track'
+    'rec:Recommend (shorthand)'
+  )
 
-_arguments -s $arguments
+  _arguments \
+    {-V,--version}'[output the version number]' \
+    {-h,--help}'[output usage information]' \
+    '1:command:->cmds' \
+    '*::arg:->args'
+
+  case "$state" in
+    cmds)
+      _describe -t commands 'spotify command' commands
+      ;;
+  esac
+}
+
+_spotify "$@"
