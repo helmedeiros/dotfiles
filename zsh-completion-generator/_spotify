@@ -1,0 +1,13 @@
+#compdef spotify
+
+# zsh completions for 'spotify'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  {-V,--version}'[output the version number]'
+  {-h,--help}'[output usage information]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments

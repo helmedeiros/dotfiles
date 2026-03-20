@@ -5,8 +5,6 @@
 # Generates zsh completions for CLI tools using zsh-completion-generator.
 # Called by install.sh — not sourced at shell startup.
 
-set -e
-
 PLUGIN_DIR="${HOME}/.zsh-completion-generator"
 SCRIPT_DIR="${0:a:h}"
 
