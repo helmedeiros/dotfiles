@@ -1,0 +1,26 @@
+#compdef rimraf
+
+# zsh completions for 'rimraf'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  {-h,--help}'[display this usage info]'
+  '--version[display version]'
+  '--preserve-root[do not remove / recursively (default)]'
+  '--no-preserve-root[do not treat / specially]'
+  {-G,--no-glob}'[treat arguments as literal paths, not globs (default)]'
+  {-g,--glob}'[treat arguments as glob patterns]'
+  {-v,--verbose}'[be verbose when deleting files, showing them as]'
+  {-V,--no-verbose}'[be silent when deleting files, showing nothing as]'
+  {-i,--interactive}'[ask for confirmation before deleting anything]'
+  {-I,--no-interactive}'[do not ask for confirmation before deleting]'
+  '--impl[specify the implementation to use:]'
+  '--tmp[temp file folder for move-remove implementation]'
+  '--max-retries[maxRetries for native and windows implementations]'
+  '--retry-delay[retryDelay for native implementation, default 100]'
+  '--backoff[exponential backoff factor for retries (default: 1.2)]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments

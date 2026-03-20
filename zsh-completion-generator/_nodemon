@@ -1,0 +1,17 @@
+#compdef nodemon
+
+# zsh completions for 'nodemon'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  '--config[............ alternate nodemon.json config file to use]'
+  {-e,--ext}'[............... extensions to look for, ie. js,pug,hbs.]'
+  {-x,--exec}'[........... execute script with "app", ie. -x "python -v".]'
+  {-w,--watch}'[......... watch directory "path" or files. use once for]'
+  {-i,--ignore}'[............ ignore specific files or directories.]'
+  {-V,--verbose}'[........... show detail on what is causing restarts.]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments

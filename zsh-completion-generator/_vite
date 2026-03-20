@@ -1,0 +1,28 @@
+#compdef vite
+
+# zsh completions for 'vite'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  '--host[\[string\] specify hostname]'
+  '--port[\[number\] specify port]'
+  '--open[\[boolean | string\] open browser on startup]'
+  '--cors[\[boolean\] enable CORS]'
+  '--strictPort[\[boolean\] exit if specified port is already in use]'
+  '--force[\[boolean\] force the optimizer to ignore the cache and re-bundle]'
+  '--experimentalBundle[\[boolean\] use experimental full bundle mode (this is highly experimental)]'
+  {-c,--config}'[\[string\] use specified config file]'
+  '--base[\[string\] public base path (default: /)]'
+  {-l,--logLevel}'[\[string\] info | warn | error | silent]'
+  '--clearScreen[\[boolean\] allow/disable clear screen when logging]'
+  '--configLoader[\[string\] use bundle to bundle the config with Rolldown, or runner (experimental) to process it on the fly, or native (experimental) to load using the native runtime (default: bundle)]'
+  {-d,--debug}'[\[string | boolean\] show debug logs]'
+  {-f,--filter}'[\[string\] filter debug logs]'
+  {-m,--mode}'[\[string\] set env mode]'
+  {-h,--help}'[display this message]'
+  {-v,--version}'[display version number]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments

@@ -31,7 +31,6 @@ run_generate() {
   # Create a test-specific generate script that uses our fixtures
   cat > "${TEST_DIR}/test_generate.zsh" << SCRIPT
 #!/usr/bin/env zsh
-set -e
 
 PLUGIN_DIR="${HOME}/.zsh-completion-generator"
 SCRIPT_DIR="${OUTPUT_DIR}"

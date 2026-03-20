@@ -1,0 +1,14 @@
+#compdef speed-test
+
+# zsh completions for 'speed-test'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  {--json,-j}'[output the result as JSON]'
+  {--bytes,-b}'[output the result in megabytes per second (MBps)]'
+  {--verbose,-v}'[output more detailed information]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments

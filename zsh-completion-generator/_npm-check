@@ -1,0 +1,23 @@
+#compdef npm-check
+
+# zsh completions for 'npm-check'
+# automatically generated with http://github.com/RobSis/zsh-completion-generator
+local arguments
+
+arguments=(
+  {-u,--update}'[interactive update.]'
+  {-y,--update-all}'[uninteractive update. Apply all updates without prompting.]'
+  {-g,--global}'[look at global modules.]'
+  {-s,--skip-unused}'[skip check for unused packages.]'
+  {-p,--production}'[skip devDependencies.]'
+  {-d,--dev-only}'[look at devDependencies only (skip dependencies).]'
+  {-i,--ignore}'[ignore dependencies based on succeeding glob.]'
+  {-E,--save-exact}'[save exact version (x.y.z) instead of caret (^x.y.z) in package.json.]'
+  '--specials[list of depcheck specials to include in check for unused dependencies.]'
+  '--no-color[force or disable color output.]'
+  '--no-emoji[remove emoji support. No emoji in default in CI environments.]'
+  '--debug[debug output. Throw in a gist when creating issues on github.]'
+  '*:filename:_files'
+)
+
+_arguments -s $arguments
