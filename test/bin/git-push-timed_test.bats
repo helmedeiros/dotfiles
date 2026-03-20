@@ -94,9 +94,8 @@ teardown() {
   [[ "$output" == *"DRY RUN"* ]]
   [[ "$output" == *"Would push"* ]]
 
-  # Verify commits were NOT actually pushed
-  cd "${TEST_REMOTE}"
-  REMOTE_COMMITS=$(git rev-list --count HEAD)
+  # Verify commits were NOT actually pushed (use git -C for bare repo)
+  REMOTE_COMMITS=$(git -C "${TEST_REMOTE}" rev-list --count master)
   [ "$REMOTE_COMMITS" -eq 1 ]  # Still only has the initial commit
 }
 
@@ -291,12 +290,8 @@ teardown() {
   git add feature.txt
   git commit -m "Add feature"
 
-  # Set up remote tracking for the branch
-  cd "${TEST_REMOTE}"
-  git checkout -b feature/test
-  cd "${TEST_REPO}"
-
-  git branch --set-upstream-to=origin/feature/test
+  # Push the branch to remote and set up tracking
+  git push -u origin feature/test
 
   # Create another commit that's not pushed
   echo "More" > more.txt

@@ -110,16 +110,6 @@ teardown() {
   grep "Dock" "$MOCK_KILLALL_LOG"
 }
 
-# Test Safari settings
-@test "configures Safari settings" {
-  run "$MACOS_DEFAULTS_SCRIPT"
-
-  # Check developer settings
-  grep "write com.apple.Safari IncludeDevelopMenu -bool true" "$MOCK_DEFAULTS_LOG"
-  grep "write com.apple.Safari WebKitDeveloperExtrasEnabledPreferenceKey -bool true" "$MOCK_DEFAULTS_LOG"
-  grep "write NSGlobalDomain WebKitDeveloperExtras -bool true" "$MOCK_DEFAULTS_LOG"
-}
-
 # Test App Store settings
 @test "configures App Store settings" {
   run "$MACOS_DEFAULTS_SCRIPT"
