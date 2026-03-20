@@ -6,9 +6,10 @@
 #   https://plus.google.com/115587336092124934674/posts/dXsagsvLakJ
 
 # Get list of branches to delete
-branches=`git branch --merged | grep -v '^*' | grep -v 'master' | tr -d '\n'`
+branches=$(git branch --merged | grep -v '^\*' | grep -v 'master' | tr -d '\n')
 
 # Only run git branch -d if there are branches to delete
 if [ -n "$branches" ]; then
+  # shellcheck disable=SC2086
   git branch -d $branches
 fi

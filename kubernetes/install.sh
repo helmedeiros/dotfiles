@@ -49,6 +49,7 @@ fi
 
 # Source the company-specific configuration
 echo "Loading company-specific Kubernetes configuration..."
+# shellcheck source=/dev/null
 source "$KUBE_CONFIG_FILE"
 
 # Validate required variables

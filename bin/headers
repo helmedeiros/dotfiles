@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # headers - A utility to view HTTP headers from web requests
 #

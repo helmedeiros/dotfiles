@@ -5,7 +5,7 @@
 set -e
 
 for item in $1; do
-    if [ -n "$(file -b "$item" | grep -o 'Zip')" ]; then
+    if file -b "$item" | grep -q 'Zip'; then
         unzip "$item" && trash "$item"
     fi
 done

@@ -55,7 +55,7 @@ fi
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
 # Get the remote tracking branch
-REMOTE_BRANCH=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || echo "")
+REMOTE_BRANCH=$(git rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || echo "")
 
 if [ -z "$REMOTE_BRANCH" ]; then
   echo -e "${RED}Error: No remote tracking branch found for '${CURRENT_BRANCH}'${NC}" >&2
@@ -69,10 +69,11 @@ echo -e "Remote branch: ${REMOTE_BRANCH}"
 echo ""
 
 # Get the list of commits to push (newest first, so we reverse it)
-COMMITS=($(git log ${REMOTE_BRANCH}..HEAD --format="%H" --reverse 2>/dev/null || echo ""))
+# shellcheck disable=SC2207
+COMMITS=($(git log "${REMOTE_BRANCH}..HEAD" --format="%H" --reverse 2>/dev/null))
 COMMIT_COUNT=${#COMMITS[@]}
 
-if [ $COMMIT_COUNT -eq 0 ]; then
+if [ "$COMMIT_COUNT" -eq 0 ]; then
     echo -e "${GREEN}No commits to push! Everything is up to date.${NC}"
     exit 0
 fi
@@ -82,16 +83,18 @@ echo ""
 
 # Function to wait until a specific time
 wait_until() {
-    local target_timestamp=$1
-    local commit_msg=$2
-    local current_timestamp=$(date +%s)
+    local target_timestamp="$1"
+    local commit_msg="$2"
+    local current_timestamp
+    current_timestamp=$(date +%s)
 
-    if [ $current_timestamp -lt $target_timestamp ]; then
+    if [ "$current_timestamp" -lt "$target_timestamp" ]; then
         local wait_seconds=$((target_timestamp - current_timestamp))
-        local target_date=$(date -r $target_timestamp "+%Y-%m-%d %H:%M:%S")
+        local target_date
+        target_date=$(date -r "$target_timestamp" "+%Y-%m-%d %H:%M:%S")
         echo -e "${YELLOW}Waiting until $target_date to push: $commit_msg${NC}"
         echo -e "${YELLOW}(${wait_seconds} seconds remaining)${NC}"
-        sleep $wait_seconds
+        sleep "$wait_seconds"
     fi
 }
 
@@ -101,9 +104,9 @@ for i in "${!COMMITS[@]}"; do
     COMMIT_NUM=$((i + 1))
 
     # Get commit details
-    COMMIT_DATE=$(git show -s --format=%ad --date=format:"%Y-%m-%d %H:%M:%S" $COMMIT_HASH)
-    COMMIT_TIMESTAMP=$(git show -s --format=%at $COMMIT_HASH)
-    COMMIT_MSG=$(git show -s --format=%s $COMMIT_HASH)
+    COMMIT_DATE=$(git show -s --format=%ad --date=format:"%Y-%m-%d %H:%M:%S" "$COMMIT_HASH")
+    COMMIT_TIMESTAMP=$(git show -s --format=%at "$COMMIT_HASH")
+    COMMIT_MSG=$(git show -s --format=%s "$COMMIT_HASH")
 
     echo ""
     echo -e "${BLUE}[$COMMIT_NUM/$COMMIT_COUNT] Processing commit:${NC}"
@@ -112,7 +115,7 @@ for i in "${!COMMITS[@]}"; do
     echo -e "  Message: $COMMIT_MSG"
 
     # Wait until the commit time
-    wait_until $COMMIT_TIMESTAMP "$COMMIT_MSG"
+    wait_until "$COMMIT_TIMESTAMP" "$COMMIT_MSG"
 
     # Push up to this commit
     if [ "$DRY_RUN" = true ]; then

@@ -13,7 +13,7 @@
 set -e
 
 force=''
-if test "x$1" = "x-f"; then
+if test "$1" = "-f"; then
     force='--force'
     shift
 fi
