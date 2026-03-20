@@ -3,10 +3,38 @@
 # Nukes a branch locally and on the origin remote.
 #
 # $1 - Branch name.
+# -f, --force - Skip confirmation prompt.
 #
 # Examples
 #
 #   git nuke add-git-nuke
+#   git nuke -f add-git-nuke
 
-git branch -D $1
-git push origin :$1
+set -e
+
+force=false
+branch=""
+
+for arg in "$@"; do
+  case "$arg" in
+    -f|--force) force=true ;;
+    *) branch="$arg" ;;
+  esac
+done
+
+if [ -z "$branch" ]; then
+  echo "Usage: git nuke [-f|--force] <branch>" >&2
+  exit 1
+fi
+
+if [ "$force" = false ]; then
+  printf "Nuke branch '%s' locally and on origin? [y/N] " "$branch"
+  read -r confirm
+  case "$confirm" in
+    [yY]|[yY][eE][sS]) ;;
+    *) echo "Aborted."; exit 1 ;;
+  esac
+fi
+
+git branch -D "$branch"
+git push origin :"$branch"
