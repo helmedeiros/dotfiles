@@ -12,14 +12,14 @@ setup() {
   export HOME="${TEST_DIR}"
   mkdir -p "${HOME}/Desktop"
 
-  # Create mock youtube-dl
+  # Create mock yt-dlp
   mkdir -p "${TEST_DIR}/bin"
-  cat > "${TEST_DIR}/bin/youtube-dl" <<'EOF'
+  cat > "${TEST_DIR}/bin/yt-dlp" <<'EOF'
 #!/bin/sh
 echo "Downloading: $1"
 touch "video_$(echo "$1" | sed 's/[^a-zA-Z0-9]/_/g').mp4"
 EOF
-  chmod +x "${TEST_DIR}/bin/youtube-dl"
+  chmod +x "${TEST_DIR}/bin/yt-dlp"
 
   export PATH="${TEST_DIR}/bin:${PATH}"
 }
@@ -35,12 +35,12 @@ teardown() {
   [ -x "${YT_SCRIPT}" ]
 }
 
-@test "yt calls youtube-dl with the URL argument" {
-  cat > "${TEST_DIR}/bin/youtube-dl" <<'EOF'
+@test "yt calls yt-dlp with the URL argument" {
+  cat > "${TEST_DIR}/bin/yt-dlp" <<'EOF'
 #!/bin/sh
 echo "URL: $1"
 EOF
-  chmod +x "${TEST_DIR}/bin/youtube-dl"
+  chmod +x "${TEST_DIR}/bin/yt-dlp"
 
   run bash "${YT_SCRIPT}" "https://youtube.com/watch?v=test123"
   [ "$status" -eq 0 ]
@@ -48,11 +48,11 @@ EOF
 }
 
 @test "yt changes to Desktop directory before downloading" {
-  cat > "${TEST_DIR}/bin/youtube-dl" <<'EOF'
+  cat > "${TEST_DIR}/bin/yt-dlp" <<'EOF'
 #!/bin/sh
 echo "CWD: $(pwd)"
 EOF
-  chmod +x "${TEST_DIR}/bin/youtube-dl"
+  chmod +x "${TEST_DIR}/bin/yt-dlp"
 
   run bash "${YT_SCRIPT}" "https://example.com/video"
   [ "$status" -eq 0 ]
