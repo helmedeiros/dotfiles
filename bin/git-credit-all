@@ -1,23 +1,20 @@
 #!/bin/sh
-
 #
 # Change the author name and/or email of a single commit.
 #
-# change-author [-f] commit-to-change [branch-to-rewrite [new-name [new-email]]]
+# Usage: git-credit-all [-f] commit-to-change [new-name [new-email]]
 #
-#     If -f is supplied it is passed to "git filter-branch".
-#
-#     If <branch-to-rewrite> is not provided or is empty HEAD will be used.
-#     Use "--all" or a space separated list (e.g. "master next") to rewrite
-#     multiple branches.
+#     If -f is supplied, run without the freshness check.
 #
 #     If <new-name> (or <new-email>) is not provided or is empty, the normal
 #     user.name (user.email) Git configuration value will be used.
 #
 
+set -e
+
 force=''
 if test "x$1" = "x-f"; then
-    force='-f'
+    force='--force'
     shift
 fi
 
@@ -25,31 +22,29 @@ die() {
     printf '%s\n' "$@"
     exit 128
 }
+
 targ="$(git rev-parse --verify "$1" 2>/dev/null)" || die "$1 is not a commit"
-br="${2:-HEAD}"
 
-TARG_COMMIT="$targ"
-TARG_NAME="${3-}"
-TARG_EMAIL="${4-}"
-export TARG_COMMIT TARG_NAME TARG_EMAIL
+new_name="${2-}"
+new_email="${3-}"
 
-filt='
+# Build the mailmap-style callback for git-filter-repo
+# Determine replacement values, falling back to git config
+if [ -z "$new_name" ]; then
+    new_name="$(git config user.name)"
+fi
+if [ -z "$new_email" ]; then
+    new_email="$(git config user.email)"
+fi
 
-    if test "$GIT_COMMIT" = "$TARG_COMMIT"; then
-        if test -n "$TARG_EMAIL"; then
-            GIT_AUTHOR_EMAIL="$TARG_EMAIL"
-            export GIT_AUTHOR_EMAIL
-        else
-            unset GIT_AUTHOR_EMAIL
-        fi
-        if test -n "$TARG_NAME"; then
-            GIT_AUTHOR_NAME="$TARG_NAME"
-            export GIT_AUTHOR_NAME
-        else
-            unset GIT_AUTHOR_NAME
-        fi
-    fi
+# Get the original author info from the target commit
+orig_name="$(git log -1 --format='%an' "$targ")"
+orig_email="$(git log -1 --format='%ae' "$targ")"
 
-'
+# Use git-filter-repo with a mailmap to rewrite the specific commit
+mailmap_file="$(mktemp)"
+echo "$new_name <$new_email> $orig_name <$orig_email>" > "$mailmap_file"
 
-git filter-branch $force --env-filter "$filt" -- $br
+git filter-repo $force --mailmap "$mailmap_file" --refs "$targ"..HEAD
+
+rm -f "$mailmap_file"

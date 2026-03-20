@@ -26,7 +26,6 @@ teardown() {
   a_real_git_repository_with_branches "${TEST_REPO}"
   cd "${TEST_REPO}"
 
-  # Create a couple of commits
   echo "first" > first.txt
   git add first.txt
   git commit -m "First commit"
@@ -36,12 +35,10 @@ teardown() {
   git add second.txt
   git commit -m "Second commit"
 
-  # Change the author of the first commit
-  run bash "${GIT_CREDIT_ALL_SCRIPT}" "${FIRST_HASH}" HEAD "Jane Doe" "jane@example.com"
+  run bash "${GIT_CREDIT_ALL_SCRIPT}" -f "${FIRST_HASH}" "Jane Doe" "jane@example.com"
   [ "$status" -eq 0 ]
 
-  # Verify the author was changed on the target commit
-  AUTHOR=$(git log --all --format='%an <%ae>' --reverse | grep "Jane Doe")
+  AUTHOR=$(git log --format='%an <%ae>' --reverse | grep "Jane Doe")
   [[ "$AUTHOR" == *"Jane Doe <jane@example.com>"* ]]
 }
 
@@ -54,8 +51,7 @@ teardown() {
   git commit -m "Test commit"
   HASH=$(git rev-parse HEAD)
 
-  # Run with -f flag
-  run bash "${GIT_CREDIT_ALL_SCRIPT}" -f "${HASH}" HEAD "John Smith" "john@example.com"
+  run bash "${GIT_CREDIT_ALL_SCRIPT}" -f "${HASH}" "John Smith" "john@example.com"
   [ "$status" -eq 0 ]
 }
 
@@ -66,4 +62,25 @@ teardown() {
   run bash "${GIT_CREDIT_ALL_SCRIPT}" "invalidhash123"
   [ "$status" -ne 0 ]
   [[ "$output" == *"is not a commit"* ]]
+}
+
+@test "git-credit-all uses git config when name and email omitted" {
+  a_real_git_repository_with_branches "${TEST_REPO}"
+  cd "${TEST_REPO}"
+
+  # Commit as a different author
+  git -c user.name="Old Author" -c user.email="old@example.com" \
+    commit --allow-empty -m "Old author commit"
+  HASH=$(git rev-parse HEAD)
+
+  echo "next" > next.txt
+  git add next.txt
+  git commit -m "Next commit"
+
+  # Run without explicit name/email — should use repo config (Test User)
+  run bash "${GIT_CREDIT_ALL_SCRIPT}" -f "${HASH}"
+  [ "$status" -eq 0 ]
+
+  AUTHOR=$(git log --format='%an <%ae>' --reverse | grep "Test User")
+  [[ -n "$AUTHOR" ]]
 }
