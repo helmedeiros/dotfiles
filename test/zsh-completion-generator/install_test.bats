@@ -18,17 +18,24 @@ setup() {
   # Create a mock git
   cat > "${TEST_DIR}/bin/git" << 'GIT'
 #!/bin/sh
-case "$1" in
+# Skip -C <dir> arguments to find the actual command
+args="$*"
+cmd="$1"
+if [ "$1" = "-C" ]; then
+  shift; shift
+  cmd="$1"
+fi
+case "$cmd" in
   clone)
     # Find the last argument (the destination directory)
     dest=""
     for arg in "$@"; do dest="$arg"; done
     mkdir -p "$dest"
     touch "$dest/zsh-completion-generator.plugin.zsh"
-    echo "git clone $*" >> "${HOME}/git.log"
+    echo "git clone $args" >> "${HOME}/git.log"
     ;;
   pull)
-    echo "git pull $*" >> "${HOME}/git.log"
+    echo "git pull $args" >> "${HOME}/git.log"
     ;;
 esac
 GIT
