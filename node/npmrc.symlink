@@ -1,0 +1,7 @@
+# Security hardening
+# Block postinstall scripts by default (prevents supply chain attacks like axios@1.14.1)
+# Run `npm rebuild <pkg>` manually when a package legitimately needs postinstall
+ignore-scripts=true
+
+# Pin exact versions instead of ^ranges to prevent auto-upgrading to compromised versions
+save-exact=true
