@@ -1,6 +1,5 @@
 cask_args appdir: '/Applications'
 
-tap 'homebrew/bundle'
 tap 'pivotal/tap'
 tap 'spring-io/tap'
 tap 'alecthomas/homebrew-tap'
@@ -45,7 +44,7 @@ brew 'trash'
 brew 'links'
 brew 'tree'
 brew 'jq'
-brew 'spring-boot'
+# brew 'spring-boot'  # Discontinued - Spring Boot CLI no longer available in Homebrew
 brew 'maven'
 brew 'openshift-cli'
 brew 'hugo'
@@ -53,11 +52,13 @@ brew 'hub'
 brew 'gh'          # GitHub CLI - official GitHub command-line tool
 brew 'plantuml'
 brew 'groovy'
-brew 'gometalinter'
+# brew 'gometalinter'  # Deprecated - replaced by golangci-lint
 brew 'bats-core'       # Testing framework for Bash scripts
 brew 'shellcheck'      # Static analysis for shell scripts
 brew 'git-filter-repo' # Rewrite git history (replaces filter-branch)
-brew 'ollama'     # Local LLM runner
+brew 'ollama'          # Local LLM runner
+brew 'kubernetes-cli'  # kubectl - Kubernetes command-line tool
+# HashiCorp Vault - installed manually via vault/install.sh (removed from Homebrew core)
 brew 'tmux'
 
 ## COCOA - MACOS NATIVE APPS
@@ -72,7 +73,7 @@ cask 'viscosity'
 cask 'vlc'
 cask 'spotify'
 cask 'caffeine'
-cask 'robo-3t'
+# cask 'robo-3t'  # Discontinued - merged into MongoDB Compass
 cask 'fertigt-slate'
 cask 'dropbox'
 cask 'intellij-idea'
@@ -91,6 +92,7 @@ cask 'via'
 cask 'claude'  # Official Anthropic Claude desktop app
 cask 'claude-code'  # Claude Code CLI - AI-assisted development tool
 cask 'ghostty'
+cask 'raycast'
 cask 'calibre'  # E-book management and conversion (for EPUB to AZW3)
 
 # mas 'Xcode', id: 497799835
