@@ -12,7 +12,8 @@ defaults write com.apple.terminal StringEncodings -array 4
 
 # Check if the theme is already installed
 THEME_NAME="Solarized Dark xterm-256color"
-THEME_INSTALLED=$(defaults read com.apple.Terminal "Window Settings" | grep -c "$THEME_NAME" || echo "0")
+THEME_INSTALLED=$(defaults read com.apple.Terminal "Window Settings" 2>/dev/null | grep -c "$THEME_NAME" || true)
+THEME_INSTALLED=${THEME_INSTALLED:-0}
 
 # Only install the theme if it's not already installed
 if [ "$THEME_INSTALLED" -eq 0 ]; then
@@ -53,17 +54,6 @@ end tell
 EOD
 else
   echo "Terminal theme '$THEME_NAME' is already installed. Skipping."
-  
-  # Just set the theme as default without opening new windows
-  osascript <<EOD
-tell application "Terminal"
-	set themeName to "$THEME_NAME"
-	(* Set the custom theme as the default terminal theme. *)
-	set default settings to settings set themeName
-	(* Apply theme to current windows *)
-	set current settings of tabs of every window to settings set themeName
-end tell
-EOD
 fi
 
 # Enable "focus follows mouse" for Terminal.app and all X11 apps
