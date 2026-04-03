@@ -16,6 +16,12 @@ KCC_INSTALL_DIR="$HOME/.local/share/kcc"
 BIN_DIR="$HOME/.local/bin"
 REPO_URL="https://github.com/ciromattia/kcc.git"
 
+# Skip if already installed and up to date
+if [ -x "$BIN_DIR/kcc-c2e" ] && [ -d "$KCC_INSTALL_DIR/venv" ]; then
+    echo -e "${GREEN}KCC already installed. Skipping.${NC}"
+    exit 0
+fi
+
 echo -e "${GREEN}Installing KCC (Kindle Comic Converter) CLI...${NC}"
 
 # Check if required tools are available

@@ -16,6 +16,14 @@ NC='\033[0m' # No Color
 # Get the directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Cursor CLI path - installed inside the app bundle
+CURSOR_CLI="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
+
+if ! [ -d "/Applications/Cursor.app" ]; then
+  echo -e "${RED}Cursor not installed. Skipping configuration.${NC}"
+  exit 0
+fi
+
 # Cursor settings directory
 CURSOR_DIR="$HOME/Library/Application Support/Cursor/User"
 
@@ -38,8 +46,7 @@ fi
 # Install Cursor extensions
 echo -e "\n${BLUE}=== Installing Cursor extensions ===${NC}"
 if [ -f "$SCRIPT_DIR/extensions.txt" ]; then
-  # Check if Cursor is installed
-  if command -v cursor &> /dev/null; then
+  if [ -x "$CURSOR_CLI" ]; then
     echo -e "${GREEN}Installing Cursor extensions...${NC}"
     while IFS= read -r line || [[ -n "$line" ]]; do
       # Skip comments and empty lines
@@ -47,13 +54,13 @@ if [ -f "$SCRIPT_DIR/extensions.txt" ]; then
         continue
       fi
       echo -e "${GREEN}Installing extension: $line${NC}"
-      cursor --install-extension "$line" --force
+      "$CURSOR_CLI" --install-extension "$line" --force
     done < "$SCRIPT_DIR/extensions.txt"
   else
-    echo -e "${RED}Cursor not found! Skipping extension installation.${NC}"
+    echo -e "${RED}Cursor CLI not found at $CURSOR_CLI! Skipping extension installation.${NC}"
   fi
 else
   echo -e "${RED}Extensions list not found!${NC}"
 fi
 
-echo -e "\n${GREEN}Cursor setup completed!${NC}" 
+echo -e "\n${GREEN}Cursor setup completed!${NC}"
