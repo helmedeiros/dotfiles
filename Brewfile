@@ -3,6 +3,7 @@ cask_args appdir: '/Applications'
 tap 'pivotal/tap'
 tap 'spring-io/tap'
 tap 'alecthomas/homebrew-tap'
+tap 'koekeishiya/formulae'
 
 cask 'xquartz'
 cask 'temurin@17'
@@ -60,6 +61,8 @@ brew 'ollama'          # Local LLM runner
 brew 'kubernetes-cli'  # kubectl - Kubernetes command-line tool
 # HashiCorp Vault - installed manually via vault/install.sh (removed from Homebrew core)
 brew 'tmux'
+brew 'koekeishiya/formulae/yabai'   # Tiling window manager
+brew 'koekeishiya/formulae/skhd'    # Hotkey daemon for yabai
 
 ## COCOA - MACOS NATIVE APPS
 brew 'cocoapods'

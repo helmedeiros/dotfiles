@@ -63,7 +63,13 @@ defaults write com.apple.dock largesize -float 100
 # set process indicators
 defaults write com.apple.dock show-process-indicators -bool true
 
+# Yabai: don't automatically rearrange spaces based on most recent use
+defaults write com.apple.dock mru-spaces -bool false
+
 killall Dock
+
+# Yabai: reduce motion for smoother space switching
+defaults write com.apple.universalaccess reduceMotion -bool true
 
 # Safari developer settings removed — modern macOS sandboxes Safari preferences
 # and these keys are no longer effective. Enable developer features manually via
