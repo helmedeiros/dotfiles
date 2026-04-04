@@ -3,8 +3,8 @@
 # Tracer configuration and install.
 set -e
 
-# Source the path configuration
-source "$(dirname "$0")/path.zsh"
+# Set TRACER_HOME directly for installation context
+export TRACER_HOME="$HOME/.tracer"
 
 setup () {
   echo "  Installing $1 for you."

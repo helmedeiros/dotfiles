@@ -55,8 +55,12 @@ echo "› brew upgrade"
 brew upgrade
 
 # Mac Apple Store Upgrade
-echo "› mas upgrade"
-mas upgrade
+if command -v mas &> /dev/null; then
+  echo "› mas upgrade"
+  mas upgrade
+else
+  echo "› mas not found, skipping Mac App Store upgrades"
+fi
 
 # brew bundle
 echo "› brew bundle"

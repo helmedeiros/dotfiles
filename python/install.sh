@@ -6,10 +6,15 @@
 
 set -eo pipefail
 
-# Check if pyenv is installed
+# Check if pyenv is installed, install if missing
 if ! command -v pyenv &> /dev/null; then
-  echo "⚠️  pyenv not found. Please install it via Homebrew: brew install pyenv"
-  exit 1
+  echo "⚠️  pyenv not found. Installing via Homebrew..."
+  if command -v brew &> /dev/null; then
+    brew install pyenv
+  else
+    echo "❌ Homebrew not found. Please install pyenv manually."
+    exit 1
+  fi
 fi
 
 echo "🐍 Setting up Python environment..."
