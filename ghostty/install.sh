@@ -2,8 +2,7 @@
 # Ghostty Install Script
 # Symlinks the ghostty directory into ~/.config/ghostty
 
-SCRIPT_LOCATION=$(greadlink -e $0)
-SCRIPT_DIR=$(dirname $SCRIPT_LOCATION)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 CONFIG_DIR=$HOME/.config/ghostty
 
 printf "Installing Ghostty config.\n"
