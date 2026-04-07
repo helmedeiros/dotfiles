@@ -1,7 +1,10 @@
-# grc overides for ls
-#   Made possible through contributions from generous benefactors like
-#   `brew install coreutils`
-if $(gls &>/dev/null)
+# Prefer eza (modern ls) when available, fall back to gls (GNU coreutils).
+if command -v eza > /dev/null 2>&1; then
+  alias ls="eza --icons=always --group-directories-first"
+  alias l="eza -lah --icons=always --group-directories-first"
+  alias ll="eza -l --icons=always --group-directories-first"
+  alias la="eza -a --icons=always --group-directories-first"
+elif $(gls &>/dev/null)
 then
   alias ls="gls -F --color"
   alias l="gls -lAh --color"
