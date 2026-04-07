@@ -36,6 +36,7 @@ brew 'gradle'
 brew 'tig'
 brew 'zsh-autosuggestions'
 brew 'zsh-syntax-highlighting'
+brew 'powerlevel10k'   # Powerlevel10k zsh theme
 brew 'python'
 brew 'pyenv'          # Python version management
 brew 'pyenv-virtualenv' # Virtual environment support for pyenv
@@ -98,6 +99,7 @@ cask 'claude-code'  # Claude Code CLI - AI-assisted development tool
 cask 'ghostty'
 cask 'raycast'
 cask 'calibre'  # E-book management and conversion (for EPUB to AZW3)
+cask 'font-meslo-lg-nerd-font'  # Meslo Nerd Font for terminal icons
 
 # mas 'Xcode', id: 497799835
 # mas 'Telegram', id: 747648890
