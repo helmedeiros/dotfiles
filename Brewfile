@@ -14,6 +14,7 @@ brew 'zsh'
 brew 'zsh-completions'
 brew 'tree'
 brew 'eza'    # Modern replacement for ls
+brew 'zoxide' # Smarter cd with fuzzy directory jumping
 brew 'ack'
 brew 'ripgrep'
 brew 'coreutils'
