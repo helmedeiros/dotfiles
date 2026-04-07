@@ -13,6 +13,7 @@ brew 'mas'
 brew 'zsh'
 brew 'zsh-completions'
 brew 'tree'
+brew 'eza'    # Modern replacement for ls
 brew 'ack'
 brew 'ripgrep'
 brew 'coreutils'
