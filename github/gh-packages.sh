@@ -16,6 +16,7 @@ GITHUB_SECRETS_FILE="${DOT_SECRETS_DIR}/github/packages.sh"
 
 if [ -f "$GITHUB_SECRETS_FILE" ]; then
     echo "Loading configuration from ${GITHUB_SECRETS_FILE}"
+    # shellcheck source=/dev/null
     source "$GITHUB_SECRETS_FILE"
 fi
 
