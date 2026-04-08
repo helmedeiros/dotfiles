@@ -4,16 +4,16 @@
 #
 
 # Quick manga conversion to EPUB for Kindle Colorsoft
-alias kcc-manga='kcc-c2e --manga-style --forcecolor --profile KCS --format EPUB'
+alias kcc-manga='kcc-c2e --manga-style --forcecolor --cropping 0 --splitter 0 --profile KCS --format EPUB'
 
 # Quick manga conversion to EPUB for Kindle Paperwhite
-alias kcc-manga-pw='kcc-c2e --manga-style --forcecolor --profile KPW5 --format EPUB'
+alias kcc-manga-pw='kcc-c2e --manga-style --forcecolor --cropping 0 --splitter 0 --profile KPW5 --format EPUB'
 
 # Quick manga conversion to EPUB for Kindle Oasis
-alias kcc-manga-oasis='kcc-c2e --manga-style --forcecolor --profile KO --format EPUB'
+alias kcc-manga-oasis='kcc-c2e --manga-style --forcecolor --cropping 0 --splitter 0 --profile KO --format EPUB'
 
 # Quick manga conversion to EPUB for Kindle Scribe
-alias kcc-manga-scribe='kcc-c2e --manga-style --forcecolor --profile KS --format EPUB'
+alias kcc-manga-scribe='kcc-c2e --manga-style --forcecolor --cropping 0 --splitter 0 --profile KS --format EPUB'
 
 # Convert EPUB to AZW3 using Calibre
 alias epub2azw3='/Applications/calibre.app/Contents/MacOS/ebook-convert'
@@ -45,7 +45,7 @@ kcc-batch-manga() {
         [ -f "$file" ] || continue
         count=$((count + 1))
         echo "[$count/$total] Converting: $(basename "$file")"
-        ~/.local/bin/kcc-c2e --manga-style --forcecolor --profile "$profile" --format EPUB --output "$output_dir" "$file"
+        ~/.local/bin/kcc-c2e --manga-style --forcecolor --cropping 0 --splitter 0 --profile "$profile" --format EPUB --output "$output_dir" "$file"
     done
 
     echo ""
