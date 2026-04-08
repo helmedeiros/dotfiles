@@ -127,7 +127,9 @@ function dotfiles-clear-status() {
 status_log "Shell started, checking if update check is needed"
 if ! status_last_check; then
   status_log "Running background update check"
-  (check_dotfiles_updates &) >/dev/null 2>&1
+  # Fully detach: close all inherited fds, use timeout to prevent VPN hangs,
+  # and redirect stdin from /dev/null to prevent interactive prompts from blocking
+  (check_dotfiles_updates </dev/null &) >/dev/null 2>&1 &!
 else
   status_log "Skipping update check - already checked today"
 fi
