@@ -4,6 +4,25 @@
             "complex_modifications": {
                 "rules": [
                     {
+                        "enabled": false,
+                        "manipulators": [
+                            {
+                                "description": "Change tab to command+control+option+shift.",
+                                "from": {
+                                    "key_code": "tab",
+                                    "modifiers": { "optional": ["any"] }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "left_shift",
+                                        "modifiers": ["left_command", "left_control", "left_option"]
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
                         "description": "Quit application by pressing command-q twice (Available since Karabiner-Elements 11.1.12)",
                         "manipulators": [
                             {
@@ -380,10 +399,6 @@
             "selected": true,
             "simple_modifications": [
                 {
-                    "from": { "key_code": "caps_lock" },
-                    "to": [{ "key_code": "tab" }]
-                },
-                {
                     "from": { "key_code": "f18" },
                     "to": [{ "consumer_key_code": "volume_decrement" }]
                 },
@@ -408,8 +423,8 @@
                     "to": [{ "consumer_key_code": "fast_forward" }]
                 },
                 {
-                    "from": { "key_code": "tab" },
-                    "to": [{ "key_code": "escape" }]
+                    "from": { "key_code": "caps_lock" },
+                    "to": [{ "key_code": "tab" }]
                 }
             ],
             "virtual_hid_keyboard": {
