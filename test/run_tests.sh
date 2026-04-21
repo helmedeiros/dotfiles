@@ -60,6 +60,14 @@ else
   echo -e "${YELLOW}No bin tests found${NC}"
 fi
 
+# Run zoxide tests
+echo -e "${BLUE}=== Running zoxide tests ===${NC}"
+if compgen -G "${SCRIPT_DIR}/zoxide/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/zoxide/"*_test.bats
+else
+  echo -e "${YELLOW}No zoxide tests found${NC}"
+fi
+
 # Run zsh-completion-generator tests
 echo -e "${BLUE}=== Running zsh-completion-generator tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/zsh-completion-generator/*_test.bats" > /dev/null; then
