@@ -115,3 +115,46 @@ ZSHRC="${BATS_TEST_DIRNAME}/../../zsh/zshrc.symlink"
 
   [[ "${stderr}" != *"detected a possible configuration issue"* ]]
 }
+
+@test "no cd alias after full zshrc source in non-interactive login shell" {
+  if ! command -v zoxide &>/dev/null; then
+    skip "zoxide not installed"
+  fi
+
+  # This replicates Claude Code's Bash tool: login, non-interactive, aliases on
+  local output
+  output=$(env -u _ZO_DOCTOR /bin/zsh -l -c '
+    source ~/.zshrc
+    alias cd 2>&1 || echo "no-alias"
+  ' 2>&1)
+
+  [[ "${output}" == *"no-alias"* ]]
+}
+
+@test "no zoxide warning after full zshrc source in non-interactive login shell" {
+  if ! command -v zoxide &>/dev/null; then
+    skip "zoxide not installed"
+  fi
+
+  local output
+  output=$(env -u _ZO_DOCTOR /bin/zsh -l -c '
+    setopt aliases
+    source ~/.zshrc
+    eval "cd /tmp 2>&1"
+  ' 2>&1)
+
+  [[ "${output}" != *"detected a possible configuration issue"* ]]
+  [[ "${output}" != *"command not found: z"* ]]
+}
+
+@test "no unguarded cd alias in any zoxide zsh file" {
+  # All cd='z' aliases in zoxide/*.zsh must be inside an interactive guard
+  local zoxide_dir="${BATS_TEST_DIRNAME}/../../zoxide"
+
+  for f in "${zoxide_dir}"/*.zsh; do
+    # Skip files that don't contain the alias at all
+    grep -q "alias cd='z'" "$f" || continue
+    # If the file has the alias, it must also have the interactive guard
+    grep -q '\[\[ -o interactive \]\]' "$f"
+  done
+}
