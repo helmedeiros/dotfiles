@@ -107,6 +107,6 @@ compinit
 # End of Docker CLI completions
 
 # zoxide must be initialized at the very end of zshrc
-if command -v zoxide > /dev/null 2>&1; then
+if command -v zoxide > /dev/null 2>&1 && [[ -o interactive ]]; then
   eval "$(zoxide init zsh)"
 fi
