@@ -5,6 +5,7 @@ bats_require_minimum_version 1.5.0
 
 # Paths to the files being tested
 ZOXIDE_PATH="${BATS_TEST_DIRNAME}/../../zoxide/path.zsh"
+ZOXIDE_ALIASES="${BATS_TEST_DIRNAME}/../../zoxide/aliases.zsh"
 ZSHRC="${BATS_TEST_DIRNAME}/../../zsh/zshrc.symlink"
 
 # --- Static configuration checks ---
@@ -13,148 +14,87 @@ ZSHRC="${BATS_TEST_DIRNAME}/../../zsh/zshrc.symlink"
   grep -q 'export _ZO_DOCTOR=0' "${ZOXIDE_PATH}"
 }
 
+@test "zoxide/path.zsh runs zoxide init" {
+  grep -q 'eval "$(zoxide init zsh)"' "${ZOXIDE_PATH}"
+}
+
 @test "zoxide/path.zsh sets cd alias to z" {
   grep -q "alias cd='z'" "${ZOXIDE_PATH}"
 }
 
-@test "zoxide/path.zsh guards on interactive shell" {
-  grep -q '\[\[ -o interactive \]\]' "${ZOXIDE_PATH}"
+@test "zshrc does NOT contain zoxide init (belongs in path.zsh)" {
+  ! grep -q 'zoxide init' "${ZSHRC}"
 }
 
-@test "zshrc initializes zoxide at the very end" {
-  local init_line
-  init_line=$(grep -n 'zoxide init zsh' "${ZSHRC}" | tail -1 | cut -d: -f1)
-  [ -n "${init_line}" ]
-
-  local total_lines
-  total_lines=$(wc -l < "${ZSHRC}" | tr -d ' ')
-
-  # zoxide init block (with its closing fi) must be within the last 5 lines
-  local distance=$(( total_lines - init_line ))
-  [ "${distance}" -le 4 ]
-}
-
-@test "zshrc guards zoxide init on interactive shell" {
-  grep -q 'zoxide.*interactive' "${ZSHRC}"
-}
-
-@test "zoxide path.zsh is sourced before zoxide init in zshrc" {
-  local path_loop_line
-  path_loop_line=$(grep -n 'for file in.*path.zsh' "${ZSHRC}" | head -1 | cut -d: -f1)
-
-  local init_line
-  init_line=$(grep -n 'zoxide init zsh' "${ZSHRC}" | tail -1 | cut -d: -f1)
-
-  [ "${path_loop_line}" -lt "${init_line}" ]
+@test "zoxide/aliases.zsh does not define cd alias (defined in path.zsh)" {
+  ! grep -q "^alias cd" "${ZOXIDE_ALIASES}"
 }
 
 # --- Runtime checks (only if zoxide is installed) ---
 
-@test "no zoxide warning on stderr when sourcing path.zsh" {
+@test "_ZO_DOCTOR is 0 after sourcing path.zsh" {
   if ! command -v zoxide &>/dev/null; then
     skip "zoxide not installed"
   fi
 
-  local stderr
-  stderr=$(bash -c 'source "'"${ZOXIDE_PATH}"'"' 2>&1 >/dev/null)
-
-  [[ "${stderr}" != *"detected a possible configuration issue"* ]]
-}
-
-@test "_ZO_DOCTOR is 0 after sourcing path.zsh in interactive zsh" {
-  if ! command -v zoxide &>/dev/null; then
-    skip "zoxide not installed"
-  fi
-
-  run /bin/zsh -i -c 'source "'"${ZOXIDE_PATH}"'" && echo "${_ZO_DOCTOR}"'
+  run /bin/zsh -c 'source "'"${ZOXIDE_PATH}"'" && echo "${_ZO_DOCTOR}"'
   [ "$status" -eq 0 ]
-  [[ "$output" == *"0"* ]]
+  [ "$output" = "0" ]
 }
 
-@test "no zoxide warning when calling z after full init" {
+@test "no warning when calling z after sourcing path.zsh" {
   if ! command -v zoxide &>/dev/null; then
     skip "zoxide not installed"
   fi
 
-  local stderr
-  stderr=$(/bin/zsh -i -c '
+  run /bin/zsh -c '
     source "'"${ZOXIDE_PATH}"'"
-    eval "$(zoxide init zsh)"
-    z /tmp 2>&1 >/dev/null
-  ' 2>&1)
-
-  [[ "${stderr}" != *"detected a possible configuration issue"* ]]
+    z /tmp 2>&1
+  '
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"detected a possible configuration issue"* ]]
 }
 
-@test "non-interactive shell does not load zoxide alias or init" {
+@test "no warning when compinit runs AFTER zoxide init" {
   if ! command -v zoxide &>/dev/null; then
     skip "zoxide not installed"
   fi
 
-  # In non-interactive zsh, the interactive guard should skip zoxide setup
-  local output
-  output=$(/bin/zsh -c '
+  # Simulates Docker Desktop or other tools appending compinit to zshrc
+  run /bin/zsh -c '
     source "'"${ZOXIDE_PATH}"'"
-    alias cd 2>&1 || echo "no-alias"
-  ' 2>&1)
-
-  [[ "${output}" == *"no-alias"* ]] || [[ "${output}" != *"cd=z"* ]]
+    autoload -Uz compinit
+    compinit -C
+    z /tmp 2>&1
+  '
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"detected a possible configuration issue"* ]]
 }
 
-@test "no zoxide warning when cd is used in non-interactive shell" {
+@test "no warning when chpwd_functions is completely cleared after init" {
   if ! command -v zoxide &>/dev/null; then
     skip "zoxide not installed"
   fi
 
-  local stderr
-  stderr=$(/bin/zsh -c '
+  # Worst case: hooks entirely wiped
+  run /bin/zsh -c '
     source "'"${ZOXIDE_PATH}"'"
-    eval "$(zoxide init zsh 2>/dev/null)" 2>/dev/null
-    cd /tmp 2>&1
-  ' 2>&1)
-
-  [[ "${stderr}" != *"detected a possible configuration issue"* ]]
+    chpwd_functions=()
+    z /tmp 2>&1
+  '
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"detected a possible configuration issue"* ]]
 }
 
-@test "no cd alias after full zshrc source in non-interactive login shell" {
+@test "cd alias works and resolves to z after sourcing path.zsh" {
   if ! command -v zoxide &>/dev/null; then
     skip "zoxide not installed"
   fi
 
-  # This replicates Claude Code's Bash tool: login, non-interactive, aliases on
-  local output
-  output=$(env -u _ZO_DOCTOR /bin/zsh -l -c '
-    source ~/.zshrc
-    alias cd 2>&1 || echo "no-alias"
-  ' 2>&1)
-
-  [[ "${output}" == *"no-alias"* ]]
-}
-
-@test "no zoxide warning after full zshrc source in non-interactive login shell" {
-  if ! command -v zoxide &>/dev/null; then
-    skip "zoxide not installed"
-  fi
-
-  local output
-  output=$(env -u _ZO_DOCTOR /bin/zsh -l -c '
-    setopt aliases
-    source ~/.zshrc
-    eval "cd /tmp 2>&1"
-  ' 2>&1)
-
-  [[ "${output}" != *"detected a possible configuration issue"* ]]
-  [[ "${output}" != *"command not found: z"* ]]
-}
-
-@test "no unguarded cd alias in any zoxide zsh file" {
-  # All cd='z' aliases in zoxide/*.zsh must be inside an interactive guard
-  local zoxide_dir="${BATS_TEST_DIRNAME}/../../zoxide"
-
-  for f in "${zoxide_dir}"/*.zsh; do
-    # Skip files that don't contain the alias at all
-    grep -q "alias cd='z'" "$f" || continue
-    # If the file has the alias, it must also have the interactive guard
-    grep -q '\[\[ -o interactive \]\]' "$f"
-  done
+  run /bin/zsh -c '
+    source "'"${ZOXIDE_PATH}"'"
+    whence -v cd
+  '
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"alias"* ]]
 }
