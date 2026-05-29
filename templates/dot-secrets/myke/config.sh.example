@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# myke release URL. Sourced by myke/install.sh.
+#
+# Copy to ~/.dot-secrets/myke/config.sh and set MYKE_RELEASE_URL to the
+# binary you want installed at ~/.myke/myke. If you delete this file (or
+# never create it), myke installation is skipped — useful when changing
+# employers or working without myke.
+
+# Full URL to the myke binary for your platform.
+# Pick the arm64 or amd64 build according to your machine's architecture.
+MYKE_RELEASE_URL=""

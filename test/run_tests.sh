@@ -86,6 +86,14 @@ else
   echo -e "${YELLOW}No kubernetes tests found${NC}"
 fi
 
+# Run myke tests
+echo -e "${BLUE}=== Running myke tests ===${NC}"
+if compgen -G "${SCRIPT_DIR}/myke/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/myke/"*_test.bats || FAILED=1
+else
+  echo -e "${YELLOW}No myke tests found${NC}"
+fi
+
 # Run zsh-completion-generator tests
 echo -e "${BLUE}=== Running zsh-completion-generator tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/zsh-completion-generator/*_test.bats" > /dev/null; then
