@@ -25,15 +25,12 @@ _run_path_zsh() {
     bash -c "HOME='${TEST_HOME}' source '${PATH_ZSH}' && printf '%s' \"\${KUBECONFIG:-}\""
 }
 
-# --- Static guards ---
-
-@test "kubernetes/path.zsh does not mention any specific employer kubeconfig" {
-    # Reintroducing a hardcoded filename here would leak employer context
-    # into the public repo. Names come from .dot-secrets only.
-    ! grep -qiE 'goeuro|omio|company-specific' "${PATH_ZSH}"
-}
-
 # --- Runtime behaviour ---
+#
+# Reintroducing a hardcoded employer-specific kubeconfig filename is caught
+# by the cross-cutting PII guard in test/lint/lint_test.bats (driven by
+# ~/.dot-secrets/lint/pii-patterns.sh), so this file stays focused on the
+# runtime semantics of path.zsh.
 
 @test "KUBECONFIG points at .dot-secrets KUBE_CONFIG_FILENAME when present" {
     cat > "${TEST_HOME}/.dot-secrets/kubernetes/config.sh" <<'EOF'

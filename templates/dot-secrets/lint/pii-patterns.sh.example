@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# PII / employer-name lint patterns. Sourced by test/lint/lint_test.bats.
+#
+# Copy to ~/.dot-secrets/lint/pii-patterns.sh and edit. The lint tests scan
+# every tracked file outside test/ and fail if any of these regexes match —
+# so the literal employer names never appear in public test source either.
+#
+# The PII_PATTERNS array holds <regex>::<description> pairs.
+
+PII_PATTERNS=(
+    # Examples — replace with your own:
+    # "[Cc]urrent-[Ee]mployer::current employer name"
+    # "[Pp]ast-[Ee]mployer::former employer name"
+    # "you\\.lastname::personal-name fragment"
+)

@@ -68,39 +68,39 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
 }
 
 # --- PII / employer-name guards ---
+#
+# Patterns themselves are personal and live in ~/.dot-secrets/lint/pii-patterns.sh
+# so the public test source never contains a literal employer name or
+# personal-name fragment. See templates/dot-secrets/lint/pii-patterns.sh.example
+# for the expected shape.
 
-# Single helper: assert a regex doesn't appear in any tracked file outside
-# the test/ tree. Uses `git ls-files` so untracked working-tree files (like
-# this machine's gitconfig.symlink) are not scanned. test/ is excluded
-# because lint tests and mocks may legitimately reference these patterns.
-_assert_pattern_absent_from_tracked() {
-    local pattern="$1"
-    local description="$2"
+@test "no tracked file (outside test/) matches any PII / employer pattern" {
+    # shellcheck source=../../lib/dot-secrets.sh
+    source "${DOTFILES_DIR}/lib/dot-secrets.sh"
+
+    PII_PATTERNS=()
+    source_dot_secret "lint/pii-patterns.sh" || \
+        skip "no ~/.dot-secrets/lint/pii-patterns.sh — see templates/dot-secrets/lint/"
+
+    [ "${#PII_PATTERNS[@]}" -gt 0 ] || \
+        skip "PII_PATTERNS array is empty in ~/.dot-secrets/lint/pii-patterns.sh"
+
     cd "${DOTFILES_DIR}"
+    local pattern description hits failures=()
 
-    local hits
-    hits=$(git ls-files | grep -v '^test/' | xargs grep -lE "${pattern}" 2>/dev/null || true)
+    for entry in "${PII_PATTERNS[@]}"; do
+        pattern="${entry%%::*}"
+        description="${entry##*::}"
 
-    if [ -n "${hits}" ]; then
-        echo "${description} found in tracked files:" >&2
-        echo "${hits}" >&2
+        hits=$(git ls-files | grep -v '^test/' | xargs grep -lE "${pattern}" 2>/dev/null || true)
+        if [ -n "${hits}" ]; then
+            failures+=("${description}: ${hits}")
+        fi
+    done
+
+    if [ "${#failures[@]}" -gt 0 ]; then
+        printf '%s\n' "${failures[@]}" >&2
         return 1
     fi
     return 0
-}
-
-@test "no tracked file (outside test/) mentions current employer 'omio'" {
-    _assert_pattern_absent_from_tracked '[Oo][Mm][Ii][Oo]' "employer string 'omio'"
-}
-
-@test "no tracked file (outside test/) mentions former employer 'goeuro'" {
-    _assert_pattern_absent_from_tracked '[Gg][Oo][Ee][Uu][Rr][Oo]' "former-employer string 'goeuro'"
-}
-
-@test "no tracked file (outside test/) mentions former employer 'gap.com'" {
-    _assert_pattern_absent_from_tracked '[Gg][Aa][Pp]\.[Cc][Oo][Mm]' "former-employer email 'gap.com'"
-}
-
-@test "no tracked file (outside test/) mentions personal-name fragments" {
-    _assert_pattern_absent_from_tracked 'helio\.(medeiros|cabralmedeiros)' "personal-name fragment"
 }
