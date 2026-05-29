@@ -147,12 +147,15 @@ function clean_all_zsh_autocompletion() {
     rm -f "$zsh_compdump.zwc"
   fi
   
-  # Clear Zsh command history hash
+  # Best-effort session-state cleanup. These builtins are no-ops outside the
+  # user's interactive shell (this script runs in a subshell), and some are
+  # zsh-version-specific, so failures here must not abort the file cleanup
+  # that came before.
   echo -e "${YELLOW}Clearing Zsh command history hash${NC}"
-  hash -r
-  
+  hash -r 2>/dev/null || true
+
   # Clear Zsh directory stack
-  dirs -c
+  dirs -c 2>/dev/null || true
   
   # Clear Zsh named directories
   local zshdir="${ZDOTDIR:-$HOME}/.zsh"
@@ -178,7 +181,14 @@ function clean_all_zsh_autocompletion() {
   
   # Clear Zsh command history for current session
   echo -e "${YELLOW}Clearing current session history${NC}"
-  history -c
+  # 'history -c' is bash-only; zsh uses 'fc -P' or rebuilds via HISTFILE.
+  # The subshell context means this is essentially a no-op anyway, but
+  # keep both branches for clarity and let either fail silently.
+  if [ -n "${BASH_VERSION:-}" ]; then
+    history -c 2>/dev/null || true
+  else
+    fc -P 2>/dev/null || true
+  fi
   
   echo -e "${GREEN}All Zsh autocompletion history cleared.${NC}"
   echo -e "${YELLOW}To fully apply changes, you should restart your terminal session.${NC}"

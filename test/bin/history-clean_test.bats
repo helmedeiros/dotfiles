@@ -423,19 +423,12 @@ EOF
   mkdir -p "${TEST_DIR}/.zcompcache"
   touch "${TEST_DIR}/.zcompcache/cache-file"
 
-  # The script might fail if it tries to run zsh-specific commands
-  # that aren't available in the test environment
   run zsh "${HISTORY_CLEAN_SCRIPT}" --autocomplete
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Clearing"* ]] || [[ "$output" == *"cleared"* ]]
 
-  # The script should at least attempt to clear (may succeed or fail)
-  # Just verify it exits successfully and mentions clearing operations
-  if [ "$status" -eq 0 ]; then
-    [[ "$output" == *"Clearing"* ]] || [[ "$output" == *"cleared"* ]]
-  else
-    # If it fails, it might be due to zsh-specific commands not available
-    # This is acceptable in a test environment
-    skip "zsh autocompletion commands not available in test environment"
-  fi
+  # File cleanup must have happened.
+  [ ! -f "${TEST_DIR}/.zcompdump" ]
 }
 
 # Test removing line that doesn't exist (line number too high)
