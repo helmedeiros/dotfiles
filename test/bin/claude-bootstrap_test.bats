@@ -71,10 +71,10 @@ teardown() {
 # --- Error when bd is missing ---
 
 @test "claude-bootstrap exits 1 with clear error when bd is not on PATH" {
-    # Drop the fake bd from PATH for this test.
-    PATH="$(echo "${PATH}" | tr ':' '\n' | grep -v "fake-bin" | paste -sd: -)"
+    # Use a minimal PATH that excludes anywhere a real bd might live (e.g.
+    # /opt/homebrew/bin) so the test works on machines with beads installed.
     cd "${REPO}"
-    run "${SCRIPT}"
+    PATH="/usr/bin:/bin" run "${SCRIPT}"
     [ "${status}" -eq 1 ]
     [[ "${output}" == *"'bd' (beads CLI) not found"* ]]
 }
