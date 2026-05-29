@@ -196,15 +196,48 @@ EOF
   setup_github_config "${TEST_DIR}"
   echo "export VERSIONS_TO_KEEP=1" >> "${TEST_DIR}/.dot-secrets/github/packages.sh"
 
-  # Modify mock to return ordered versions
-  cat > "${TEST_DIR}/mocks/curl" << 'EOF'
+  # Stateful mock: tracks deleted version IDs in a sidecar file so the
+  # version list and version_count shrink as the script deletes. Without
+  # this, the script reads the same "oldest" version every iteration.
+  STATE_FILE="${TEST_DIR}/mocks/deleted_ids.txt"
+  : > "${STATE_FILE}"
+  cat > "${TEST_DIR}/mocks/curl" <<EOF
 #!/usr/bin/env bash
-if [[ "$*" == *"/versions?"* ]]; then
-    echo '[{"id": "1", "name": "1.0.0"}, {"id": "2", "name": "1.0.1"}, {"id": "3", "name": "1.0.2"}]'
+state="${STATE_FILE}"
+touch "\${state}"
+
+is_delete=0
+for arg in "\$@"; do
+    [ "\$arg" = "-XDELETE" ] && is_delete=1
+done
+
+if [ \$is_delete -eq 1 ]; then
+    # The DELETE URL ends in /versions/<id>.
+    for arg in "\$@"; do
+        case "\$arg" in
+            *"/versions/"*) echo "\${arg##*/}" >> "\${state}" ;;
+        esac
+    done
+    echo '{}'
+    exit 0
+fi
+
+all_versions='[{"id": "1", "name": "1.0.0"}, {"id": "2", "name": "1.0.1"}, {"id": "3", "name": "1.0.2"}]'
+filter='.'
+while IFS= read -r d; do
+    [ -n "\$d" ] && filter="\${filter} | map(select(.id != \"\$d\"))"
+done < "\${state}"
+
+remaining=\$(echo "\${all_versions}" | jq -c "\${filter}")
+count=\$(echo "\${remaining}" | jq 'length')
+
+if [[ "\$*" == *"/versions?"* ]]; then
+    echo "\${remaining}"
 else
-    echo '{"version_count": 3}'
+    echo "{\"version_count\": \${count}}"
 fi
 EOF
+  chmod +x "${TEST_DIR}/mocks/curl"
 
   # Run the script and capture output
   run "${GH_PACKAGES_SCRIPT}"
