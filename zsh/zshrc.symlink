@@ -92,14 +92,14 @@ if command -v ng &> /dev/null; then
   }
 fi
 
-# Kubernetes configuration is handled by kubernetes/path.zsh
+# Kubernetes configuration is handled by kubernetes/path.zsh, which sources
+# ~/.dot-secrets/kubernetes/config.sh when present and otherwise falls back
+# to ~/.kube/config.
 
 # TRACER configuration is handled by tracer/path.zsh
 export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
 
-# Kubernetes configuration
-export KUBECONFIG="$HOME/.kube/goeuro-debug.conf"
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
 fpath=("$HOME/.docker/completions" $fpath)
 autoload -Uz compinit

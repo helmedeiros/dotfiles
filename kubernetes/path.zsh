@@ -3,18 +3,17 @@
 # Kubernetes configuration
 #
 
-# Source the company-specific configuration if it exists
+# Source the per-employer kubernetes configuration from .dot-secrets if
+# present. KUBE_CONFIG_FILENAME lives in ~/.dot-secrets/kubernetes/config.sh
+# (see templates/dot-secrets/kubernetes/config.sh for the shape) so the
+# specific kubeconfig name never appears in this public repo.
 if [ -f "$HOME/.dot-secrets/kubernetes/config.sh" ]; then
   source "$HOME/.dot-secrets/kubernetes/config.sh"
 
-  # Set KUBECONFIG if the company configuration file exists and KUBE_CONFIG_FILENAME is defined
   if [ -n "$KUBE_CONFIG_FILENAME" ] && [ -f "$HOME/.kube/$KUBE_CONFIG_FILENAME" ]; then
     export KUBECONFIG="$HOME/.kube/$KUBE_CONFIG_FILENAME"
   fi
-# Check for goeuro-debug.conf
-elif [ -f "$HOME/.kube/goeuro-debug.conf" ]; then
-  export KUBECONFIG="$HOME/.kube/goeuro-debug.conf"
-# Fallback to a default name if the config doesn't exist
+# Fallback to the default ~/.kube/config when no .dot-secrets override exists.
 elif [ -f "$HOME/.kube/config" ]; then
   export KUBECONFIG="$HOME/.kube/config"
 fi
