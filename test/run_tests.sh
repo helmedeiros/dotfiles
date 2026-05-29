@@ -86,6 +86,14 @@ else
   echo -e "${YELLOW}No zsh-completion-generator tests found${NC}"
 fi
 
+# Run repo-wide lint tests
+echo -e "${BLUE}=== Running lint tests ===${NC}"
+if compgen -G "${SCRIPT_DIR}/lint/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/lint/"*_test.bats || FAILED=1
+else
+  echo -e "${YELLOW}No lint tests found${NC}"
+fi
+
 if [ "$FAILED" -eq 0 ]; then
   echo -e "\n${GREEN}All tests completed successfully!${NC}"
 else

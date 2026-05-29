@@ -11,8 +11,7 @@ setup_rooms () {
     user ' - What is your github rooms repo URL?'
     read -e github_rooms_repo
 
-    git ls-remote "$github_rooms_repo" &>-
-    if [ "$?" -ne 0 ]; then
+    if ! git ls-remote "$github_rooms_repo" &>/dev/null; then
       fail "Unable to read from '$github_rooms_repo'"
     fi
 

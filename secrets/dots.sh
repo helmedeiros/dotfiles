@@ -12,8 +12,7 @@ setup_secret_dotfiles () {
     user ' - What is your github secrets repo URL?'
     read -e github_secrets_repo
 
-    git ls-remote "$github_secrets_repo" &>-
-    if [ "$?" -ne 0 ]; then
+    if ! git ls-remote "$github_secrets_repo" &>/dev/null; then
         fail "Unable to read from '$github_secrets_repo'"
     fi
 
