@@ -128,3 +128,102 @@ teardown() {
     run link_claude_file "" ""
     [ "${status}" -ne 0 ]
 }
+
+# --- clean-code-skills plugin checks ---
+
+@test "claude/CLAUDE.md references the clean-code-skills plugin" {
+    grep -q 'clean-code-skills' "${CLAUDE_MD}"
+    grep -q 'plugins/clean-code-skills' "${CLAUDE_MD}"
+}
+
+@test "claude/install.sh installs clean-code-skills via install_git_plugin" {
+    grep -q 'install_git_plugin' "${INSTALL_SH}"
+    grep -q 'helmedeiros/clean-code-skills' "${INSTALL_SH}"
+    grep -q 'plugins/clean-code-skills' "${INSTALL_SH}"
+}
+
+# --- install_git_plugin behaviour ---
+
+# Helper: create a bare-ish local git repo we can clone in tests, without
+# touching the network.
+_make_fake_remote() {
+    local remote="$1"
+    git init --quiet "${remote}"
+    (
+        cd "${remote}"
+        git config user.email test@example.com
+        git config user.name test
+        echo "first" > file.txt
+        git add file.txt
+        git commit --quiet -m "first"
+    )
+}
+
+@test "install_git_plugin clones into a fresh target" {
+    local remote="${TEST_HOME}/remote"
+    local target="${TEST_HOME}/plugins/example"
+    _make_fake_remote "${remote}"
+
+    install_git_plugin "${remote}" "${target}"
+
+    [ -d "${target}/.git" ]
+    [ -f "${target}/file.txt" ]
+}
+
+@test "install_git_plugin is idempotent on a clean checkout" {
+    local remote="${TEST_HOME}/remote"
+    local target="${TEST_HOME}/plugins/example"
+    _make_fake_remote "${remote}"
+
+    install_git_plugin "${remote}" "${target}"
+    install_git_plugin "${remote}" "${target}"
+
+    [ -d "${target}/.git" ]
+    [ -f "${target}/file.txt" ]
+}
+
+@test "install_git_plugin fast-forwards when remote advances" {
+    local remote="${TEST_HOME}/remote"
+    local target="${TEST_HOME}/plugins/example"
+    _make_fake_remote "${remote}"
+    install_git_plugin "${remote}" "${target}"
+
+    (
+        cd "${remote}"
+        echo "second" > new.txt
+        git add new.txt
+        git commit --quiet -m "second"
+    )
+
+    install_git_plugin "${remote}" "${target}"
+
+    [ -f "${target}/new.txt" ]
+}
+
+@test "install_git_plugin fails when target exists without .git" {
+    local remote="${TEST_HOME}/remote"
+    local target="${TEST_HOME}/plugins/example"
+    _make_fake_remote "${remote}"
+    mkdir -p "${target}"
+    echo "manual" > "${target}/manual.txt"
+
+    run install_git_plugin "${remote}" "${target}"
+    [ "${status}" -ne 0 ]
+    # The pre-existing file should remain untouched.
+    [ -f "${target}/manual.txt" ]
+}
+
+@test "install_git_plugin creates parent directories as needed" {
+    local remote="${TEST_HOME}/remote"
+    local target="${TEST_HOME}/a/b/c/example"
+    _make_fake_remote "${remote}"
+
+    install_git_plugin "${remote}" "${target}"
+
+    [ -d "${target}/.git" ]
+}
+
+@test "install_git_plugin fails on missing arguments" {
+    run install_git_plugin "" ""
+    [ "${status}" -ne 0 ]
+}

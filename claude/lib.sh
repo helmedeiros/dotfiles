@@ -42,3 +42,33 @@ link_claude_file() {
 
     ln -s "$src" "$dst"
 }
+
+# Idempotently install a git-managed plugin: clone if absent, fast-forward pull
+# if already present. Fails if the target exists but is not a git checkout, so
+# we never clobber an existing plugin installed by other means.
+#
+# Args:
+#   $1 - repository URL (or local path acceptable to `git clone`)
+#   $2 - absolute target directory
+install_git_plugin() {
+    local repo="$1"
+    local target="$2"
+
+    if [ -z "$repo" ] || [ -z "$target" ]; then
+        echo "install_git_plugin: repo and target are required" >&2
+        return 2
+    fi
+
+    if [ -d "$target/.git" ]; then
+        git -C "$target" pull --ff-only --quiet
+        return $?
+    fi
+
+    if [ -e "$target" ]; then
+        echo "install_git_plugin: $target exists but is not a git checkout; remove it to reinstall" >&2
+        return 1
+    fi
+
+    mkdir -p "$(dirname "$target")"
+    git clone --quiet "$repo" "$target"
+}

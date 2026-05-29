@@ -72,4 +72,14 @@ else
     echo -e "${RED}Failed to link ~/.claude/CLAUDE.md${NC}"
 fi
 
+# Install the clean-code-skills plugin (TDD, SOLID, refactoring, etc.)
+echo -e "${BLUE}Installing clean-code-skills plugin...${NC}"
+if install_git_plugin \
+    "https://github.com/helmedeiros/clean-code-skills.git" \
+    "$HOME/.claude/plugins/clean-code-skills"; then
+    echo -e "${GREEN}clean-code-skills plugin ready${NC}"
+else
+    echo -e "${YELLOW}clean-code-skills plugin install skipped${NC}"
+fi
+
 echo -e "${GREEN}Claude setup completed!${NC}"

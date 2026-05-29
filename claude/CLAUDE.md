@@ -14,3 +14,9 @@ Loaded into every Claude Code session. Per-project conventions belong in each re
 - Default to terse responses. Skip preamble, headers, and trailing summaries unless asked.
 - State decisions directly; do not narrate deliberation.
 - When exploring options, give a short recommendation with the main tradeoff before implementing.
+
+## Methodology
+
+Cross-project coding skills (TDD, SOLID, refactoring, hexagonal architecture, clean code) live in `~/.claude/plugins/clean-code-skills/`, cloned from `helmedeiros/clean-code-skills`. They auto-load and trigger when relevant.
+
+To opt out in a repo where they would be overhead (throwaway scripts, exploration), note it in that repo's own `CLAUDE.md`.
