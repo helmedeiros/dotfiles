@@ -238,9 +238,16 @@ if [ "$1" = "--last" ]; then
   fi
   
   echo -e "${YELLOW}Removing the last $COUNT history entries${NC}"
-  
-  # Keep all lines except the last COUNT lines
-  head -n -"$COUNT" "$BACKUP_FILE" > "$HISTFILE"
+
+  # Keep all lines except the last COUNT lines. 'head -n -COUNT' is
+  # GNU-only; compute the keep count explicitly so this works on BSD head
+  # (macOS default) as well.
+  KEEP=$((TOTAL_LINES - COUNT))
+  if [ "$KEEP" -gt 0 ]; then
+    head -n "$KEEP" "$BACKUP_FILE" > "$HISTFILE"
+  else
+    : > "$HISTFILE"
+  fi
   
   echo -e "${GREEN}Removed the last $COUNT history entries${NC}"
   

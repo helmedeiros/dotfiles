@@ -138,21 +138,11 @@ teardown() {
 
   LINES_BEFORE=$(count_history_lines "$TEST_HISTFILE")
 
-  # Remove last 2 lines (small number, no confirmation needed)
-  # Note: This test may fail on systems where head doesn't support -n -COUNT syntax
   run zsh "${HISTORY_CLEAN_SCRIPT}" --last 2
+  [ "$status" -eq 0 ]
 
-  # If head doesn't support the syntax, the script will fail
-  # Check if it at least attempted the operation or succeeded
-  if [ "$status" -eq 0 ]; then
-    # Should have 2 fewer lines if successful
-    LINES_AFTER=$(count_history_lines "$TEST_HISTFILE")
-    [ "$LINES_AFTER" -eq $((LINES_BEFORE - 2)) ]
-  else
-    # If failed, just verify it attempted and showed an error about head or similar
-    # This is acceptable on systems without GNU coreutils
-    skip "head command on this system doesn't support -n -COUNT syntax"
-  fi
+  LINES_AFTER=$(count_history_lines "$TEST_HISTFILE")
+  [ "$LINES_AFTER" -eq $((LINES_BEFORE - 2)) ]
 }
 
 # Test creating backup before modification
