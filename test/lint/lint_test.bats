@@ -20,3 +20,12 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
 @test "no orphan file named '-' at the repo root" {
     [ ! -e "${DOTFILES_DIR}/-" ]
 }
+
+@test "no shell or symlink file hardcodes a /Users/<name>/ path" {
+    # Hardcoded /Users/<name>/ paths break the moment the dotfiles run on a
+    # different machine or under a different user account. Use \$HOME instead.
+    # The test directory is excluded because mocks legitimately fabricate
+    # /Users-shaped paths inside tempdirs.
+    run bash -c "grep -rEn '/Users/[a-zA-Z0-9._-]+/' --include='*.sh' --include='*.zsh' --include='*.symlink' --exclude-dir=test --exclude-dir=.git -- '${DOTFILES_DIR}'"
+    [ "${status}" -eq 1 ]
+}
