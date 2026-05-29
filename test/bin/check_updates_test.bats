@@ -46,13 +46,16 @@ teardown() {
   rm -rf "${TEST_DIR}"
 }
 
-# Helper function to create a temporary script that sources check-updates
+# Helper function to create a temporary script that sources check-updates.
+# CHECK_UPDATES_ASSUME_TTY bypasses the script's TTY guard so piped input
+# reaches the prompt blocks during tests.
 create_temp_script() {
   local input="$1"
 
   TEMP_SCRIPT="${TEST_DIR}/temp_script.sh"
   cat > "${TEMP_SCRIPT}" <<EOF
 #!/bin/bash
+export CHECK_UPDATES_ASSUME_TTY=1
 # Provide input for both prompts (first for git update, second for bin/dot)
 echo -e "${input}" | source "${CHECK_UPDATES_SCRIPT}"
 EOF

@@ -90,7 +90,7 @@ elif [ $LOCAL = $BASE ]; then
   fi
 
   # Only prompt interactively if we have a terminal
-  if [ -t 0 ]; then
+  if [ -t 0 ] || [ -n "${CHECK_UPDATES_ASSUME_TTY:-}" ]; then
     echo -e "\n${YELLOW}Would you like to update your dotfiles now? (y/n)${NC}"
     read -r response
     if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
@@ -268,7 +268,7 @@ else
 fi
 
 # Ask if user wants to run bin/dot to update dependencies (only interactively)
-if [ -t 0 ] && { [ "$DOTFILES_UPDATED" = true ] || [ "$BREW_OUTDATED" = true ] || [ ! -z "$OUTDATED_NPM" ]; }; then
+if { [ -t 0 ] || [ -n "${CHECK_UPDATES_ASSUME_TTY:-}" ]; } && { [ "$DOTFILES_UPDATED" = true ] || [ "$BREW_OUTDATED" = true ] || [ ! -z "$OUTDATED_NPM" ]; }; then
   echo -e "\n${YELLOW}Would you like to run bin/dot to update your dependencies? (y/n)${NC}"
   read -r response
   if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
