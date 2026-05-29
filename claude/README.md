@@ -18,7 +18,6 @@ This will install:
 - The Claude desktop app via Homebrew cask
 - Claude Code CLI via Homebrew cask
 - ripgrep for enhanced file search
-- Setup the Claude Code configuration file
 
 ## Claude Desktop App
 
@@ -86,15 +85,11 @@ An example `CLAUDE.md.example` file is included in this directory for reference.
 
 ### Configuration
 
-Claude Code configuration is stored in `~/.config/claude-code/config.json`. Our install script creates this file using the template provided in this directory (`claude-config.json`).
-
-To modify configuration via the CLI, run:
+Claude Code is configured via `~/.claude/settings.json` (global) and per-project `<repo>/.claude/settings.json` files. To modify configuration via the CLI, run:
 
 ```bash
 claude config
 ```
-
-You can also edit the configuration file directly.
 
 ### Additional Resources
 

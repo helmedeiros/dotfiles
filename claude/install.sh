@@ -59,18 +59,4 @@ else
     echo -e "${GREEN}ripgrep already installed${NC}"
 fi
 
-# Setup Claude Code configuration (idempotent)
-CONFIG_DIR="$HOME/.config/claude-code"
-CONFIG_FILE="$CONFIG_DIR/config.json"
-
-if [ ! -f "$CONFIG_FILE" ]; then
-    echo -e "${BLUE}Setting up Claude Code configuration...${NC}"
-    mkdir -p "$CONFIG_DIR"
-    echo -e "Creating configuration file at $CONFIG_FILE"
-    cp "$(dirname "$0")/claude-config.json" "$CONFIG_FILE"
-    echo -e "${GREEN}Configuration file created.${NC}"
-else
-    echo -e "${GREEN}Configuration file already exists.${NC}"
-fi
-
 echo -e "${GREEN}Claude setup completed!${NC}"
