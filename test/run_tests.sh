@@ -2,9 +2,11 @@
 #
 # run_tests.sh
 #
-# Run all tests for the dotfiles repository
+# Run all tests for the dotfiles repository. Walks every test block even if
+# one fails so the full picture is visible in one run; exits non-zero at the
+# end if any block reported failures.
 
-set -e
+FAILED=0
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -38,7 +40,7 @@ if command -v shellcheck &> /dev/null; then
     head -1 "$f" | grep -qE '^#!.*\b(sh|bash)\b' && SHELL_SCRIPTS+=("$f")
   done
   if [ ${#SHELL_SCRIPTS[@]} -gt 0 ]; then
-    shellcheck -S warning "${SHELL_SCRIPTS[@]}"
+    shellcheck -S warning "${SHELL_SCRIPTS[@]}" || FAILED=1
   fi
 else
   echo -e "${YELLOW}shellcheck not installed, skipping lint${NC}"
@@ -47,7 +49,7 @@ fi
 # Run lib tests
 echo -e "${BLUE}=== Running lib tests ===${NC}"
 if [ -f "${SCRIPT_DIR}/lib/status_test.bats" ]; then
-  bats "${SCRIPT_DIR}/lib/status_test.bats"
+  bats "${SCRIPT_DIR}/lib/status_test.bats" || FAILED=1
 else
   echo -e "${YELLOW}No lib tests found${NC}"
 fi
@@ -55,7 +57,7 @@ fi
 # Run bin tests
 echo -e "${BLUE}=== Running bin tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/bin/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/bin/"*_test.bats
+  bats "${SCRIPT_DIR}/bin/"*_test.bats || FAILED=1
 else
   echo -e "${YELLOW}No bin tests found${NC}"
 fi
@@ -63,7 +65,7 @@ fi
 # Run zoxide tests
 echo -e "${BLUE}=== Running zoxide tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/zoxide/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/zoxide/"*_test.bats
+  bats "${SCRIPT_DIR}/zoxide/"*_test.bats || FAILED=1
 else
   echo -e "${YELLOW}No zoxide tests found${NC}"
 fi
@@ -71,7 +73,7 @@ fi
 # Run claude tests
 echo -e "${BLUE}=== Running claude tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/claude/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/claude/"*_test.bats
+  bats "${SCRIPT_DIR}/claude/"*_test.bats || FAILED=1
 else
   echo -e "${YELLOW}No claude tests found${NC}"
 fi
@@ -79,9 +81,14 @@ fi
 # Run zsh-completion-generator tests
 echo -e "${BLUE}=== Running zsh-completion-generator tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/zsh-completion-generator/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/zsh-completion-generator/"*_test.bats
+  bats "${SCRIPT_DIR}/zsh-completion-generator/"*_test.bats || FAILED=1
 else
   echo -e "${YELLOW}No zsh-completion-generator tests found${NC}"
 fi
 
-echo -e "\n${GREEN}All tests completed!${NC}"
+if [ "$FAILED" -eq 0 ]; then
+  echo -e "\n${GREEN}All tests completed successfully!${NC}"
+else
+  echo -e "\n${RED}One or more test blocks reported failures.${NC}"
+fi
+exit "$FAILED"
