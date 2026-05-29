@@ -59,4 +59,17 @@ else
     echo -e "${GREEN}ripgrep already installed${NC}"
 fi
 
+# Source helper functions
+CLAUDE_DIR="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib.sh
+. "$CLAUDE_DIR/lib.sh"
+
+# Symlink user-global CLAUDE.md into ~/.claude/
+echo -e "${BLUE}Linking user-global CLAUDE.md...${NC}"
+if link_claude_file "$CLAUDE_DIR/CLAUDE.md" "$HOME/.claude/CLAUDE.md"; then
+    echo -e "${GREEN}~/.claude/CLAUDE.md linked${NC}"
+else
+    echo -e "${RED}Failed to link ~/.claude/CLAUDE.md${NC}"
+fi
+
 echo -e "${GREEN}Claude setup completed!${NC}"
