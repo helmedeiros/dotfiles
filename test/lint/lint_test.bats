@@ -46,3 +46,23 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
     run git check-ignore .claude/settings.local.json
     [ "${status}" -eq 0 ]
 }
+
+@test "gitignore catches credential-shaped files" {
+    cd "${DOTFILES_DIR}"
+    for path in secrets.json credentials.yaml credentials.yml secret.env credential.env password1.txt password.json foo.token bar.secret baz.secrets .netrc .aws/credentials; do
+        run git check-ignore "${path}"
+        [ "${status}" -eq 0 ] || { echo "missed: ${path}" >&2; return 1; }
+    done
+}
+
+@test "gitignore does NOT block files about secret-management" {
+    # The previous *secret* / *password* / *credential* patterns matched any
+    # file whose name dealt with secret-management (e.g. lib/dot-secrets.sh)
+    # even though those files carry no secret content. The narrow patterns
+    # must keep these tracked-friendly.
+    cd "${DOTFILES_DIR}"
+    for path in lib/dot-secrets.sh test/lib/dot-secrets_test.bats templates/dot-secrets/README.md secrets/dots.sh; do
+        run git check-ignore "${path}"
+        [ "${status}" -eq 1 ] || { echo "wrongly ignored: ${path}" >&2; return 1; }
+    done
+}

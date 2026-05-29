@@ -66,20 +66,29 @@ default.profraw
 id_*
 !id_*.pub.example
 
-# Security - API keys and tokens
+# Security - API keys and credentials.
+#
+# Narrow, intent-shaped patterns rather than broad '*secret*' / '*password*'
+# substring matches. The broad patterns created false positives for any file
+# whose NAME deals with secret-management (e.g. lib/dot-secrets.sh) without
+# adding real coverage — actual secret-bearing files almost always carry one
+# of the credential-shaped names or extensions below.
 *.token
 *.secret
-*secret*
-*password*
-*credential*
+*.secrets
+secrets.json
+secrets.yml
+secrets.yaml
+secret.env
+credentials.json
+credentials.yml
+credentials.yaml
+credential.env
+password*.txt
+password*.json
+.netrc
 .aws/credentials
 .gcp/credentials.json
-
-# Re-include the legit secrets/ orchestration directory — it holds the
-# setup_secret_dotfiles function, not any actual secrets. The *secret*
-# pattern above otherwise matches the bare directory name.
-!secrets/
-!secrets/**
 
 # Claude Code per-project local state (machine-specific permissions etc.)
 .claude/
