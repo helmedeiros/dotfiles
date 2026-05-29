@@ -27,6 +27,7 @@ git clone git@github.com:yourusername/.dot-secrets.git ~/.dot-secrets
 This directory contains templates for the following tools:
 
 - **DBeaver**: Database connection configurations
+- **Git**: author identity (name + email) used by `script/bootstrap`
 - **GitHub**: GitHub tokens and package configurations
 - **Kubernetes**: Kubernetes cluster configurations
 - **Robo3T**: MongoDB connection configurations

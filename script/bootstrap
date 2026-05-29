@@ -34,18 +34,27 @@ setup_gitconfig () {
   then
     info 'setup gitconfig'
 
-    git_credential='cache'
-    if [ "$(uname -s)" == "Darwin" ]
-    then
-      git_credential='osxkeychain'
+    # shellcheck source=../lib/git-identity.sh
+    . "$DOTFILES_ROOT/lib/git-identity.sh"
+
+    local git_credential
+    git_credential=$(default_credential_helper)
+
+    local git_authorname git_authoremail
+
+    if load_git_identity_from_secrets; then
+      success "loaded git identity from .dot-secrets/git/identity.sh"
+      git_authorname="$GIT_AUTHOR_NAME"
+      git_authoremail="$GIT_AUTHOR_EMAIL"
+    else
+      user ' - What is your github author name?'
+      read -e git_authorname
+      user ' - What is your github author email?'
+      read -e git_authoremail
     fi
 
-    user ' - What is your github author name?'
-    read -e git_authorname
-    user ' - What is your github author email?'
-    read -e git_authoremail
-
-    sed -e "s/AUTHORNAME/$git_authorname/g" -e "s/AUTHOREMAIL/$git_authoremail/g" -e "s/GIT_CREDENTIAL_HELPER/$git_credential/g" git/gitconfig.symlink.example > git/gitconfig.symlink
+    render_gitconfig git/gitconfig.symlink.example git/gitconfig.symlink \
+      "$git_authorname" "$git_authoremail" "$git_credential"
 
     success 'gitconfig'
   fi

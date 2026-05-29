@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+# Git identity. Sourced by script/bootstrap when setting up gitconfig.
+#
+# Copy this file to ~/.dot-secrets/git/identity.sh and edit. Both values
+# must be set; if either is empty, bootstrap falls back to prompting.
+
+# Your name as it appears in commit headers.
+GIT_AUTHOR_NAME="Your Name"
+
+# Your email. For public repos, prefer the GitHub noreply alias to keep
+# your real email out of commit metadata:
+#   <user-id>+<username>@users.noreply.github.com
+# (Find your user-id at https://api.github.com/users/<username>.)
+GIT_AUTHOR_EMAIL="you@example.com"
