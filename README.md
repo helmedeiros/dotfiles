@@ -1,41 +1,19 @@
-# helmedeiros dotfiles
+# dotfiles
 
-A collection of customized dotfiles to enhance your development environment on macOS.
+A personal macOS development environment in one repository. Clone it on a fresh laptop, run two commands, and end up with shell, terminal, languages, window manager, GUI apps, and AI-coding tooling configured.
 
-## Overview
+## What you get
 
-These dotfiles provide a comprehensive setup for developers, including:
+- A configured zsh shell (powerlevel10k prompt, syntax highlighting, autosuggestions, zoxide for fast directory jumps)
+- Terminal theming for Terminal.app and iTerm2 (Solarized Dark) plus a [Ghostty](ghostty/) config
+- Homebrew-managed CLI tools, casks, and language toolchains (Go, Node via nvm, Python via pyenv, Java, Ruby via rbenv)
+- macOS system defaults (Finder, Dock, trackpad, keyboard) applied automatically
+- A tiling window manager stack ([yabai](yabai/) + [skhd](skhd/)) and key remapping via [Karabiner Elements](karabiner/)
+- A custom `bin/` of git, search, and housekeeping scripts on `PATH` everywhere — see [`bin/README.md`](bin/README.md)
+- A four-layer persistence stack for [Claude Code](claude/) so AI-assisted work doesn't lose context between sessions, projects, or machines
+- A daily update checker that nags you about stale Homebrew packages, npm globals, and out-of-date dotfiles, with one-command updates
 
-- Custom terminal configuration with Solarized Dark theme
-- Zsh shell with useful aliases and functions
-- Kubernetes tools and configuration
-- Homebrew package management
-- Karabiner keyboard customization
-- Vim-like navigation across applications
-- Automatic update checking and dependency management
-- Update status indicators in your prompt
-- And much more!
-
-## Structure
-
-If you're adding a new area to your forked dotfiles — say, "Java" — you can simply add a `java` directory and put files in there. Anything with an extension of `.zsh` will get automatically included into your shell. Anything with an extension of `.symlink` will get symlinked without extension into `$HOME` when you run `script/bootstrap`.
-
-### Key Components
-
-There's a few special files in the hierarchy:
-
-- **bin/**: Anything in `bin/` will get added to your `$PATH` and be made available everywhere. See [bin/README.md](bin/README.md) for detailed documentation of each script.
-- **Brewfile**: This is a list of applications for [Homebrew](https://brew.sh) to install.
-- **topic/\*.zsh**: Any files ending in `.zsh` get loaded into your environment.
-- **topic/path.zsh**: Any file named `path.zsh` is loaded first and is expected to setup `$PATH` or similar.
-- **topic/completion.zsh**: Any file named `completion.zsh` is loaded last and is expected to setup autocomplete.
-- **topic/\*.symlink**: Any files ending in `*.symlink` get symlinked into your `$HOME`. This is so you can keep all of those versioned in your dotfiles but still keep those autoloaded files in your home directory. These get symlinked in when you run `script/bootstrap`.
-- **templates/**: Contains templates for files that should be stored in separate private repositories, such as `.dot-secrets`. These templates help you set up sensitive configurations without exposing actual credentials.
-- **functions/**: Contains useful shell functions like `kubelog` for enhanced Kubernetes log viewing.
-
-## Installation
-
-Run this:
+## Quickstart
 
 ```sh
 git clone https://github.com/helmedeiros/dotfiles.git ~/.dotfiles
@@ -44,121 +22,114 @@ script/bootstrap
 bin/dot
 ```
 
-This will:
-1. Clone the repository to your home directory
-2. Symlink the appropriate files to your home directory
-3. Install dependencies via Homebrew
-4. Set up macOS defaults
-5. Configure your shell environment
+The two scripts do different jobs:
 
-The main file you'll want to change right off the bat is `zsh/zshrc.symlink`, which sets up a few paths that'll be different on your particular machine.
+- `script/bootstrap` symlinks every `*.symlink` file into `$HOME` (e.g. `zsh/zshrc.symlink` becomes `~/.zshrc`), prompts you for git author info on first run, and clones your private `.dot-secrets` repository if you have one.
+- `bin/dot` installs Homebrew if missing, runs every `topic/install.sh` (Brewfile included), and applies macOS defaults. Re-run it any time to keep your machine in sync.
 
-### Keeping Up to Date
+The first place you'll usually want to edit is [`zsh/zshrc.symlink`](zsh/zshrc.symlink) — it holds machine-specific paths and exports.
 
-`dot` is a simple script that installs some dependencies, sets macOS defaults, and so on. Tweak this script, and occasionally run `dot` from time to time to keep your environment fresh and up-to-date:
+## How it's organised
+
+The repository is a flat list of topic directories. Each topic owns one tool or one concern:
+
+```
+claude/        Claude Code preferences, plugins, bootstrap helper
+docker/        Docker Desktop launch + aliases
+git/           gitconfig, gitignore, helper scripts
+go/            Go toolchain + global packages
+karabiner/     Keyboard remapping rules
+node/          nvm + global npm packages
+yabai/         Tiling window manager config
+...
+```
+
+When `bin/dot` runs, it walks every topic and applies a small set of conventions:
+
+| File in a topic dir | What happens |
+| --- | --- |
+| `install.sh` | Executed once during `bin/dot`. Idempotent — safe to re-run. |
+| `path.zsh` | Sourced first when a new shell starts. Use it to set `PATH` and export env vars. |
+| `*.zsh` (other) | Sourced on shell startup after `path.zsh`. Aliases, functions, completions. |
+| `completion.zsh` | Sourced last. Use for tools whose completions depend on other state. |
+| `*.symlink` | Symlinked into `$HOME` (dropping the suffix) by `script/bootstrap`. |
+| `README.md` | Human-readable description of the topic. Read this before editing. |
+
+The top-level [`Brewfile`](Brewfile) lists every Homebrew formula and cask. It's executed early in `bin/dot`.
+
+## Day-to-day usage
+
+Run `bin/dot` whenever you want to refresh your environment — it's idempotent, so re-runs only pick up new or outdated bits.
+
+A background update checker runs once a day when you open a new shell. When something is stale you'll see indicators in your prompt (e.g. `[DOTFILES UPDATE]`, `[BREW UPDATE]`, `[NPM UPDATE]`). Two commands wrap the workflow:
 
 ```sh
-bin/dot
+dotfiles-update-check     # report what's behind, optionally pull
+dotfiles-apply-updates    # apply pending updates and clear the prompt indicators
 ```
 
-### Automatic Updates
+Both are defined in [`zsh/update.zsh`](zsh/update.zsh) and use the same machinery as `bin/check-updates`.
 
-These dotfiles include an automatic update checker that runs once per day when you open a new shell. It will:
+## AI-assisted development
 
-- Check if your local dotfiles are behind the remote repository
-- Check for outdated Homebrew packages and npm global packages
-- Notify you when updates are available
-- Provide a summary of changes
-- Offer to update automatically
-- Show update indicators in your prompt (e.g., [DOTFILES UPDATE], [BREW UPDATE], [NPM UPDATE])
+The [`claude/`](claude/) topic configures [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) with a four-layer persistence model so context survives across sessions, machines, and projects:
 
-You can also manually check for updates at any time by running:
+1. **Behaviour / methodology** — TDD, SOLID, refactoring, hexagonal-architecture skills auto-loaded from [`helmedeiros/clean-code-skills`](https://github.com/helmedeiros/clean-code-skills) installed into `~/.claude/plugins/`.
+2. **User-global facts** — `~/.claude/CLAUDE.md` symlinked from this repo. Cross-project style and commit preferences.
+3. **Per-project structured memory** — [beads](https://github.com/steveyegge/beads) (the `bd` CLI) installed via Brewfile. Tasks, decisions, and `bd remember` insights tracked per repo.
+4. **Per-project free-form** — each repo's own `CLAUDE.md`, plus the Claude Code harness's auto-memory.
+
+To wire beads into a new repo:
 
 ```sh
-dotfiles-update-check
+claude-bootstrap                  # bd init + bd setup claude
+claude-bootstrap --with-claude-md # also drop a CLAUDE.md template
 ```
 
-To apply pending updates and clear the status indicators:
+See [`claude/README.md`](claude/README.md) for the full mental model and which layer to edit when.
+
+## History hygiene
+
+[`bin/history-clean`](bin/history-clean) is for surgically removing entries from your shell history without rewriting the whole file:
 
 ```sh
-dotfiles-apply-updates
+history-clean 42                  # remove line 42
+history-clean 10 15 20            # remove multiple lines
+history-clean -p "password"       # remove every line containing "password"
+history-clean --last 5            # remove the last 5 commands
+history-clean --autocomplete      # also clear completion and autosuggestion state
 ```
 
-This comprehensive update system ensures both your dotfiles and their dependencies stay current with the latest improvements without requiring manual checks.
+Useful after pasting something sensitive into the terminal.
 
-## Features
+## Adding a new topic
 
-### Kubernetes Tools
+Adding support for a new tool is dropping a directory in:
 
-The dotfiles include enhanced Kubernetes tools:
-- `kubelog`: A powerful function for viewing and filtering Kubernetes pod logs
-- VPN-aware configuration that gracefully handles connectivity issues
-- Automatic context switching
-
-### Terminal Configuration
-
-- Solarized Dark theme for Terminal.app
-- Custom prompt with git status information
-- Syntax highlighting for commands
-
-### History Management
-
-The dotfiles include tools for managing your shell history:
-
-- `history-clean`: A secure way to remove sensitive information from your shell history
-  - Remove specific line numbers: `history-clean 42`
-  - Remove multiple lines: `history-clean 10 15 20`
-  - Remove all lines containing a pattern: `history-clean -p "password"`
-  - Remove the last N commands: `history-clean --last 5`
-  - Clear all autocompletion history: `history-clean --autocomplete`
-
-This is particularly useful when you accidentally paste sensitive information like passwords into your terminal. The script not only cleans your command history but also removes matching entries from autocompletion and autosuggestions.
-
-### Keyboard Customization
-
-Karabiner is a powerful utility for keyboard customization. You can expect some keyboard changing after running this `dotfiles`.
-
-#### Vimium Mode Everywhere:
-
-Press `Esc` to enter Vimium mode.
-
-##### Manipulating Tabs
 ```
-K, gt   Go one tab right
-J, gT   Go one tab left
-t       Create new tab
-x       Close current tab
-X       Restore closed tab
-g0      Go to the first tab
-g$      Go to the last tab
+my-new-tool/
+  install.sh      # idempotent install / configure steps
+  path.zsh        # PATH or env vars
+  aliases.zsh     # optional convenience aliases
+  README.md       # tell future-you what this is
 ```
 
-##### Navigating
-```
-h/j/k/l Arrow Keys
-gg      Scroll to the top of the page
-G       Scroll to the bottom of the page
-f, <c-f> Scroll a full page down
-b, <c-b> Scroll a full page up
-<c-u>   Scroll 20 lines up
-<c-d>   Scroll 20 lines down
-r       Reload the page
-/       Search
-n       Cycle forward to the next find match
-N       Cycle backward to the previous find match
-u       Undo
-<c-r>   Redo
-i       Enter insert mode
+There's no central registry to update. `bin/dot` finds the `install.sh` on its next run; `script/bootstrap` finds any `*.symlink` files in the new dir; zsh sources every `*.zsh` automatically.
+
+## Private configuration
+
+Anything machine-specific or credential-bearing belongs in a private `~/.dot-secrets` repository, not here. Templates for the expected file layout are in [`templates/dot-secrets/`](templates/dot-secrets/). Topics that consume secrets (currently `kubernetes/`, `dbeaver/`, `robo3t/`) check for `~/.dot-secrets` during their install and fail with a clear message if it's missing.
+
+## Testing
+
+The dotfiles ship a [BATS](https://github.com/bats-core/bats-core) test suite covering the `bin/` scripts, several topic installers, and repo-wide lint rules.
+
+```sh
+./test/run_tests.sh
 ```
 
-## Private Configuration
+See [`test/README.md`](test/README.md) for layout and conventions.
 
-For sensitive information like API keys and company-specific configurations, create a `.dot-secrets` repository in your home directory. Templates for this repository can be found in the `templates/` directory.
+## Customisation
 
-## Customization
-
-Feel free to fork this repository and customize it to your needs. The modular structure makes it easy to add, remove, or modify components without breaking the entire system.
-
-## Acknowledgements
-
-I forked [Zach Holman](http://github.com/holman)'s excellent [dotfiles](http://github.com/holman/dotfiles) and built upon his solid foundation.
+The whole repository is intended to be forked and edited. Topic directories are independent, so adding, replacing, or deleting one rarely touches anything else. Start by editing `zsh/zshrc.symlink` and the `Brewfile`, then carve out new topic dirs as you bring more tools under management.
