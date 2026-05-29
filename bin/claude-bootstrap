@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+#
+# claude-bootstrap
+#
+# Initialise per-project Claude Code memory in the current repo:
+#   - bd init                  (beads task graph)
+#   - bd setup claude          (SessionStart hook running bd prime)
+#   - --with-claude-md         (optional repo-level CLAUDE.md template)
+#
+# Idempotent: existing .beads/ checkouts are left intact, and existing
+# CLAUDE.md files are never overwritten.
+
+set -e
+
+usage() {
+    cat <<'EOF'
+Usage: claude-bootstrap [--with-claude-md] [-h|--help]
+
+Initialise per-project Claude Code memory in the current directory.
+
+Options:
+  --with-claude-md   Also drop a minimal CLAUDE.md template if missing.
+  -h, --help         Show this help and exit.
+EOF
+}
+
+WITH_CLAUDE_MD=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        --with-claude-md)
+            WITH_CLAUDE_MD=1
+            ;;
+        *)
+            echo "claude-bootstrap: unknown argument: $1" >&2
+            usage >&2
+            exit 2
+            ;;
+    esac
+    shift
+done
+
+if ! command -v bd &> /dev/null; then
+    echo "claude-bootstrap: 'bd' (beads CLI) not found. Run 'brew install beads' first." >&2
+    exit 1
+fi
+
+# 1. bd init — skip if .beads already exists so we don't disturb existing state.
+if [ ! -d ".beads" ]; then
+    echo "› bd init"
+    bd init
+else
+    echo "› .beads/ already exists, skipping bd init"
+fi
+
+# 2. bd setup claude — installs the SessionStart hook running bd prime.
+echo "› bd setup claude"
+bd setup claude
+
+# 3. Optional: drop a minimal CLAUDE.md skeleton.
+if [ "$WITH_CLAUDE_MD" -eq 1 ]; then
+    if [ -f "CLAUDE.md" ]; then
+        echo "› CLAUDE.md already exists, leaving it alone"
+    else
+        echo "› writing CLAUDE.md template"
+        cat > CLAUDE.md <<'EOF'
+# Project notes for Claude Code
+
+Repo-specific conventions live here. User-global preferences are in
+`~/.claude/CLAUDE.md`. Per-project structured memory and tasks live in
+beads (`bd remember`, `bd ready`, `bd create`).
+
+## Conventions
+
+(Describe project-specific style, tooling, build/test commands.)
+
+## Constraints and gotchas
+
+(Anything non-obvious a fresh session should know up front.)
+EOF
+    fi
+fi
+
+echo "✓ Claude Code bootstrap complete"
