@@ -1,9 +1,6 @@
 # Claude
 
-This directory contains scripts for installing and managing Anthropic's Claude products:
-
-1. **Claude Desktop App** - Official desktop application for Claude AI
-2. **Claude Code** - AI-assisted development tool for coding with Claude
+This directory manages the [Claude](https://www.anthropic.com/claude) desktop app, the [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) CLI, and the persistence stack that keeps important context from being lost across sessions, machines, and projects.
 
 ## Installation
 
@@ -18,14 +15,38 @@ This will install:
 - The Claude desktop app via Homebrew cask
 - Claude Code CLI via Homebrew cask
 - ripgrep for enhanced file search
+- The user-global `~/.claude/CLAUDE.md` symlink (preferences shared across every session)
+- The [clean-code-skills](https://github.com/helmedeiros/clean-code-skills) plugin into `~/.claude/plugins/clean-code-skills/`
 
-## Claude Desktop App
+beads (the `bd` CLI) is installed via the top-level `Brewfile`.
 
-The Claude desktop app provides a native macOS experience for interacting with Claude AI.
+## The four-layer persistence model
+
+Claude Code drops context across sessions, machines, and projects unless you give it a place to put it. The dotfiles configure four complementary layers:
+
+| Layer | Storage | What it holds | Scope |
+| --- | --- | --- | --- |
+| Behaviour / methodology | `~/.claude/plugins/clean-code-skills/` | TDD, SOLID, refactoring, hexagonal, clean code | User-global, auto-discovered |
+| User-global facts | `~/.claude/CLAUDE.md` (symlinked from `claude/CLAUDE.md`) | Style, commit conventions, terse-mode | User-global |
+| Per-project structured memory | beads `.beads/` (managed by `bd`) | Tasks, decisions, `bd remember` insights | Per-repo, git-tracked |
+| Per-project free-form | repo-level `CLAUDE.md` + harness auto-memory | Architecture notes, ad-hoc observations | Per-repo |
+
+Skills are not memory — they are knowledge Claude reaches for when relevant. Beads is the structured project memory. The two CLAUDE.md files (global and per-repo) carry preferences and project conventions. Together they replace the previous all-or-nothing reliance on auto-memory.
+
+## Bootstrapping a new project
+
+Inside any repo you want to take seriously, run:
+
+```bash
+claude-bootstrap                  # bd init + bd setup claude
+claude-bootstrap --with-claude-md # also drop a CLAUDE.md template
+```
+
+The script is idempotent — re-running it is safe. It refuses to clobber an existing `CLAUDE.md` and skips `bd init` if `.beads/` is already present.
 
 ## Claude Code
 
-Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster through natural language commands.
+Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code through natural language commands.
 
 ### System Requirements
 
@@ -33,65 +54,56 @@ Claude Code is an agentic coding tool that lives in your terminal, understands y
 - **Hardware**: 4GB RAM minimum
 - **Software**:
   - Homebrew (for installation)
-  - git 2.23+ (optional)
+  - git 2.23+
   - GitHub or GitLab CLI for PR workflows (optional)
-  - ripgrep (rg) for enhanced file search (installed by our script)
+  - ripgrep (installed by this script)
 
 ### Updating Claude Code
 
-Homebrew casks don't auto-update. To get the latest features and security fixes:
+Homebrew casks do not auto-update. To get the latest features and security fixes:
 
 ```bash
 brew upgrade --cask claude-code
 ```
 
-Note: Claude Code may notify you of updates before the new version is available in Homebrew. If an upgrade fails, wait and try again later.
-
 ### Authentication
 
-When you first run `claude` in your project directory, you'll need to authenticate. Claude Code offers multiple authentication options:
+When you first run `claude` in a project directory, you will need to authenticate. Claude Code supports:
 
-1. **Anthropic Console**: The default option. Connect through the Anthropic Console and complete the OAuth process. Requires active billing at console.anthropic.com.
-2. **Claude App (with Max plan)**: If you have a Claude Max plan subscription.
-3. **Enterprise platforms**: Claude Code can be configured to use Amazon Bedrock or Google Vertex AI for enterprise deployments.
+1. **Anthropic Console** — the default; OAuth via [console.anthropic.com](https://console.anthropic.com) with active billing.
+2. **Claude App (Max plan)** — if you have a Claude Max subscription.
+3. **Enterprise platforms** — Amazon Bedrock or Google Vertex AI for enterprise deployments.
 
 ### Usage
 
-Basic commands:
-
 ```bash
-# Start interactive mode
-claude
-
-# Start with an initial query
-claude "explain this project"
-
-# Run a single command and exit
-claude -p "what does this function do?"
-
-# Process piped content
+claude                                  # interactive
+claude "explain this project"           # interactive with an initial query
+claude -p "what does this function do?" # one-shot
 cat logs.txt | claude -p "analyze these errors"
 ```
 
-### Project Initialization
-
-For new projects, it's recommended to:
-
-1. Start Claude Code: `claude`
-2. Generate a CLAUDE.md project guide: `/init`
-3. Commit the generated CLAUDE.md file
-
-An example `CLAUDE.md.example` file is included in this directory for reference.
-
 ### Configuration
 
-Claude Code is configured via `~/.claude/settings.json` (global) and per-project `<repo>/.claude/settings.json` files. To modify configuration via the CLI, run:
+Claude Code is configured via `~/.claude/settings.json` (global) and per-project `<repo>/.claude/settings.json` files. `bd setup claude` writes the per-project hook configuration; the global file is left machine-local on purpose. To modify configuration via the CLI:
 
 ```bash
 claude config
 ```
 
-### Additional Resources
+## Working with the layers
 
-- [Official Documentation](https://docs.anthropic.com/en/docs/claude-code/overview)
-- [Getting Started Guide](https://docs.anthropic.com/en/docs/claude-code/getting-started)
+| Where to add it | When |
+| --- | --- |
+| `claude/CLAUDE.md` (then re-run `./install.sh`) | A cross-project preference: tone, commit rules, default tools |
+| Repo-level `CLAUDE.md` | Project-specific conventions, build/test commands, gotchas |
+| `bd remember "..."` | A non-obvious decision or insight worth recalling in a future session |
+| `bd create` / `bd update` | A task with structure: dependencies, status, blockers |
+| `claude/install.sh` | A new global plugin or tool that should land on every machine |
+
+## Additional resources
+
+- [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code/overview)
+- [Getting started with Claude Code](https://docs.anthropic.com/en/docs/claude-code/getting-started)
+- [clean-code-skills](https://github.com/helmedeiros/clean-code-skills)
+- [beads](https://github.com/steveyegge/beads)

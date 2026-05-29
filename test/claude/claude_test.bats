@@ -6,6 +6,7 @@ CLAUDE_DIR="${BATS_TEST_DIRNAME}/../../claude"
 CLAUDE_MD="${CLAUDE_DIR}/CLAUDE.md"
 LIB_SH="${CLAUDE_DIR}/lib.sh"
 INSTALL_SH="${CLAUDE_DIR}/install.sh"
+README_MD="${CLAUDE_DIR}/README.md"
 BREWFILE="${BATS_TEST_DIRNAME}/../../Brewfile"
 
 setup() {
@@ -243,4 +244,22 @@ _make_fake_remote() {
     grep -qi 'beads' "${CLAUDE_MD}"
     grep -q 'bd remember' "${CLAUDE_MD}"
     grep -q 'bd prime' "${CLAUDE_MD}"
+}
+
+# --- README documentation checks ---
+
+@test "claude/README.md documents the four-layer model" {
+    grep -qi 'four-layer' "${README_MD}"
+    grep -q 'clean-code-skills' "${README_MD}"
+    grep -q 'beads' "${README_MD}"
+    grep -q '~/.claude/CLAUDE.md' "${README_MD}"
+}
+
+@test "claude/README.md tells users about claude-bootstrap" {
+    grep -q 'claude-bootstrap' "${README_MD}"
+    grep -q -- '--with-claude-md' "${README_MD}"
+}
+
+@test "obsolete CLAUDE.md.example has been removed" {
+    [ ! -e "${CLAUDE_DIR}/CLAUDE.md.example" ]
 }
