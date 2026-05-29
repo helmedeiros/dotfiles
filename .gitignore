@@ -75,6 +75,15 @@ id_*
 .aws/credentials
 .gcp/credentials.json
 
+# Re-include the legit secrets/ orchestration directory — it holds the
+# setup_secret_dotfiles function, not any actual secrets. The *secret*
+# pattern above otherwise matches the bare directory name.
+!secrets/
+!secrets/**
+
+# Claude Code per-project local state (machine-specific permissions etc.)
+.claude/
+
 # Security - Database files
 *.db
 *.sqlite3

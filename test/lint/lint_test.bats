@@ -29,3 +29,20 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
     run bash -c "grep -rEn '/Users/[a-zA-Z0-9._-]+/' --include='*.sh' --include='*.zsh' --include='*.symlink' --exclude-dir=test --exclude-dir=.git -- '${DOTFILES_DIR}'"
     [ "${status}" -eq 1 ]
 }
+
+@test "secrets/dots.sh is not gitignored" {
+    # The *secret* rule in .gitignore is over-broad and previously matched
+    # the legit secrets/ directory; this test guards the negation rule.
+    cd "${DOTFILES_DIR}"
+    run git check-ignore secrets/dots.sh
+    # check-ignore exits 1 when the path is NOT ignored — that is the green case.
+    [ "${status}" -eq 1 ]
+}
+
+@test ".claude/ local state is gitignored" {
+    # Claude Code writes per-project, per-machine settings into .claude/ that
+    # should not be committed.
+    cd "${DOTFILES_DIR}"
+    run git check-ignore .claude/settings.local.json
+    [ "${status}" -eq 0 ]
+}
