@@ -1,6 +1,6 @@
 # myke
 
-[myke](https://github.com/omio-labs/myke) — Make-like task runner shipped as a single binary outside Homebrew. The specific release URL is per-employer / per-team config and lives in `~/.dot-secrets/myke/config.sh`, not in this public repo.
+A Make-like task runner shipped as a single binary outside Homebrew. The specific release URL — including which fork or version to fetch — is per-team config and lives in `~/.dot-secrets/myke/config.sh`, not in this public repo.
 
 ## What `install.sh` does
 

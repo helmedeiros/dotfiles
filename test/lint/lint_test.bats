@@ -66,3 +66,41 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
         [ "${status}" -eq 1 ] || { echo "wrongly ignored: ${path}" >&2; return 1; }
     done
 }
+
+# --- PII / employer-name guards ---
+
+# Single helper: assert a regex doesn't appear in any tracked file outside
+# the test/ tree. Uses `git ls-files` so untracked working-tree files (like
+# this machine's gitconfig.symlink) are not scanned. test/ is excluded
+# because lint tests and mocks may legitimately reference these patterns.
+_assert_pattern_absent_from_tracked() {
+    local pattern="$1"
+    local description="$2"
+    cd "${DOTFILES_DIR}"
+
+    local hits
+    hits=$(git ls-files | grep -v '^test/' | xargs grep -lE "${pattern}" 2>/dev/null || true)
+
+    if [ -n "${hits}" ]; then
+        echo "${description} found in tracked files:" >&2
+        echo "${hits}" >&2
+        return 1
+    fi
+    return 0
+}
+
+@test "no tracked file (outside test/) mentions current employer 'omio'" {
+    _assert_pattern_absent_from_tracked '[Oo][Mm][Ii][Oo]' "employer string 'omio'"
+}
+
+@test "no tracked file (outside test/) mentions former employer 'goeuro'" {
+    _assert_pattern_absent_from_tracked '[Gg][Oo][Ee][Uu][Rr][Oo]' "former-employer string 'goeuro'"
+}
+
+@test "no tracked file (outside test/) mentions former employer 'gap.com'" {
+    _assert_pattern_absent_from_tracked '[Gg][Aa][Pp]\.[Cc][Oo][Mm]' "former-employer email 'gap.com'"
+}
+
+@test "no tracked file (outside test/) mentions personal-name fragments" {
+    _assert_pattern_absent_from_tracked 'helio\.(medeiros|cabralmedeiros)' "personal-name fragment"
+}

@@ -1,6 +1,6 @@
 # myke configuration template
 
-[myke](https://github.com/omio-labs/myke) is a Make-like task runner published as a single binary outside Homebrew. The URL of the release you want is per-employer / per-team, so it lives in `.dot-secrets` rather than the public dotfiles repo.
+myke is a Make-like task runner shipped as a single binary outside Homebrew. The release URL — which fork, which version, which architecture — is per-team config, so it lives in `.dot-secrets` rather than the public dotfiles repo.
 
 Copy `config.sh.example` into your `~/.dot-secrets/myke/` directory and rename it:
 
