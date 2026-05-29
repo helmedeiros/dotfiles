@@ -48,8 +48,8 @@ fi
 
 # Run lib tests
 echo -e "${BLUE}=== Running lib tests ===${NC}"
-if [ -f "${SCRIPT_DIR}/lib/status_test.bats" ]; then
-  bats "${SCRIPT_DIR}/lib/status_test.bats" || FAILED=1
+if compgen -G "${SCRIPT_DIR}/lib/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/lib/"*_test.bats || FAILED=1
 else
   echo -e "${YELLOW}No lib tests found${NC}"
 fi
