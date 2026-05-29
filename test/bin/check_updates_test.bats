@@ -153,9 +153,6 @@ EOF
 
 # Test the script with outdated npm packages
 @test "check-updates reports outdated npm packages" {
-  # Skip this test for now
-  skip "This test is currently not working correctly"
-
   # Set up the "up to date" git scenario with outdated npm packages
   a_scenario_with "${TEST_DIR}" "upToDateRepository" "brewWithNoOutdatedPackages" "npmWithOutdatedPackages" "standardDotScript"
 
