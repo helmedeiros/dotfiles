@@ -6,6 +6,7 @@ CLAUDE_DIR="${BATS_TEST_DIRNAME}/../../claude"
 CLAUDE_MD="${CLAUDE_DIR}/CLAUDE.md"
 LIB_SH="${CLAUDE_DIR}/lib.sh"
 INSTALL_SH="${CLAUDE_DIR}/install.sh"
+BREWFILE="${BATS_TEST_DIRNAME}/../../Brewfile"
 
 setup() {
     TEST_HOME="$(mktemp -d)"
@@ -226,4 +227,20 @@ _make_fake_remote() {
 @test "install_git_plugin fails on missing arguments" {
     run install_git_plugin "" ""
     [ "${status}" -ne 0 ]
+}
+
+# --- beads integration checks ---
+
+@test "Brewfile installs beads" {
+    grep -qE "^brew 'beads'" "${BREWFILE}"
+}
+
+@test "claude/install.sh checks for the bd CLI on PATH" {
+    grep -q 'command -v bd' "${INSTALL_SH}"
+}
+
+@test "claude/CLAUDE.md documents the beads workflow" {
+    grep -qi 'beads' "${CLAUDE_MD}"
+    grep -q 'bd remember' "${CLAUDE_MD}"
+    grep -q 'bd prime' "${CLAUDE_MD}"
 }

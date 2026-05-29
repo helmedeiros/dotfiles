@@ -61,6 +61,7 @@ brew 'bats-core'       # Testing framework for Bash scripts
 brew 'shellcheck'      # Static analysis for shell scripts
 brew 'git-filter-repo' # Rewrite git history (replaces filter-branch)
 brew 'ollama'          # Local LLM runner
+brew 'beads'           # Persistent project memory / task graph for AI agents (bd CLI)
 brew 'kubernetes-cli'  # kubectl - Kubernetes command-line tool
 # HashiCorp Vault - installed manually via vault/install.sh (removed from Homebrew core)
 brew 'tmux'

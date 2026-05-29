@@ -72,6 +72,13 @@ else
     echo -e "${RED}Failed to link ~/.claude/CLAUDE.md${NC}"
 fi
 
+# Check beads is available (installed via Brewfile)
+if command -v bd &> /dev/null; then
+    echo -e "${GREEN}beads (bd) already installed${NC}"
+else
+    echo -e "${YELLOW}beads not on PATH. Run 'brew bundle' from \$ZSH or 'brew install beads'.${NC}"
+fi
+
 # Install the clean-code-skills plugin (TDD, SOLID, refactoring, etc.)
 echo -e "${BLUE}Installing clean-code-skills plugin...${NC}"
 if install_git_plugin \
