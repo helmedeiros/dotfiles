@@ -59,6 +59,7 @@ brew 'groovy'
 # brew 'gometalinter'  # Deprecated - replaced by golangci-lint
 brew 'bats-core'       # Testing framework for Bash scripts
 brew 'shellcheck'      # Static analysis for shell scripts
+brew 'pre-commit'      # Pre-commit hook framework (see .pre-commit-config.yaml)
 brew 'git-filter-repo' # Rewrite git history (replaces filter-branch)
 brew 'ollama'          # Local LLM runner
 brew 'beads'           # Persistent project memory / task graph for AI agents (bd CLI)

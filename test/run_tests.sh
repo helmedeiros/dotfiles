@@ -94,6 +94,14 @@ else
   echo -e "${YELLOW}No myke tests found${NC}"
 fi
 
+# Run pre-commit tests
+echo -e "${BLUE}=== Running pre-commit tests ===${NC}"
+if compgen -G "${SCRIPT_DIR}/pre-commit/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/pre-commit/"*_test.bats || FAILED=1
+else
+  echo -e "${YELLOW}No pre-commit tests found${NC}"
+fi
+
 # Run zsh-completion-generator tests
 echo -e "${BLUE}=== Running zsh-completion-generator tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/zsh-completion-generator/*_test.bats" > /dev/null; then

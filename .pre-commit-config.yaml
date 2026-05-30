@@ -1,0 +1,19 @@
+---
+# Pre-commit hooks for this repo. Install with `pre-commit install`
+# (handled automatically by pre-commit/install.sh during bin/dot).
+#
+# Mirrors the gitleaks scan that runs in CI so leaks die before they
+# reach GitHub. shellcheck catches shell-script issues already covered
+# by test/run_tests.sh, but enforces them at commit time too.
+
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        args: [-S, warning]
