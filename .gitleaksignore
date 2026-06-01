@@ -1,0 +1,18 @@
+# gitleaks fingerprints to suppress. Each entry is
+# <commit>:<file>:<rule>:<line>. Use only for confirmed-fake values in test
+# fixtures — never to silence a real leak.
+#
+# Run `gitleaks detect --no-banner` after touching test fixtures to capture
+# any new fingerprints.
+
+# test/mothers/history_mother.sh:32 — placeholder export-style API_KEY
+# inside a fake shell-history fixture used to exercise history-clean.
+fc198a9ec78a3510ca917928697745ad2da52fd7:test/mothers/history_mother.sh:generic-api-key:32
+
+# test/mothers/history_mother.sh:34 — placeholder bearer token in the
+# same shell-history fixture.
+fc198a9ec78a3510ca917928697745ad2da52fd7:test/mothers/history_mother.sh:curl-auth-header:34
+
+# test/bin/headers_test.bats:210 — placeholder bearer token in a BATS
+# test for the headers script.
+26f6b02f071430aa7fc2e327dd35517401cce6ae:test/bin/headers_test.bats:curl-auth-header:210
