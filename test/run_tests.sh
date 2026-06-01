@@ -102,6 +102,14 @@ else
   echo -e "${YELLOW}No pre-commit tests found${NC}"
 fi
 
+# Run node tests
+echo -e "${BLUE}=== Running node tests ===${NC}"
+if compgen -G "${SCRIPT_DIR}/node/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/node/"*_test.bats || FAILED=1
+else
+  echo -e "${YELLOW}No node tests found${NC}"
+fi
+
 # Run zsh-completion-generator tests
 echo -e "${BLUE}=== Running zsh-completion-generator tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/zsh-completion-generator/*_test.bats" > /dev/null; then

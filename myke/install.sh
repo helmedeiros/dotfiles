@@ -9,8 +9,11 @@
 
 set -e
 
+_DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../lib/dot-secrets.sh
-. "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/dot-secrets.sh"
+. "${_DOTFILES_ROOT}/lib/dot-secrets.sh"
+# shellcheck source=../lib/integrity.sh
+. "${_DOTFILES_ROOT}/lib/integrity.sh"
 
 setup_myke() {
     local -r dot_myke="$HOME/.myke"
@@ -31,9 +34,19 @@ setup_myke() {
         return 0
     fi
 
+    if [ -z "${MYKE_RELEASE_SHA256:-}" ]; then
+        echo "  myke refused: MYKE_RELEASE_SHA256 is unset in .dot-secrets/myke/config.sh."
+        echo "  (run 'curl -fsSL \"\$MYKE_RELEASE_URL\" | shasum -a 256' to capture it once.)"
+        return 1
+    fi
+
     echo "  Installing myke from ${MYKE_RELEASE_URL}"
+
+    local verified
+    verified=$(download_verified "$MYKE_RELEASE_URL" "$MYKE_RELEASE_SHA256" "myke binary") || return 1
+
     mkdir -p "$dot_myke"
-    curl -fsSL -o "$dot_myke/myke" "$MYKE_RELEASE_URL"
+    mv "$verified" "$dot_myke/myke"
     chmod +x "$dot_myke/myke"
 }
 

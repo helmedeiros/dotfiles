@@ -18,7 +18,18 @@ setup() {
 
 teardown() {
     rm -rf "${TEST_ROOT}"
-    unset MYKE_RELEASE_URL
+    unset MYKE_RELEASE_URL MYKE_RELEASE_SHA256
+}
+
+# Build a config file pointing at $1 with the SHA-256 of that file.
+_write_config_for() {
+    local target="$1"
+    local sha
+    sha=$(shasum -a 256 "${target}" | awk '{print $1}')
+    cat > "${DOT_SECRETS_ROOT}/myke/config.sh" <<EOF
+MYKE_RELEASE_URL="file://${target}"
+MYKE_RELEASE_SHA256="${sha}"
+EOF
 }
 
 # --- skip paths ---
@@ -50,6 +61,7 @@ EOF
 
     cat > "${DOT_SECRETS_ROOT}/myke/config.sh" <<EOF
 MYKE_RELEASE_URL="file://${TEST_ROOT}/should-not-be-fetched"
+MYKE_RELEASE_SHA256="deadbeef"
 EOF
 
     run setup_myke
@@ -58,15 +70,38 @@ EOF
     [ "$(stat -f %m "${HOME}/.myke/myke")" = "${before}" ]
 }
 
-# --- happy path with file:// ---
+# --- checksum behaviour ---
 
-@test "setup_myke downloads binary from MYKE_RELEASE_URL when configured" {
+@test "setup_myke refuses install when MYKE_RELEASE_SHA256 is unset" {
+    cat > "${DOT_SECRETS_ROOT}/myke/config.sh" <<EOF
+MYKE_RELEASE_URL="file://${TEST_ROOT}/x"
+EOF
+
+    run setup_myke
+    [ "${status}" -ne 0 ]
+    [[ "${output}" == *"MYKE_RELEASE_SHA256 is unset"* ]]
+    [ ! -f "${HOME}/.myke/myke" ]
+}
+
+@test "setup_myke aborts and deletes binary on SHA-256 mismatch" {
     local fake_release="${TEST_ROOT}/release-myke"
     printf '#!/bin/sh\necho fake-myke\n' > "${fake_release}"
 
     cat > "${DOT_SECRETS_ROOT}/myke/config.sh" <<EOF
 MYKE_RELEASE_URL="file://${fake_release}"
+MYKE_RELEASE_SHA256="0000000000000000000000000000000000000000000000000000000000000000"
 EOF
+
+    run setup_myke
+    [ "${status}" -ne 0 ]
+    [[ "${output}" == *"SHA-256 mismatch"* ]]
+    [ ! -f "${HOME}/.myke/myke" ]
+}
+
+@test "setup_myke installs and chmods binary when SHA-256 matches" {
+    local fake_release="${TEST_ROOT}/release-myke"
+    printf '#!/bin/sh\necho fake-myke\n' > "${fake_release}"
+    _write_config_for "${fake_release}"
 
     run setup_myke
     [ "${status}" -eq 0 ]

@@ -6,6 +6,10 @@
 
 set -eo pipefail
 
+_NODE_DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=../lib/integrity.sh
+. "${_NODE_DOTFILES_ROOT}/lib/integrity.sh"
+
 function installglobal() {
 	echo "Installing $*..."
 	if npm install -g --no-fund "${@}" 2>/dev/null; then
@@ -16,15 +20,31 @@ function installglobal() {
 	fi
 }
 
+# Pinned nvm release. Bump both fields together — the SHA must match the
+# install.sh that ships in the named tag.
+NVM_VERSION="v0.39.7"
+NVM_INSTALLER_SHA256="8e45fa547f428e9196a5613efad3bfa4d4608b74ca870f930090598f5af5f643"
+
 function installNVM() {
 	# Check if NVM directory exists
 	if [ ! -d "$HOME/.nvm" ]; then
 		mkdir -p "$HOME/.nvm"
 	fi
 
-	# Install NVM
-	echo "Installing NVM..."
-	curl -s -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+	# Install NVM. Download the installer to a tempfile, verify the SHA-256
+	# against the pinned value, then execute. The previous 'curl | bash'
+	# pattern had no integrity check — a compromised CDN or upstream tag
+	# could have shipped arbitrary code straight into the user's shell.
+	echo "Installing NVM ${NVM_VERSION}..."
+
+	local installer
+	installer=$(download_verified \
+		"https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" \
+		"$NVM_INSTALLER_SHA256" \
+		"NVM ${NVM_VERSION} installer") || return 1
+	trap 'rm -f "$installer"' RETURN
+
+	bash "$installer"
 
 	# Source NVM immediately without auto-use
 	export NVM_DIR="$HOME/.nvm"

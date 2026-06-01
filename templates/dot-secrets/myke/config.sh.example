@@ -10,3 +10,10 @@
 # Full URL to the myke binary for your platform.
 # Pick the arm64 or amd64 build according to your machine's architecture.
 MYKE_RELEASE_URL=""
+
+# Expected SHA-256 of the downloaded binary. install.sh refuses to install
+# if this is unset (so a typo or missing pin can't silently let a compromised
+# upstream slip through). Capture once with:
+#
+#   curl -fsSL "$MYKE_RELEASE_URL" | shasum -a 256
+MYKE_RELEASE_SHA256=""
