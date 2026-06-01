@@ -118,7 +118,11 @@ There's no central registry to update. `bin/dot` finds the `install.sh` on its n
 
 ## Private configuration
 
-Anything machine-specific or credential-bearing belongs in a private `~/.dot-secrets` repository, not here. Templates for the expected file layout are in [`templates/dot-secrets/`](templates/dot-secrets/). Topics that consume secrets (currently `kubernetes/`, `dbeaver/`, `robo3t/`) check for `~/.dot-secrets` during their install and fail with a clear message if it's missing.
+Anything machine-specific or credential-bearing belongs in a private `~/.dot-secrets` repository, not here. Templates for the expected file layout are in [`templates/dot-secrets/`](templates/dot-secrets/). Topics that consume secrets (currently `kubernetes/`, `dbeaver/`, `robo3t/`, `git/`, `myke/`, plus `lint/` for repo-wide PII guards) check for `~/.dot-secrets` during their install and fail with a clear message if it's missing.
+
+### Changing employers
+
+When you change companies, the only edits should be inside `~/.dot-secrets/` — the public dotfiles repo stays employer-agnostic. The full playbook (which file to update, delete, or keep, and the verification commands to run afterwards) lives in `~/.dot-secrets/MIGRATION.md`. If you ever find yourself reaching to edit something *here* for an employer-specific reason, that's a signal the value should move into `.dot-secrets` instead.
 
 ## Testing
 
