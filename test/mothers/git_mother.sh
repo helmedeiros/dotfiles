@@ -83,6 +83,39 @@ a_git_repository_diverged_from_remote() {
   git_mother_create_mock "$test_dir" "local-hash" "remote-hash" "base-hash"
 }
 
+# Create a git mock for the "no upstream configured" scenario.
+# Real git aborts with "fatal: no upstream configured for branch 'X'"
+# on `rev-parse '@{u}'` when the current branch has no upstream. This
+# mock reproduces that exit-128 behavior so check-updates' guard path
+# can be exercised. `symbolic-ref --short HEAD` returns "master" so
+# the script can name the affected branch in its diagnostic.
+a_git_repository_without_upstream() {
+  local test_dir="$1"
+  mkdir -p "${test_dir}/bin"
+
+  cat > "${test_dir}/bin/git" <<'EOF'
+#!/bin/bash
+if [[ "$1" == "fetch" ]]; then
+  exit 0
+elif [[ "$1" == "symbolic-ref" && "$2" == "--short" && "$3" == "HEAD" ]]; then
+  echo "master"
+  exit 0
+elif [[ "$1" == "rev-parse" && "$2" == "--abbrev-ref" && "$3" == "--symbolic-full-name" && "$4" == "@{u}" ]]; then
+  echo "fatal: no upstream configured for branch 'master'" >&2
+  exit 128
+elif [[ "$1" == "rev-parse" && "$2" == "@{u}" ]]; then
+  echo "fatal: no upstream configured for branch 'master'" >&2
+  exit 128
+elif [[ "$1" == "rev-parse" && "$2" == "@" ]]; then
+  echo "local-hash"
+  exit 0
+else
+  exit 0
+fi
+EOF
+  chmod +x "${test_dir}/bin/git"
+}
+
 # Create a real git repository with branches for testing git branch operations
 # This creates an actual git repository, not a mock
 a_real_git_repository_with_branches() {
@@ -90,7 +123,7 @@ a_real_git_repository_with_branches() {
 
   # Initialize a real git repository
   mkdir -p "${repo_dir}"
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
 
   # Configure git for this repository (avoid using user's global config)
   git init
@@ -106,7 +139,7 @@ a_real_git_repository_with_branches() {
   # Ensure we're on master branch (in case git used main or another name)
   git branch -M master
 
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Create a branch in a git repository
@@ -115,7 +148,7 @@ create_git_branch() {
   local branch_name="$2"
   local commit_message="${3:-Add feature in ${branch_name}}"
 
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
 
   # Create and checkout the branch
   git checkout -b "${branch_name}"
@@ -127,7 +160,7 @@ create_git_branch() {
   git add "${safe_filename}"
   git commit -m "${commit_message}"
 
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Merge a branch into another branch
@@ -136,13 +169,13 @@ merge_git_branch() {
   local target_branch="$2"
   local source_branch="$3"
 
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
 
   # Switch to target branch and merge
   git checkout "${target_branch}"
   git merge --no-ff "${source_branch}" -m "Merge ${source_branch} into ${target_branch}"
 
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Set up a repository with merged branches for testing git-delete-local-merged
@@ -166,9 +199,9 @@ a_git_repository_with_merged_branches() {
   create_git_branch "${repo_dir}" "feature-unmerged" "Work in progress"
 
   # Go back to master
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
   git checkout master
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Set up a repository with only master branch
@@ -176,9 +209,9 @@ a_git_repository_with_only_master() {
   local repo_dir="$1"
   a_real_git_repository_with_branches "${repo_dir}"
 
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
   git checkout master
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Set up a repository with a current branch that is merged
@@ -194,9 +227,9 @@ a_git_repository_on_merged_branch() {
   merge_git_branch "${repo_dir}" "master" "feature-merged"
 
   # Stay on the feature branch (it's merged but we're on it)
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
   git checkout "feature-merged"
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Set up a repository with main as the primary branch (not master)
@@ -204,7 +237,7 @@ a_git_repository_with_main_branch() {
   local repo_dir="$1"
 
   mkdir -p "${repo_dir}"
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
 
   git init
   git config user.name "Test User"
@@ -216,7 +249,7 @@ a_git_repository_with_main_branch() {
   git commit -m "Initial commit"
   git branch -M main
 
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Set up a repository with branches that have special characters
@@ -233,9 +266,9 @@ a_git_repository_with_special_branch_names() {
   merge_git_branch "${repo_dir}" "master" "bugfix/issue-123"
   merge_git_branch "${repo_dir}" "master" "feature/user-auth"
 
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
   git checkout master
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Create a git repository with a remote repository for testing push operations
@@ -245,13 +278,13 @@ a_git_repository_with_remote_tracking() {
 
   # Create the remote (bare) repository
   mkdir -p "${remote_dir}"
-  cd "${remote_dir}"
+  cd "${remote_dir}" || return
   git init --bare
-  cd - > /dev/null
+  cd - > /dev/null || return
 
   # Create the local repository
   mkdir -p "${repo_dir}"
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
 
   git init
   git config user.name "Test User"
@@ -270,7 +303,7 @@ a_git_repository_with_remote_tracking() {
   git remote add origin "${remote_dir}"
   git push -u origin master
 
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Create a git repository with remote and unpushed commits
@@ -282,13 +315,13 @@ a_git_repository_with_unpushed_commits() {
   a_git_repository_with_remote_tracking "${repo_dir}" "${remote_dir}"
 
   # Add unpushed commits
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
 
   echo "New feature" > feature.txt
   git add feature.txt
   git commit -m "Add feature"
 
-  cd - > /dev/null
+  cd - > /dev/null || return
 }
 
 # Create a git repository with main branch and remote
@@ -298,13 +331,13 @@ a_git_repository_with_main_and_remote() {
 
   # Create the remote (bare) repository
   mkdir -p "${remote_dir}"
-  cd "${remote_dir}"
+  cd "${remote_dir}" || return
   git init --bare
-  cd - > /dev/null
+  cd - > /dev/null || return
 
   # Create the local repository
   mkdir -p "${repo_dir}"
-  cd "${repo_dir}"
+  cd "${repo_dir}" || return
 
   git init
   git config user.name "Test User"
@@ -320,5 +353,5 @@ a_git_repository_with_main_and_remote() {
   git remote add origin "${remote_dir}"
   git push -u origin main
 
-  cd - > /dev/null
+  cd - > /dev/null || return
 }

@@ -60,54 +60,69 @@ else
   git fetch origin --quiet 2>/dev/null || echo -e "${YELLOW}Git fetch failed (network issue?)${NC}"
 fi
 
-# Check if there are any changes
-LOCAL=$(git rev-parse @)
-# shellcheck disable=SC1083
-REMOTE=$(git rev-parse '@{u}')
-# shellcheck disable=SC1083
-BASE=$(git merge-base @ '@{u}')
-
 DOTFILES_UPDATED=false
 
-if [ $LOCAL = $REMOTE ]; then
-  echo -e "${GREEN}Your dotfiles are up to date!${NC}"
-elif [ $LOCAL = $BASE ]; then
-  # Count the number of commits behind
-  # shellcheck disable=SC1083
-  COMMITS_BEHIND=$(git rev-list --count 'HEAD..@{u}')
-
-  echo -e "${YELLOW}Your dotfiles are behind by $COMMITS_BEHIND commit(s).${NC}"
-  echo -e "${YELLOW}Run 'cd $DOTFILES_DIR && git pull' to update.${NC}"
-
-  # Show a summary of the changes
-  echo -e "\n${GREEN}Summary of changes:${NC}"
-  # shellcheck disable=SC1083
-  git log --oneline --pretty=format:"%h %s" 'HEAD..@{u}' | head -n 5
-
-  # If there are more than 5 commits, show a message
-  if [ $COMMITS_BEHIND -gt 5 ]; then
-    echo -e "${YELLOW}... and $(($COMMITS_BEHIND - 5)) more commit(s)${NC}"
-  fi
-
-  # Only prompt interactively if we have a terminal
-  if [ -t 0 ] || [ -n "${CHECK_UPDATES_ASSUME_TTY:-}" ]; then
-    echo -e "\n${YELLOW}Would you like to update your dotfiles now? (y/n)${NC}"
-    read -r response
-    if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-      git pull
-      echo -e "${GREEN}Dotfiles updated successfully!${NC}"
-      DOTFILES_UPDATED=true
-    else
-      echo -e "${YELLOW}Dotfiles update skipped.${NC}"
-    fi
-  fi
-elif [ $REMOTE = $BASE ]; then
-  echo -e "${YELLOW}Your dotfiles have local changes that haven't been pushed.${NC}"
-  echo -e "${YELLOW}Run 'cd $DOTFILES_DIR && git push' to push your changes.${NC}"
+# Guard: refuse to compare against @{u} if the current branch has no
+# upstream configured. The bare `git rev-parse '@{u}'` below aborts the
+# whole script under `set -euo pipefail`, which made check-updates fail
+# opaquely with "fatal: no upstream configured for branch '<name>'" and
+# left the prompt indicators in a stuck state. Surface the problem and
+# the exact recovery command, then carry on to the dependency checks.
+CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "HEAD")
+# shellcheck disable=SC1083
+if ! git rev-parse --abbrev-ref --symbolic-full-name '@{u}' > /dev/null 2>&1; then
+  echo -e "${YELLOW}No upstream configured for branch '${CURRENT_BRANCH}'.${NC}"
+  echo -e "${YELLOW}Skipping the dotfiles up-to-date check.${NC}"
+  echo -e "${YELLOW}Fix it with:${NC}"
+  echo -e "${YELLOW}  git -C \"${DOTFILES_DIR}\" branch --set-upstream-to=origin/${CURRENT_BRANCH} ${CURRENT_BRANCH}${NC}"
 else
-  echo -e "${RED}Your dotfiles have diverged from the remote repository.${NC}"
-  echo -e "${RED}You may need to resolve conflicts manually.${NC}"
-  echo -e "${RED}Run 'cd $DOTFILES_DIR && git status' for more information.${NC}"
+  # Check if there are any changes
+  LOCAL=$(git rev-parse @)
+  # shellcheck disable=SC1083
+  REMOTE=$(git rev-parse '@{u}')
+  # shellcheck disable=SC1083
+  BASE=$(git merge-base @ '@{u}')
+
+  if [ $LOCAL = $REMOTE ]; then
+    echo -e "${GREEN}Your dotfiles are up to date!${NC}"
+  elif [ $LOCAL = $BASE ]; then
+    # Count the number of commits behind
+    # shellcheck disable=SC1083
+    COMMITS_BEHIND=$(git rev-list --count 'HEAD..@{u}')
+
+    echo -e "${YELLOW}Your dotfiles are behind by $COMMITS_BEHIND commit(s).${NC}"
+    echo -e "${YELLOW}Run 'cd $DOTFILES_DIR && git pull' to update.${NC}"
+
+    # Show a summary of the changes
+    echo -e "\n${GREEN}Summary of changes:${NC}"
+    # shellcheck disable=SC1083
+    git log --oneline --pretty=format:"%h %s" 'HEAD..@{u}' | head -n 5
+
+    # If there are more than 5 commits, show a message
+    if [ $COMMITS_BEHIND -gt 5 ]; then
+      echo -e "${YELLOW}... and $(($COMMITS_BEHIND - 5)) more commit(s)${NC}"
+    fi
+
+    # Only prompt interactively if we have a terminal
+    if [ -t 0 ] || [ -n "${CHECK_UPDATES_ASSUME_TTY:-}" ]; then
+      echo -e "\n${YELLOW}Would you like to update your dotfiles now? (y/n)${NC}"
+      read -r response
+      if [[ "$response" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        git pull
+        echo -e "${GREEN}Dotfiles updated successfully!${NC}"
+        DOTFILES_UPDATED=true
+      else
+        echo -e "${YELLOW}Dotfiles update skipped.${NC}"
+      fi
+    fi
+  elif [ $REMOTE = $BASE ]; then
+    echo -e "${YELLOW}Your dotfiles have local changes that haven't been pushed.${NC}"
+    echo -e "${YELLOW}Run 'cd $DOTFILES_DIR && git push' to push your changes.${NC}"
+  else
+    echo -e "${RED}Your dotfiles have diverged from the remote repository.${NC}"
+    echo -e "${RED}You may need to resolve conflicts manually.${NC}"
+    echo -e "${RED}Run 'cd $DOTFILES_DIR && git status' for more information.${NC}"
+  fi
 fi
 
 # Check for outdated dependencies

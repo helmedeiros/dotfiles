@@ -167,6 +167,26 @@ EOF
   [[ "$output" == *"You have outdated global npm packages"* ]]
 }
 
+# Regression test for the silent-failure mode that hid a broken master
+# branch (no upstream configured) for ~2 months. check-updates used to
+# abort at `git rev-parse '@{u}'` under `set -euo pipefail`; the daily
+# background runner swallowed the error and the status file stayed
+# empty, looking indistinguishable from "everything up to date".
+@test "check-updates exits 0 with a remediation hint when no upstream is configured" {
+  a_no_upstream_scenario "${TEST_DIR}"
+
+  TEMP_SCRIPT=$(create_temp_script "n\nn")
+
+  run "${TEMP_SCRIPT}"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"No upstream configured for branch 'master'"* ]]
+  [[ "$output" == *"Skipping the dotfiles up-to-date check"* ]]
+  [[ "$output" == *"git -C"*"branch --set-upstream-to=origin/master master"* ]]
+  # Did NOT abort before the dependency-check phase.
+  [[ "$output" == *"Checking for outdated dependencies"* ]]
+}
+
 # Test the script with the option to update dotfiles
 @test "check-updates updates dotfiles when user confirms" {
   # Set up the "needs update" scenario

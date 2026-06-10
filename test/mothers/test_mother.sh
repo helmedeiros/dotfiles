@@ -42,6 +42,9 @@ a_scenario_with() {
     "repositoryDivergedFromRemote")
       a_git_repository_diverged_from_remote "$test_dir"
       ;;
+    "repositoryWithoutUpstream")
+      a_git_repository_without_upstream "$test_dir"
+      ;;
     *)
       git_mother_create_mock "$test_dir" "local-hash" "remote-hash" "base-hash"
       ;;
@@ -140,6 +143,16 @@ a_local_changes_scenario() {
 a_diverged_scenario() {
   local test_dir="$1"
   a_scenario_with "$test_dir" "repositoryDivergedFromRemote" "brewWithOutdatedPackages" "npmWithOutdatedPackages" "standardDotScript"
+}
+
+# Scenario 5: Current branch has no upstream configured.
+# Reproduces the silent-failure path that bit us in production: the daily
+# check-updates background job died at `git rev-parse '@{u}'` under
+# `set -euo pipefail` and never reached its log-finish line. The guard
+# in check-updates should now surface this loudly instead.
+a_no_upstream_scenario() {
+  local test_dir="$1"
+  a_scenario_with "$test_dir" "repositoryWithoutUpstream" "brewWithNoOutdatedPackages" "npmWithNoOutdatedPackages" "standardDotScript"
 }
 
 # Status-specific scenarios
