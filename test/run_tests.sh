@@ -110,6 +110,14 @@ else
   echo -e "${YELLOW}No node tests found${NC}"
 fi
 
+# Run sdkman tests
+echo -e "${BLUE}=== Running sdkman tests ===${NC}"
+if compgen -G "${SCRIPT_DIR}/sdkman/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/sdkman/"*_test.bats || FAILED=1
+else
+  echo -e "${YELLOW}No sdkman tests found${NC}"
+fi
+
 # Run zsh-completion-generator tests
 echo -e "${BLUE}=== Running zsh-completion-generator tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/zsh-completion-generator/*_test.bats" > /dev/null; then

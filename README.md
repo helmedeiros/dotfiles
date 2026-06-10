@@ -6,7 +6,7 @@ A personal macOS development environment in one repository. Clone it on a fresh 
 
 - A configured zsh shell (powerlevel10k prompt, syntax highlighting, autosuggestions, zoxide for fast directory jumps)
 - Terminal theming for Terminal.app and iTerm2 (Solarized Dark) plus a [Ghostty](ghostty/) config
-- Homebrew-managed CLI tools, casks, and language toolchains (Go, Node via nvm, Python via pyenv, Java, Ruby via rbenv)
+- Homebrew-managed CLI tools, casks, and language toolchains (Go, Node via nvm, Python via pyenv, JVM stack via [SDKMAN](sdkman/), Ruby via rbenv)
 - macOS system defaults (Finder, Dock, trackpad, keyboard) applied automatically
 - A tiling window manager stack ([yabai](yabai/) + [skhd](skhd/)) and key remapping via [Karabiner Elements](karabiner/)
 - A custom `bin/` of git, search, and housekeeping scripts on `PATH` everywhere — see [`bin/README.md`](bin/README.md)

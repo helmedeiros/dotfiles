@@ -69,16 +69,7 @@ zle -N down-line-or-beginning-search
 bindkey "^[[A" up-line-or-beginning-search # Up
 bindkey "^[[B" down-line-or-beginning-search # Down
 
-# Lazy load SDKMAN for better startup performance
-export SDKMAN_DIR="$HOME/.sdkman"
-if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
-  sdk() {
-    unset -f sdk
-    source "$HOME/.sdkman/bin/sdkman-init.sh"
-    sdk "$@"
-  }
-fi
-
+# SDKMAN init lives in sdkman/path.zsh (lazy-loaded; owns Java + JVM tools).
 
 # Lazy load Angular CLI completion for better startup performance
 if command -v ng &> /dev/null; then
@@ -97,8 +88,7 @@ fi
 # to ~/.kube/config.
 
 # TRACER configuration is handled by tracer/path.zsh
-export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
-export CPPFLAGS="-I/opt/homebrew/opt/openjdk@11/include"
+# JAVA_HOME / PATH for Java live in sdkman/path.zsh.
 
 # The following lines have been added by Docker Desktop to enable Docker CLI completions.
 fpath=("$HOME/.docker/completions" $fpath)

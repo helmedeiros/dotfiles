@@ -64,13 +64,13 @@
     # dotnet_version        # .NET version (https://dotnet.microsoft.com)
     # php_version           # php version (https://www.php.net/)
     # laravel_version       # laravel php framework version (https://laravel.com/)
-    # java_version          # java version (https://www.java.com/)
+    java_version            # active java version (read from JAVA_HOME — managed by SDKMAN)
     # package               # name@version from package.json (https://docs.npmjs.com/files/package.json)
     rbenv                   # ruby version from rbenv (https://github.com/rbenv/rbenv)
     rvm                     # ruby version from rvm (https://rvm.io)
     fvm                     # flutter version management (https://github.com/leoafarias/fvm)
     luaenv                  # lua version from luaenv (https://github.com/cehoffman/luaenv)
-    jenv                    # java version from jenv (https://github.com/jenv/jenv)
+    # jenv                  # superseded by java_version above (SDKMAN owns Java)
     plenv                   # perl version from plenv (https://github.com/tokuhirom/plenv)
     perlbrew                # perl version from perlbrew (https://github.com/gugod/App-perlbrew)
     phpenv                  # php version from phpenv (https://github.com/phpenv/phpenv)
@@ -1150,18 +1150,15 @@
   # Custom icon.
   # typeset -g POWERLEVEL9K_LUAENV_VISUAL_IDENTIFIER_EXPANSION='⭐'
 
-  ###############[ jenv: java version from jenv (https://github.com/jenv/jenv) ]################
+  #############[ java_version: active java (read from JAVA_HOME — managed by SDKMAN) ]############
   # Java color.
-  typeset -g POWERLEVEL9K_JENV_FOREGROUND=4
-  # Hide java version if it doesn't come from one of these sources.
-  typeset -g POWERLEVEL9K_JENV_SOURCES=(shell local global)
-  # If set to false, hide java version if it's the same as global:
-  # $(jenv version-name) == $(jenv global).
-  typeset -g POWERLEVEL9K_JENV_PROMPT_ALWAYS_SHOW=false
-  # If set to false, hide java version if it's equal to "system".
-  typeset -g POWERLEVEL9K_JENV_SHOW_SYSTEM=true
+  typeset -g POWERLEVEL9K_JAVA_VERSION_FOREGROUND=4
+  # Show the full version (e.g. 21.0.4) rather than just the major.
+  typeset -g POWERLEVEL9K_JAVA_VERSION_FULL=false
+  # Hide if no JDK is active.
+  typeset -g POWERLEVEL9K_JAVA_VERSION_PROJECT_ONLY=false
   # Custom icon.
-  # typeset -g POWERLEVEL9K_JENV_VISUAL_IDENTIFIER_EXPANSION='⭐'
+  # typeset -g POWERLEVEL9K_JAVA_VERSION_VISUAL_IDENTIFIER_EXPANSION='⭐'
 
   ###########[ plenv: perl version from plenv (https://github.com/tokuhirom/plenv) ]############
   # Perl color.

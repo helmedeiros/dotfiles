@@ -1,13 +1,14 @@
 cask_args appdir: '/Applications'
 
-tap 'pivotal/tap'
-tap 'spring-io/tap'
 tap 'alecthomas/homebrew-tap'
 tap 'koekeishiya/formulae'
 
+# JVM toolchain (Java, Gradle, Maven, Groovy, Spring Boot CLI) is owned by
+# SDKMAN — see sdkman/install.sh and sdkman/README.md. The previously-listed
+# casks (temurin@17/@21) and formulae (gradle, maven, groovy) were removed
+# because they hardcoded versions and fought SDKMAN over JAVA_HOME.
+
 cask 'xquartz'
-cask 'temurin@17'
-cask 'temurin@21'
 
 brew 'mas'
 brew 'zsh'
@@ -34,7 +35,6 @@ brew 'wget'
 brew 'yt-dlp'
 brew 'sevenzip'  # Archive utility for KCC (Kindle Comic Converter)
 brew 'unar'      # Alternative archive handler for KCC
-brew 'gradle'
 brew 'tig'
 brew 'zsh-autosuggestions'
 brew 'zsh-syntax-highlighting'
@@ -48,14 +48,11 @@ brew 'trash'
 brew 'links'
 brew 'tree'
 brew 'jq'
-# brew 'spring-boot'  # Discontinued - Spring Boot CLI no longer available in Homebrew
-brew 'maven'
 brew 'openshift-cli'
 brew 'hugo'
 brew 'hub'
 brew 'gh'          # GitHub CLI - official GitHub command-line tool
 brew 'plantuml'
-brew 'groovy'
 # brew 'gometalinter'  # Deprecated - replaced by golangci-lint
 brew 'bats-core'       # Testing framework for Bash scripts
 brew 'shellcheck'      # Static analysis for shell scripts
