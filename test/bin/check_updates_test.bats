@@ -187,6 +187,21 @@ EOF
   [[ "$output" == *"Checking for outdated dependencies"* ]]
 }
 
+# Lock in the exact "No upstream configured for branch" phrase. The daily
+# background runner in zsh/update.zsh greps for this string to set the
+# check-error status — if the wording in check-updates drifts, the prompt
+# will silently stop showing [DOTFILES CHECK FAILED] for this case.
+@test "check-updates emits the exact phrase that update.zsh greps for" {
+  a_no_upstream_scenario "${TEST_DIR}"
+
+  TEMP_SCRIPT=$(create_temp_script "n\nn")
+
+  run "${TEMP_SCRIPT}"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"No upstream configured for branch"* ]]
+}
+
 # Test the script with the option to update dotfiles
 @test "check-updates updates dotfiles when user confirms" {
   # Set up the "needs update" scenario

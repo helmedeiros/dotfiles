@@ -1,5 +1,12 @@
 # Dotfiles update checker
-# Checks for updates to the dotfiles repository and dependencies once a day
+# Checks for updates to the dotfiles repository and dependencies once a day.
+#
+# This is zsh-only — `&!` is zsh's disown-on-exit operator and shellcheck
+# parses it as bash, which trips SC1035/SC1072/SC1073. Suppressed
+# file-wide; the live shell that sources this file is always zsh.
+
+# shellcheck shell=bash
+# shellcheck disable=SC1035,SC1072,SC1073
 
 # Source the shared status library
 if [ -f "$HOME/.dotfiles/lib/status.sh" ]; then
@@ -28,7 +35,17 @@ function check_dotfiles_updates() {
     status_log "Finished check-updates script with exit code $exit_code"
 
     # Check if updates are available by looking for specific patterns in the output
-    if grep -q "Your dotfiles are behind by" "$temp_output"; then
+    # Surface check-failure modes loudly. The daily check used to die at
+    # `git rev-parse '@{u}'` when the current branch had no upstream and
+    # left the status file empty — indistinguishable from "everything fine".
+    # Detect both the new no-upstream warning and any non-zero exit code,
+    # and turn them into a check-error status that the prompt renders as
+    # [DOTFILES CHECK FAILED].
+    if grep -q "No upstream configured for branch" "$temp_output"; then
+      status_update "check-error" "Dotfiles branch has no upstream — run check-updates manually"
+    elif [ "$exit_code" -ne 0 ]; then
+      status_update "check-error" "check-updates exited $exit_code (see $DOTFILES_STATUS_LOG)"
+    elif grep -q "Your dotfiles are behind by" "$temp_output"; then
       # Extract the number of commits behind
       local commits_behind=$(grep "Your dotfiles are behind by" "$temp_output" | sed -E 's/.*behind by ([0-9]+) commit.*/\1/')
       status_update "dotfiles" "Dotfiles updates available ($commits_behind commits)"

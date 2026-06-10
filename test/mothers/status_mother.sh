@@ -65,6 +65,15 @@ an_unknown_update_status() {
   a_status_file_with "${test_dir}" "unknown" "Unknown updates available"
 }
 
+# A status file for a failed daily check (e.g. no upstream configured,
+# network failure, or any non-zero exit from check-updates). Surfaces
+# the previously-silent failure mode in the prompt as
+# [DOTFILES CHECK FAILED].
+a_check_error_status() {
+  local test_dir="$1"
+  a_status_file_with "${test_dir}" "check-error" "Dotfiles check failed"
+}
+
 # A last check file with today's date
 a_last_check_file_with_today() {
   local test_dir="$1"

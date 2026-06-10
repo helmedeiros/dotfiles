@@ -122,6 +122,13 @@ teardown() {
   run status_get_prompt
   [[ "$output" == *"[SYSTEM UPDATE]"* ]]
 
+  # Test for a failed daily check (no upstream, non-zero exit, etc.).
+  # Previously this state was silent — same prompt as "everything fine" —
+  # which is how the no-upstream regression hid for ~2 months.
+  a_check_error_status "${TEST_DIR}"
+  run status_get_prompt
+  [[ "$output" == *"[DOTFILES CHECK FAILED]"* ]]
+
   # Test for no updates
   status_clear
   run status_get_prompt

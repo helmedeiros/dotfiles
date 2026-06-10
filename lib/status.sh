@@ -2,7 +2,17 @@
 #
 # status.sh
 #
-# Shared library for handling status updates across dotfiles scripts
+# Shared library for handling status updates across dotfiles scripts.
+#
+# This file is sourced from both bash (bin/check-updates) and zsh
+# (zsh/update.zsh). status_get_prompt emits zsh prompt-expansion
+# sequences (%{$fg_bold[color]%}…%{$reset_color%}) that shellcheck
+# parses as bash array subscripts and flags SC1087 / SC2154 — but the
+# strings are only ever expanded by zsh's prompt mechanism, so the
+# warnings are false positives. Suppressed file-wide to keep the
+# pre-commit shellcheck hook quiet.
+
+# shellcheck disable=SC1087,SC2154
 
 # Status file for prompt integration
 DOTFILES_STATUS_FILE="${DOTFILES_STATUS_FILE:-$HOME/.dotfiles_update_status}"
@@ -18,12 +28,14 @@ function status_check_log_rotation() {
   # Check if log file exists
   if [ -f "$DOTFILES_STATUS_LOG" ]; then
     # Get file size in bytes
-    local file_size=$(stat -f%z "$DOTFILES_STATUS_LOG")
+    local file_size
+    file_size=$(stat -f%z "$DOTFILES_STATUS_LOG")
 
     # If file size exceeds the maximum, rotate the log
     if [ $file_size -gt $MAX_LOG_SIZE ]; then
       # Create a backup with timestamp
-      local timestamp=$(date +%Y%m%d%H%M%S)
+      local timestamp
+      timestamp=$(date +%Y%m%d%H%M%S)
       local backup_file="${DOTFILES_STATUS_LOG}.${timestamp}"
 
       # Move the current log to backup
@@ -99,13 +111,15 @@ function status_get_message() {
 # Function to get formatted status for prompt
 function status_get_prompt() {
   if [ -f "$DOTFILES_STATUS_FILE" ]; then
-    local status_type=$(status_get_type)
+    local status_type
+    status_type=$(status_get_type)
     local text_indicator=""
 
     case "$status_type" in
       "dotfiles") text_indicator="%{$fg_bold[yellow]%}[DOTFILES UPDATE]%{$reset_color%}" ;;
       "brew") text_indicator="%{$fg_bold[green]%}[BREW UPDATE]%{$reset_color%}" ;;
       "npm") text_indicator="%{$fg_bold[blue]%}[NPM UPDATE]%{$reset_color%}" ;;
+      "check-error") text_indicator="%{$fg_bold[red]%}[DOTFILES CHECK FAILED]%{$reset_color%}" ;;
       *) text_indicator="%{$fg_bold[red]%}[SYSTEM UPDATE]%{$reset_color%}" ;;
     esac
 
@@ -128,8 +142,9 @@ function status_last_check() {
   fi
 
   # Get the last check date
-  local last_check=$(cat "$check_file")
-  local today=$(date +%Y%m%d)
+  local last_check today
+  last_check=$(cat "$check_file")
+  today=$(date +%Y%m%d)
 
   # If the last check was today, return 0 (no need to check)
   if [ "$last_check" = "$today" ]; then
