@@ -62,6 +62,19 @@ else
   echo "› mas not found, skipping Mac App Store upgrades"
 fi
 
+# Trust third-party taps declared in the Brewfile so `brew bundle` can install
+# their formulae. Homebrew refuses formulae from untrusted taps by default;
+# parsing the Brewfile keeps this list self-maintaining.
+echo "› brew trust (Brewfile taps)"
+while IFS= read -r tap; do
+	[ -z "$tap" ] && continue
+	echo "  trusting $tap"
+	brew tap "$tap" >/dev/null 2>&1 || true
+	brew trust "$tap" >/dev/null 2>&1 || true
+done < <(grep -E "^tap [\"']" "$dotfilesDirectory/Brewfile" \
+	| sed -E "s/^tap [\"']([^\"']+)[\"'].*/\1/" \
+	| sed -E 's|/homebrew-|/|')
+
 # brew bundle
 echo "› brew bundle"
 brew bundle install --file="$dotfilesDirectory/Brewfile"
