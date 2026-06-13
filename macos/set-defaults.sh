@@ -107,3 +107,12 @@ defaults write com.apple.commerce AutoUpdate -bool true
 
 # Allow the App Store to reboot machine on macOS updates
 defaults write com.apple.commerce AutoUpdateRestartRequired -bool true
+
+###############################################################################
+# File-type bindings                                                          #
+###############################################################################
+
+# Apply per-app file-type bindings declared in `*/filetypes` files.
+# On a fresh machine duti may not yet be installed; bind-filetypes.sh
+# skips cleanly in that case and bin/dot re-runs it after `brew bundle`.
+"$(dirname "${BASH_SOURCE[0]}")/bind-filetypes.sh"

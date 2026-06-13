@@ -1,0 +1,19 @@
+# Template for per-app `filetypes` files consumed by macos/bind-filetypes.sh.
+#
+# Drop a file named `filetypes` (no extension) into any app's dotfiles folder
+# and it will be picked up on the next `set-defaults.sh` run.
+#
+# Format: sourceable bash. Two variables are required:
+#   APP="MyApp.app"          # the .app inside /Applications. If missing, the
+#                            # binding is silently skipped (so removing the app
+#                            # cleanly disables its claims).
+#   EXTENSIONS=(ext1 ext2)   # extensions without leading dots
+#
+# When two folders claim the same extension, last alphabetical glob wins.
+
+APP="Example.app"
+
+EXTENSIONS=(
+  example
+  ex
+)

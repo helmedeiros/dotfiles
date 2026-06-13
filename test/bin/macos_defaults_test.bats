@@ -35,6 +35,14 @@ setup() {
   cp "${MACOS_DEFAULTS_SCRIPT}" "${MOCK_SCRIPT}"
   chmod +x "${MOCK_SCRIPT}"
 
+  # set-defaults.sh invokes its sibling bind-filetypes.sh; stub it so the
+  # sandboxed copy can run without pulling in the real binding logic.
+  cat > "${TEST_DIR}/bind-filetypes.sh" <<'EOL'
+#!/bin/sh
+exit 0
+EOL
+  chmod +x "${TEST_DIR}/bind-filetypes.sh"
+
   # Use the modified script for testing
   MACOS_DEFAULTS_SCRIPT="${MOCK_SCRIPT}"
 

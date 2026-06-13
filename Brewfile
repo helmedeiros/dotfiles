@@ -45,6 +45,7 @@ brew 'pyenv-virtualenv' # Virtual environment support for pyenv
 brew 'uncrustify'
 brew 'ngrep'
 brew 'trash'
+brew 'duti'           # Set default apps for file types / UTIs (see macos/set-defaults.sh)
 brew 'links'
 brew 'tree'
 brew 'jq'

@@ -66,6 +66,14 @@ fi
 echo "› brew bundle"
 brew bundle install --file="$dotfilesDirectory/Brewfile"
 
+# Re-run filetype bindings now that duti (from Brewfile) is guaranteed
+# installed. On a fresh machine, the earlier set-defaults.sh call would have
+# skipped this step. The aggregator is idempotent, so re-running is safe.
+if [ -x "$dotfilesDirectory/macos/bind-filetypes.sh" ]; then
+  echo "› bind-filetypes"
+  "$dotfilesDirectory/macos/bind-filetypes.sh"
+fi
+
 # Update Node.js and npm in a subshell to isolate any issues
 echo "› Updating Node.js and npm"
 (
