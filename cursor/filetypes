@@ -1,0 +1,27 @@
+# Cursor claims these extensions via macos/bind-filetypes.sh.
+# See macos/README.md for the format.
+
+APP="Cursor.app"
+
+EXTENSIONS=(
+  # text / docs
+  md markdown mdx txt text log
+
+  # data / config (csv/tsv intentionally excluded — owned by Numbers)
+  json jsonc yaml yml toml xml ini conf cfg env properties
+
+  # shell
+  sh bash zsh fish
+
+  # languages
+  py rb go rs
+  js jsx ts tsx mjs cjs
+  # html/htm intentionally excluded — claiming them prompts macOS to make
+  # Cursor the default web browser. Use `cursor file.html` or "Open With"
+  # when you need to edit HTML in Cursor.
+  css scss less
+  sql gradle
+
+  # vcs / build
+  patch diff dockerfile
+)

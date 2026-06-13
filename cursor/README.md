@@ -7,6 +7,7 @@ This directory contains configuration files specific to Cursor, the AI-powered c
 - `settings.json.symlink`: Cursor-specific settings file
 - `extensions.txt`: List of recommended Cursor extensions
 - `install.sh`: Script to install Cursor settings and extensions
+- `filetypes`: Extensions Cursor claims as default app on macOS (consumed by `macos/bind-filetypes.sh`)
 
 ## Installation
 
