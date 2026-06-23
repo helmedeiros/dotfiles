@@ -78,7 +78,6 @@ cask 'transmission'
 cask 'viscosity'
 cask 'vlc'
 cask 'spotify'
-cask 'caffeine'
 # cask 'robo-3t'  # Discontinued - merged into MongoDB Compass
 cask 'fertigt-slate'
 cask 'dropbox'
@@ -102,6 +101,8 @@ cask 'ghostty'
 cask 'raycast'
 cask 'calibre'  # E-book management and conversion (for EPUB to AZW3)
 cask 'font-meslo-lg-nerd-font'  # Meslo Nerd Font for terminal icons
+
+mas 'Amphetamine', id: 937984704   # Keep-awake utility (replaces the caffeine cask)
 
 # mas 'Xcode', id: 497799835
 # mas 'Telegram', id: 747648890
