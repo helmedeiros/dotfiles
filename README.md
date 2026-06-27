@@ -137,3 +137,7 @@ See [`test/README.md`](test/README.md) for layout and conventions.
 ## Customisation
 
 The whole repository is intended to be forked and edited. Topic directories are independent, so adding, replacing, or deleting one rarely touches anything else. Start by editing `zsh/zshrc.symlink` and the `Brewfile`, then carve out new topic dirs as you bring more tools under management.
+
+## License
+
+[MIT](LICENSE)
