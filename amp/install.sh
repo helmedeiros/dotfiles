@@ -13,12 +13,12 @@ if ! command -v go &> /dev/null; then
   exit 1
 fi
 
-echo "  Installing am (amp) for you."
-go install github.com/helmedeiros/amp/cmd/am@latest
+echo "  Installing amp for you."
+go install github.com/helmedeiros/amp/cmd/amp@latest
 
 # Locate the just-installed binary without relying on PATH during install.
 gobin="$(go env GOBIN)"
 [ -z "$gobin" ] && gobin="$(go env GOPATH)/bin"
 
 echo "  Refreshing zsh completion."
-"$gobin/am" completion zsh > "$(dirname "$0")/_am"
+"$gobin/amp" completion zsh > "$(dirname "$0")/_amp"
