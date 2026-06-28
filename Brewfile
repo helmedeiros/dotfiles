@@ -14,6 +14,7 @@ brew 'mas'
 brew 'zsh'
 brew 'zsh-completions'
 brew 'tree'
+brew 'watch'  # Run a command periodically, showing output fullscreen
 brew 'eza'    # Modern replacement for ls
 brew 'zoxide' # Smarter cd with fuzzy directory jumping
 brew 'ack'
