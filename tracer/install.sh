@@ -1,40 +1,24 @@
 #!/usr/bin/env bash
 #
-# Tracer configuration and install.
+# tracer — install/update the tracer CLI and its zsh completion.
+#
+# tracer is a Go binary; `go install` drops it in $GOPATH/bin, which
+# go/path.zsh already puts on PATH, so no path.zsh is needed here. The
+# completion is a static dispatcher written into this topic dir, which
+# zsh/fpath.zsh adds to fpath, so new shells tab-complete `tracer`.
 set -e
 
-# Set TRACER_HOME directly for installation context
-export TRACER_HOME="$HOME/.tracer"
+if ! command -v go &> /dev/null; then
+  echo "  Go is not installed. Please install Go first."
+  exit 1
+fi
 
-setup () {
-  echo "  Installing $1 for you."
+echo "  Installing tracer for you."
+go install github.com/helmedeiros/tracer-bullet/cmd/tracer@latest
 
-  if [[ ! -d "$TRACER_HOME" ]]
-  then
-    git clone "$2" "$TRACER_HOME"
-    cd "$TRACER_HOME"
+# Locate the just-installed binary without relying on PATH during install.
+gobin="$(go env GOBIN)"
+[ -z "$gobin" ] && gobin="$(go env GOPATH)/bin"
 
-    # Ensure Go is installed and GOPATH is set
-    if ! command -v go &> /dev/null; then
-      echo "  Go is not installed. Please install Go first."
-      exit 1
-    fi
-
-    # Install development dependencies
-    make dev-deps
-
-    # Build and install using Makefile
-    make install
-
-    # Setup autocomplete using tracer's built-in command
-    echo "  Setting up autocomplete..."
-    tracer configure --autocomplete
-  else
-    echo "  $1 already installed. Updating..."
-    cd "$TRACER_HOME"
-    git pull
-    make install
-  fi
-}
-
-setup "tracer" "https://github.com/helmedeiros/tracer-bullet"
+echo "  Refreshing zsh completion."
+"$gobin/tracer" completion zsh > "$(dirname "$0")/_tracer"

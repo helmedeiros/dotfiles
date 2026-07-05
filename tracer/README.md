@@ -1,11 +1,11 @@
 # tracer
 
-Internal `tracer` CLI — built from source via Go.
+The [`tracer`](https://github.com/helmedeiros/tracer-bullet) CLI.
 
-## What `install.sh` does
+## What this topic does
 
-Clones the tracer repository to `$HOME/.tracer`, then runs `make dev-deps` and `make install`. Requires Go on `PATH` (errors out otherwise). Also runs `tracer configure --autocomplete` to register shell completions.
-
-## What gets loaded into your shell
-
-- `path.zsh` — exports `TRACER_HOME` and prepends `$TRACER_HOME/bin` to `PATH`.
+- **`install.sh`** (run by `bin/dot`) `go install`s the `tracer` binary into
+  `$GOPATH/bin` (already on `PATH` via `go/path.zsh`) and regenerates the zsh
+  completion.
+- **`_tracer`** is the generated completion; `zsh/fpath.zsh` adds this topic to
+  `fpath`, so `tracer <Tab>` works.
