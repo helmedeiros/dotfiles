@@ -63,6 +63,7 @@ brew 'git-filter-repo' # Rewrite git history (replaces filter-branch)
 brew 'ollama'          # Local LLM runner
 brew 'beads'           # Persistent project memory / task graph for AI agents (bd CLI)
 brew 'kubernetes-cli'  # kubectl - Kubernetes command-line tool
+brew 'podman'          # Rootless container engine (Docker Desktop replacement; see docker/)
 # HashiCorp Vault - installed manually via vault/install.sh (removed from Homebrew core)
 brew 'tmux'
 brew 'koekeishiya/formulae/yabai'   # Tiling window manager
@@ -84,7 +85,10 @@ cask 'fertigt-slate'
 cask 'dropbox'
 cask 'intellij-idea'
 cask 'arduino-ide'
-cask 'docker-desktop'
+# docker-desktop replaced by podman-desktop: Docker Desktop requires a paid
+# subscription for commercial use at larger orgs, while Podman is free and
+# open source with a Docker-compatible CLI. See docker/README.md.
+cask 'podman-desktop'
 cask 'blockblock'
 cask 'knockknock'
 cask 'postman'
