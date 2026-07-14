@@ -72,11 +72,17 @@ else
     echo -e "${RED}Failed to link ~/.claude/CLAUDE.md${NC}"
 fi
 
-# Symlink user-global skills into ~/.claude/skills/ (one symlink per skill dir)
-if [ -d "$CLAUDE_DIR/skills" ]; then
-    echo -e "${BLUE}Linking user-global skills...${NC}"
-    for skill in "$CLAUDE_DIR"/skills/*/; do
+# Symlink user-global skills into ~/.claude/skills/ (one symlink per skill dir).
+# Two sources: this public repo (agnostic skills, if any) and the private
+# .dot-secrets repo (personal skills — kept out of the public repo). Later
+# sources win on name collisions, but the two dirs are expected to be disjoint.
+: "${DOT_SECRETS_ROOT:=$HOME/.dot-secrets}"
+link_skills_from() {
+    local dir="$1"
+    [ -d "$dir" ] || return 0
+    for skill in "$dir"/*/; do
         [ -d "$skill" ] || continue
+        local name
         name="$(basename "$skill")"
         if link_claude_file "${skill%/}" "$HOME/.claude/skills/$name"; then
             echo -e "${GREEN}  ~/.claude/skills/$name linked${NC}"
@@ -84,7 +90,10 @@ if [ -d "$CLAUDE_DIR/skills" ]; then
             echo -e "${RED}  Failed to link skill: $name${NC}"
         fi
     done
-fi
+}
+echo -e "${BLUE}Linking user-global skills...${NC}"
+link_skills_from "$CLAUDE_DIR/skills"
+link_skills_from "$DOT_SECRETS_ROOT/claude/skills"
 
 # Check beads is available (installed via Brewfile)
 if command -v bd &> /dev/null; then

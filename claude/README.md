@@ -16,12 +16,22 @@ This will install:
 - Claude Code CLI via Homebrew cask
 - ripgrep for enhanced file search
 - The user-global `~/.claude/CLAUDE.md` symlink (preferences shared across every session)
-- User-global skills: every directory under `claude/skills/` is symlinked into `~/.claude/skills/<name>` (currently `second-brain` — consults the personal knowledge graph at `~/second-brain`)
-- The [clean-code-skills](https://github.com/helmedeiros/clean-code-skills) plugin into `~/.claude/plugins/clean-code-skills/`
+- User-global skills, symlinked into `~/.claude/skills/<name>` from two sources:
+  - `claude/skills/` **here** — agnostic, public-safe skills (currently none)
+  - `$DOT_SECRETS_ROOT/claude/skills/` in the **private** `~/.dot-secrets` — personal skills that must not live in a public repo (e.g. `second-brain`, `catalog-document`)
+- The [clean-code-skills](https://github.com/helmedeiros/clean-code-skills) plugin into `~/.claude/plugins/clean-code-skills/` — a focused, public methodology showcase, intentionally separate
 
 beads (the `bd` CLI) is installed via the top-level `Brewfile`.
 
-To add a user-global skill, drop a `claude/skills/<name>/SKILL.md` here and re-run `install.sh` (symlinking is idempotent).
+### Where a skill belongs
+
+| Kind | Home | Why |
+| --- | --- | --- |
+| Clean-code / methodology (TDD, SOLID, refactoring) | `clean-code-skills` repo (public) | Shareable showcase; keep it themed |
+| Personal but agnostic (no secrets/PII/employer) | `claude/skills/` here (public dotfiles) | Fine in the open |
+| Personal / sensitive (PII, family, employer, private context) | `~/.dot-secrets/claude/skills/` (private) | Keep it off any public repo; no new attack surface |
+
+To add a skill, drop `<name>/SKILL.md` under the appropriate `claude/skills/` directory (public here, or private in `.dot-secrets`) and re-run `install.sh` — it links both sources and symlinking is idempotent.
 
 ## The four-layer persistence model
 
