@@ -16,9 +16,12 @@ This will install:
 - Claude Code CLI via Homebrew cask
 - ripgrep for enhanced file search
 - The user-global `~/.claude/CLAUDE.md` symlink (preferences shared across every session)
+- User-global skills: every directory under `claude/skills/` is symlinked into `~/.claude/skills/<name>` (currently `second-brain` — consults the personal knowledge graph at `~/second-brain`)
 - The [clean-code-skills](https://github.com/helmedeiros/clean-code-skills) plugin into `~/.claude/plugins/clean-code-skills/`
 
 beads (the `bd` CLI) is installed via the top-level `Brewfile`.
+
+To add a user-global skill, drop a `claude/skills/<name>/SKILL.md` here and re-run `install.sh` (symlinking is idempotent).
 
 ## The four-layer persistence model
 

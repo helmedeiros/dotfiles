@@ -72,6 +72,20 @@ else
     echo -e "${RED}Failed to link ~/.claude/CLAUDE.md${NC}"
 fi
 
+# Symlink user-global skills into ~/.claude/skills/ (one symlink per skill dir)
+if [ -d "$CLAUDE_DIR/skills" ]; then
+    echo -e "${BLUE}Linking user-global skills...${NC}"
+    for skill in "$CLAUDE_DIR"/skills/*/; do
+        [ -d "$skill" ] || continue
+        name="$(basename "$skill")"
+        if link_claude_file "${skill%/}" "$HOME/.claude/skills/$name"; then
+            echo -e "${GREEN}  ~/.claude/skills/$name linked${NC}"
+        else
+            echo -e "${RED}  Failed to link skill: $name${NC}"
+        fi
+    done
+fi
+
 # Check beads is available (installed via Brewfile)
 if command -v bd &> /dev/null; then
     echo -e "${GREEN}beads (bd) already installed${NC}"
