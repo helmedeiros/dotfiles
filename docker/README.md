@@ -23,7 +23,31 @@ macOS) if it doesn't exist yet, starts it, then prints `podman --version` and
 ## What gets loaded into your shell
 
 - `aliases.zsh` — `alias docker=podman` (so existing docker commands just work),
-  plus `d` and `pm` (`podman machine`) shortcuts.
+  plus `d` and `pm` (`podman machine`) shortcuts. It also exports `DOCKER_HOST`
+  (see below).
+
+## Docker API socket
+
+Podman starts a clean machine but does **not** create a socket at Docker's
+conventional `/var/run/docker.sock`, so it prints a notice on start:
+
+> The system helper service is not installed; the default Docker API socket
+> address can't be used by podman.
+
+The `podman`/`docker` CLI is unaffected. Only clients that talk to the Docker
+**API socket** directly (Testcontainers, docker SDKs, IDE Docker plugins) need a
+socket to point at. `aliases.zsh` handles this for your shell by exporting
+`DOCKER_HOST` to podman's own socket path.
+
+That covers shells that source these dotfiles. If you also need **GUI apps**
+launched from Finder (e.g. a JetBrains IDE) to reach Docker, install the mac
+helper once — it creates the global `/var/run/docker.sock` symlink (needs sudo,
+so it's a manual step, not part of `install.sh`):
+
+```sh
+sudo "$(brew --prefix podman)/bin/podman-mac-helper" install
+podman machine stop && podman machine start
+```
 
 ## Migration notes
 
