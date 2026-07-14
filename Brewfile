@@ -105,6 +105,7 @@ cask 'claude-code'  # Claude Code CLI - AI-assisted development tool
 cask 'ghostty'
 cask 'raycast'
 cask 'calibre'  # E-book management and conversion (for EPUB to AZW3)
+cask 'obsidian'  # Markdown knowledge base / vault (personal knowledge graph)
 cask 'font-meslo-lg-nerd-font'  # Meslo Nerd Font for terminal icons
 
 mas 'Amphetamine', id: 937984704   # Keep-awake utility (replaces the caffeine cask)
