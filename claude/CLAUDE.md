@@ -28,3 +28,11 @@ Per-project structured memory is managed with [beads](https://github.com/steveye
 - Use `bd remember "..."` to persist non-obvious decisions, gotchas, or context that would be valuable to recall in a future session.
 - Use `bd ready` to see unblocked tasks, `bd create` to add new ones, `bd update --claim` to take one.
 - Prefer beads over markdown TODO lists for any work that spans more than one session.
+
+## Second brain (personal knowledge graph)
+
+A local knowledge graph of my past professional work (2,200+ atomic concepts distilled from my ChatGPT history and work documents) lives at `~/second-brain`. When I ask about my own past work — decisions, projects, people, systems, metrics, or conventions from my work history (pricing, insurance/ancillaries, product/agile, leadership, engineering, AI/ML) — consult it instead of guessing:
+
+- Query it with `brain "<topic>"` (add `--domain <name>` or `--full`; `brain --list-domains` lists domains). Fast, local, no cost.
+- Whole-domain overview: `~/second-brain/generated/<Domain>.md`; root index `Home.md`. A concept's full detail: `~/second-brain/nodes/<type>/<id>.md`.
+- Ground answers in what it returns and cite concept ids; if it has nothing relevant, say so rather than inventing unsupported facts. The `/second-brain` skill wraps this flow.

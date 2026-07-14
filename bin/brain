@@ -1,0 +1,11 @@
+#!/bin/sh
+# brain — query the personal knowledge graph ("second brain") from the terminal.
+# Backed by ~/second-brain (generated/graph.json). Pure stdlib; any python3 works.
+#
+#   brain "how does dynamic markup rounding work"
+#   brain --domain leadership-management "performance review philosophy"
+#   brain --list-domains
+#
+# Set SECOND_BRAIN to override the repo location (default ~/second-brain).
+: "${SECOND_BRAIN:=$HOME/second-brain}"
+exec python3 "$SECOND_BRAIN/pipeline/ask.py" "$@"
