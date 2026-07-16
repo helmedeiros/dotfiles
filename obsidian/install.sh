@@ -5,7 +5,7 @@
 # vault opens with a sensible setup (graph view, backlinks, wikilinks).
 #
 # Usage: obsidian/install.sh [VAULT_DIR]
-#   VAULT_DIR defaults to $OBSIDIAN_VAULT or ~/Desktop/chatgpt-export/knowledge-graph
+#   VAULT_DIR defaults to $OBSIDIAN_VAULT or ~/second-brain
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 VAULT_DIR="${1:-${OBSIDIAN_VAULT:-$HOME/second-brain}}"
