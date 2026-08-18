@@ -9,6 +9,8 @@ alt - l : yabai -m window --focus east
 
 alt - s : yabai -m display --focus west
 alt - g : yabai -m display --focus east
+alt - u : yabai -m display --focus north
+alt - d : yabai -m display --focus south
 
 # -- Modifying the layout --
 
@@ -50,6 +52,8 @@ ctrl + alt - l : yabai -m window --warp east
 
 shift + alt - s : yabai -m window --display west && yabai -m display --focus west
 shift + alt - g : yabai -m window --display east && yabai -m display --focus east
+shift + alt - u : yabai -m window --display north && yabai -m display --focus north
+shift + alt - d : yabai -m window --display south && yabai -m display --focus south
 
 # -- Moving windows to spaces --
 
