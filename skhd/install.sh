@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # skhd Install Script
-# Symlinks the skhd directory into ~/.config/skhd and starts the service
+# Symlinks the skhd directory into ~/.config/skhd and starts or restarts the service
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 CONFIG_DIR="$HOME/.config/skhd"
@@ -21,13 +21,15 @@ mkdir -p "$HOME/.config"
 printf "Creating symlink for skhd folder.\n"
 ln -s "$SCRIPT_DIR" "$CONFIG_DIR"
 
-# Start skhd service if installed and not already running
+# skhd's hotloader does not see edits made through the symlinked config dir,
+# so a running service must be restarted to pick up skhdrc changes.
 if command -v skhd > /dev/null 2>&1; then
-  if ! pgrep -x skhd > /dev/null 2>&1; then
+  if pgrep -x skhd > /dev/null 2>&1; then
+    printf "Restarting skhd service to apply config.\n"
+    skhd --restart-service
+  else
     printf "Starting skhd service.\n"
     skhd --start-service
-  else
-    printf "skhd already running.\n"
   fi
 else
   printf "skhd not installed yet. Run 'brew bundle' first.\n"
