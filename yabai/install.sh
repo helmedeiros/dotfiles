@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # Yabai Install Script
-# Symlinks the yabai directory into ~/.config/yabai and starts the service
+# Symlinks the yabai directory into ~/.config/yabai and starts or restarts the service
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 CONFIG_DIR="$HOME/.config/yabai"
@@ -21,13 +21,15 @@ mkdir -p "$HOME/.config"
 printf "Creating symlink for yabai folder.\n"
 ln -s "$SCRIPT_DIR" "$CONFIG_DIR"
 
-# Start yabai service if installed and not already running
+# A running yabai only reads yabairc on service start, so it must be
+# restarted for config changes to take effect.
 if command -v yabai > /dev/null 2>&1; then
-  if ! pgrep -x yabai > /dev/null 2>&1; then
+  if pgrep -x yabai > /dev/null 2>&1; then
+    printf "Restarting Yabai service to apply config.\n"
+    yabai --restart-service
+  else
     printf "Starting yabai service.\n"
     yabai --start-service
-  else
-    printf "Yabai already running.\n"
   fi
 else
   printf "Yabai not installed yet. Run 'brew bundle' first.\n"
