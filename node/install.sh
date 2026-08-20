@@ -63,9 +63,16 @@ function installNVM() {
 	fi
 }
 
-# Check if Node.js is installed
-if ! command -v node &> /dev/null; then
-	installNVM || echo "Error: Node.js installation failed"
+# Always ensure nvm is available, even when Homebrew already provides a
+# system-wide node — engineers routinely need per-project Node versions
+# via nvm/.nvmrc alongside that default, not only as a fallback.
+export NVM_DIR="$HOME/.nvm"
+if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+	installNVM || echo "Error: NVM installation failed"
+else
+	export NVM_AUTO_USE=false
+	\. "$NVM_DIR/nvm.sh" --no-use
+	nvm use --lts &> /dev/null || true
 fi
 
 # Check for npm

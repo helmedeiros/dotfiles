@@ -98,8 +98,10 @@ echo "› Updating Node.js and npm"
 		echo "Sourcing existing NVM configuration"
 		source "$ZSH/node/path.zsh" || echo "Failed to source NVM configuration"
 
-		# Check if NVM is available
-		if command -v nvm &> /dev/null; then
+		# Check if NVM is actually installed. `command -v nvm` is not enough:
+		# node/path.zsh always defines an nvm() stub function (even with no
+		# ~/.nvm), so it reports true regardless of real install state.
+		if [ -s "$NVM_DIR/nvm.sh" ] && command -v nvm &> /dev/null; then
 			# Install Node.js 20.19.0 explicitly (required for modern packages like vite 7.x)
 			echo "Using NVM to install Node.js 20.19.0"
 			nvm install 20.19.0 || echo "Failed to install Node.js 20.19.0"
