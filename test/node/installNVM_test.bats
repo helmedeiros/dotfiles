@@ -32,7 +32,6 @@ setup() {
     # Lift the SHA constants out of node/install.sh so any future bump in
     # the source script is reflected here without duplicating the value.
     NVM_INSTALLER_SHA256=$(grep '^NVM_INSTALLER_SHA256=' "${INSTALL_SH}" | sed 's/.*"\(.*\)"/\1/')
-    NVM_VERSION=$(grep '^NVM_VERSION=' "${INSTALL_SH}" | sed 's/.*"\(.*\)"/\1/')
 }
 
 teardown() {
@@ -47,6 +46,40 @@ teardown() {
 
 @test "node/install.sh pins NVM_INSTALLER_SHA256 to a 64-hex-char value" {
     grep -qE '^NVM_INSTALLER_SHA256="[0-9a-f]{64}"$' "${INSTALL_SH}"
+}
+
+# --- The frozen Node version ---
+
+@test "node/.nvmrc pins an exact Node version, never a floating alias" {
+    grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$' "${DOTFILES}/node/.nvmrc"
+}
+
+@test "the pinned Node version satisfies npm@latest's engines field" {
+    # npm 12 requires ^22.22.2 || ^24.15.0 || >=26.0.0. The previous 20.19.0
+    # pin outlived Node 20's EOL and broke 'npm install -g npm@latest' on
+    # every dot run; this guards the next bump against the same trap.
+    version="$(tr -d '[:space:]' < "${DOTFILES}/node/.nvmrc")"
+    major="${version%%.*}"
+    rest="${version#*.}"
+    minor="${rest%%.*}"
+
+    [ "$major" -ge 22 ]
+    if [ "$major" -eq 22 ]; then [ "$minor" -ge 22 ]; fi
+    if [ "$major" -eq 24 ]; then [ "$minor" -ge 15 ]; fi
+}
+
+@test "node/install.sh reads the pin from node/.nvmrc" {
+    grep -q 'NODE_VERSION=.*node/\.nvmrc' "${INSTALL_SH}"
+}
+
+@test "node/install.sh installs the pin, not a floating --lts" {
+    grep -q 'nvm install "\${NODE_VERSION}"' "${INSTALL_SH}"
+    ! grep -qE '^[[:space:]]*nvm install --lts' "${INSTALL_SH}"
+}
+
+@test "bin/dot reads the same pin instead of hardcoding a version" {
+    grep -q 'node/\.nvmrc' "${DOTFILES}/bin/dot"
+    ! grep -qE 'nvm install [0-9]+\.[0-9]+\.[0-9]+' "${DOTFILES}/bin/dot"
 }
 
 @test "node/install.sh sources lib/integrity.sh" {

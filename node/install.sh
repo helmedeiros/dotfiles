@@ -25,6 +25,11 @@ function installglobal() {
 NVM_VERSION="v0.39.7"
 NVM_INSTALLER_SHA256="8e45fa547f428e9196a5613efad3bfa4d4608b74ca870f930090598f5af5f643"
 
+# Pinned Node.js release, shared with bin/dot via node/.nvmrc so both land on
+# the same runtime. Frozen on purpose rather than tracking --lts; bump the file
+# to move it, and keep it new enough for npm@latest's engines field.
+NODE_VERSION="$(cat "${_NODE_DOTFILES_ROOT}/node/.nvmrc" 2>/dev/null || echo "--lts")"
+
 function installNVM() {
 	# Check if NVM directory exists
 	if [ ! -d "$HOME/.nvm" ]; then
@@ -53,10 +58,10 @@ function installNVM() {
 
 	# Verify NVM installation
 	if command -v nvm &> /dev/null; then
-		# Install latest LTS version of Node.js
-		echo "Installing Node.js..."
-		nvm install --lts
-		nvm use --lts
+		# Install the pinned Node.js version
+		echo "Installing Node.js ${NODE_VERSION}..."
+		nvm install "${NODE_VERSION}"
+		nvm use "${NODE_VERSION}"
 	else
 		echo "Error: NVM installation failed"
 		return 1
@@ -72,7 +77,7 @@ if [ ! -s "$NVM_DIR/nvm.sh" ]; then
 else
 	export NVM_AUTO_USE=false
 	\. "$NVM_DIR/nvm.sh" --no-use
-	nvm use --lts &> /dev/null || true
+	nvm use "${NODE_VERSION}" &> /dev/null || true
 fi
 
 # Check for npm
