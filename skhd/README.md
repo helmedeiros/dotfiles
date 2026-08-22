@@ -1,6 +1,6 @@
 # skhd
 
-[skhd](https://github.com/koekeishiya/skhd) — hotkey daemon driving yabai keybindings. Installed via the Brewfile from `koekeishiya/formulae`.
+[skhd](https://github.com/asmvik/skhd) — hotkey daemon driving yabai keybindings. Installed via the Brewfile from `asmvik/formulae` (the tap moved when its author renamed the account from `koekeishiya`).
 
 ## What `install.sh` does
 

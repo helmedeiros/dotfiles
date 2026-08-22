@@ -99,16 +99,19 @@ teardown() {
     | sed -E "s/^tap [\"']([^\"']+)[\"'].*/\1/" \
     | sed -E 's|/homebrew-|/|')"
 
-  while IFS= read -r pkg; do
-    case "$pkg" in
-      */*/*) tap="${pkg%/*}" ;;
-      *) continue ;;
-    esac
+  # Resolve each formula's CURRENT tap rather than the name recorded at install
+  # time: Homebrew follows GitHub redirects when a tap's owner renames their
+  # account, so 'brew list --full-name' can keep reporting a name that no
+  # longer exists (koekeishiya/formulae -> asmvik/formulae).
+  while IFS= read -r tap; do
+    [ -z "$tap" ] && continue
     echo "$declared" | grep -qx "$tap" || {
-      echo "installed formula $pkg comes from undeclared tap $tap"
+      echo "installed formula comes from undeclared tap $tap"
       false
     }
-  done < <(brew list --full-name --formula 2>/dev/null)
+  done < <(brew info --json=v2 --installed 2>/dev/null \
+    | jq -r '.formulae[] | select(.tap != null and .tap != "homebrew/core") | .tap' \
+    | sort -u)
 }
 
 # Test help option with short flag

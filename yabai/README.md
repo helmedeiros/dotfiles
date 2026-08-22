@@ -1,6 +1,6 @@
 # yabai
 
-[yabai](https://github.com/koekeishiya/yabai) — tiling window manager for macOS. Installed via the Brewfile from `koekeishiya/formulae`.
+[yabai](https://github.com/asmvik/yabai) — tiling window manager for macOS. Installed via the Brewfile from `asmvik/formulae` (the tap moved when its author renamed the account from `koekeishiya`).
 
 ## What `install.sh` does
 

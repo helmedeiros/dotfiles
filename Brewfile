@@ -1,7 +1,12 @@
 cask_args appdir: '/Applications'
 
 tap 'alecthomas/homebrew-tap'
-tap 'koekeishiya/formulae'
+# The yabai/skhd tap. Its owner renamed the GitHub account koekeishiya ->
+# asmvik, so the old tap name only resolves via a GitHub redirect — and the
+# freed 'koekeishiya' username was claimed by an unrelated account in Dec 2025.
+# Declare the canonical name so a squatter can never break the redirect and
+# feed us their formulae instead.
+tap 'asmvik/formulae'
 tap 'helmedeiros/tap'
 
 brew 'fastretro'  # Retrospective board CLI (own tap)
@@ -69,8 +74,8 @@ brew 'kubernetes-cli'  # kubectl - Kubernetes command-line tool
 brew 'podman'          # Rootless container engine (Docker Desktop replacement; see docker/)
 # HashiCorp Vault - installed manually via vault/install.sh (removed from Homebrew core)
 brew 'tmux'
-brew 'koekeishiya/formulae/yabai'   # Tiling window manager
-brew 'koekeishiya/formulae/skhd'    # Hotkey daemon for yabai
+brew 'asmvik/formulae/yabai'   # Tiling window manager
+brew 'asmvik/formulae/skhd'    # Hotkey daemon for yabai
 
 ## COCOA - MACOS NATIVE APPS
 brew 'cocoapods'
