@@ -118,6 +118,14 @@ else
   echo -e "${YELLOW}No sdkman tests found${NC}"
 fi
 
+# Run vimac tests
+echo -e "${BLUE}=== Running vimac tests ===${NC}"
+if compgen -G "${SCRIPT_DIR}/vimac/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/vimac/"*_test.bats || FAILED=1
+else
+  echo -e "${YELLOW}No vimac tests found${NC}"
+fi
+
 # Run zsh-completion-generator tests
 echo -e "${BLUE}=== Running zsh-completion-generator tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/zsh-completion-generator/*_test.bats" > /dev/null; then
