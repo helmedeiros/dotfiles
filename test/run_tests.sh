@@ -118,6 +118,14 @@ else
   echo -e "${YELLOW}No sdkman tests found${NC}"
 fi
 
+# Run xcode tests
+echo -e "${BLUE}=== Running xcode tests ===${NC}"
+if compgen -G "${SCRIPT_DIR}/xcode/*_test.bats" > /dev/null; then
+  bats "${SCRIPT_DIR}/xcode/"*_test.bats || FAILED=1
+else
+  echo -e "${YELLOW}No xcode tests found${NC}"
+fi
+
 # Run vimac tests
 echo -e "${BLUE}=== Running vimac tests ===${NC}"
 if compgen -G "${SCRIPT_DIR}/vimac/*_test.bats" > /dev/null; then

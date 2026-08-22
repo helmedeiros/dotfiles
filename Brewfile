@@ -118,7 +118,9 @@ cask 'font-meslo-lg-nerd-font'  # Meslo Nerd Font for terminal icons
 
 mas 'Amphetamine', id: 937984704   # Keep-awake utility (replaces the caffeine cask)
 
-# mas 'Xcode', id: 497799835
+mas 'Xcode', id: 497799835         # Full IDE + SDKs. See xcode/README.md — needs sudo, and
+                                   # the app must already be tied to the signed-in Apple ID.
+
 # mas 'Telegram', id: 747648890
 # mas 'Keynote', id: 409183694
 # mas 'Pages', id: 409201541
