@@ -46,6 +46,23 @@ $ZSH/macos/set-defaults.sh
 # Install homebrew
 $ZSH/homebrew/install.sh 2>&1
 
+# Trust third-party taps declared in the Brewfile so Homebrew will load their
+# formulae. Homebrew refuses untrusted taps by default; parsing the Brewfile
+# keeps this list self-maintaining.
+#
+# This has to run BEFORE update/upgrade, not just before bundle: `brew upgrade`
+# skips packages from untrusted taps and warns about every one of them, so
+# trusting afterwards left yabai/skhd and friends silently un-upgraded.
+echo "› brew trust (Brewfile taps)"
+while IFS= read -r tap; do
+	[ -z "$tap" ] && continue
+	echo "  trusting $tap"
+	brew tap "$tap" >/dev/null 2>&1 || true
+	brew trust --tap "$tap" >/dev/null 2>&1 || true
+done < <(grep -E "^tap [\"']" "$dotfilesDirectory/Brewfile" \
+	| sed -E "s/^tap [\"']([^\"']+)[\"'].*/\1/" \
+	| sed -E 's|/homebrew-|/|')
+
 # Upgrade homebrew
 echo "› brew update"
 brew update
@@ -61,19 +78,6 @@ if command -v mas &> /dev/null; then
 else
   echo "› mas not found, skipping Mac App Store upgrades"
 fi
-
-# Trust third-party taps declared in the Brewfile so `brew bundle` can install
-# their formulae. Homebrew refuses formulae from untrusted taps by default;
-# parsing the Brewfile keeps this list self-maintaining.
-echo "› brew trust (Brewfile taps)"
-while IFS= read -r tap; do
-	[ -z "$tap" ] && continue
-	echo "  trusting $tap"
-	brew tap "$tap" >/dev/null 2>&1 || true
-	brew trust "$tap" >/dev/null 2>&1 || true
-done < <(grep -E "^tap [\"']" "$dotfilesDirectory/Brewfile" \
-	| sed -E "s/^tap [\"']([^\"']+)[\"'].*/\1/" \
-	| sed -E 's|/homebrew-|/|')
 
 # brew bundle
 echo "› brew bundle"

@@ -69,11 +69,53 @@ teardown() {
   [ -x "$DOT_SCRIPT" ]
 }
 
+# Trust has to precede update/upgrade: `brew upgrade` skips packages from
+# untrusted taps, so trusting afterwards leaves them silently un-upgraded.
+@test "dot trusts Brewfile taps before running brew update and upgrade" {
+  trust_line="$(grep -n '› brew trust' "$DOT_SCRIPT" | cut -d: -f1)"
+  update_line="$(grep -n '› brew update' "$DOT_SCRIPT" | cut -d: -f1)"
+  upgrade_line="$(grep -n '› brew upgrade' "$DOT_SCRIPT" | cut -d: -f1)"
+
+  [ -n "$trust_line" ]
+  [ "$trust_line" -lt "$update_line" ]
+  [ "$trust_line" -lt "$upgrade_line" ]
+}
+
+# `brew trust <name>` resolves the argument ambiguously and can match an
+# unrelated tap with the same repo basename; --tap pins the interpretation.
+@test "dot trusts taps with an explicit --tap flag" {
+  grep -q 'brew trust --tap "\$tap"' "$DOT_SCRIPT"
+}
+
+# Every tap the machine relies on must be declared, since the trust loop reads
+# its list from the Brewfile and nowhere else.
+@test "Brewfile declares a tap for every installed non-core formula" {
+  if ! command -v brew &> /dev/null; then
+    skip "brew not installed"
+  fi
+
+  brewfile="${BATS_TEST_DIRNAME}/../../Brewfile"
+  declared="$(grep -E "^tap [\"']" "$brewfile" \
+    | sed -E "s/^tap [\"']([^\"']+)[\"'].*/\1/" \
+    | sed -E 's|/homebrew-|/|')"
+
+  while IFS= read -r pkg; do
+    case "$pkg" in
+      */*/*) tap="${pkg%/*}" ;;
+      *) continue ;;
+    esac
+    echo "$declared" | grep -qx "$tap" || {
+      echo "installed formula $pkg comes from undeclared tap $tap"
+      false
+    }
+  done < <(brew list --full-name --formula 2>/dev/null)
+}
+
 # Test help option with short flag
 @test "dot -h displays help message" {
   run "$DOT_SCRIPT" -h
   [ "$status" -eq 0 ]
-  [[ "${output}" =~ "Usage: dot [options]" ]]
+  [[ "${output}" == *"Usage: dot [options]"* ]]
   [[ "${output}" =~ "-e, --edit" ]]
   [[ "${output}" =~ "-h, --help" ]]
 }
@@ -82,7 +124,7 @@ teardown() {
 @test "dot --help displays help message" {
   run "$DOT_SCRIPT" --help
   [ "$status" -eq 0 ]
-  [[ "${output}" =~ "Usage: dot [options]" ]]
+  [[ "${output}" == *"Usage: dot [options]"* ]]
   [[ "${output}" =~ "-e, --edit" ]]
   [[ "${output}" =~ "-h, --help" ]]
 }
@@ -106,7 +148,7 @@ teardown() {
   run "$DOT_SCRIPT" --invalid
   [ "$status" -eq 0 ]
   [[ "${output}" =~ "Invalid option: --invalid" ]]
-  [[ "${output}" =~ "Usage: dot [options]" ]]
+  [[ "${output}" == *"Usage: dot [options]"* ]]
 }
 
 # Test that Homebrew installation is attempted

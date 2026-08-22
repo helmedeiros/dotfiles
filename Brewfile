@@ -2,6 +2,9 @@ cask_args appdir: '/Applications'
 
 tap 'alecthomas/homebrew-tap'
 tap 'koekeishiya/formulae'
+tap 'helmedeiros/tap'
+
+brew 'fastretro'  # Retrospective board CLI (own tap)
 
 # JVM toolchain (Java, Gradle, Maven, Groovy, Spring Boot CLI) is owned by
 # SDKMAN — see sdkman/install.sh and sdkman/README.md. The previously-listed
