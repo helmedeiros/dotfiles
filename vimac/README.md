@@ -62,13 +62,26 @@ The succession plan is a private pair of repos, not a bet on someone else's host
 
 Switch this topic from hash-pinned download to build-from-source once the dev build has proven itself in daily use. Until then, the pinned binary is the one that must keep working.
 
-### On signing
+### On signing — solved, at no cost
 
-The dev build is ad-hoc signed. macOS keys the Accessibility grant to the code signature, and an ad-hoc signature changes on every build, so the dev build needs re-granting each rebuild. Three ways out, in cost order:
+macOS keys the Accessibility grant to a binary's *designated requirement*. Ad-hoc signing puts the per-build cdhash in it, so every rebuild reads as a different app and the grant is lost. A stable certificate replaces that with
 
-- **Self-signed certificate** — free, and gives a stable identity so the grant survives rebuilds. A `Vimac Local Dev` identity is already imported into the login keychain; it still needs two interactive steps that cannot be scripted: trust it for code signing, and allow `codesign` to use its private key (Keychain Access → the cert → *Always Trust* for Code Signing, and *Always Allow* on first use). Then build with `CODE_SIGN_IDENTITY="Vimac Local Dev"`. Remove it with `security delete-identity -c "Vimac Local Dev"` if abandoning this route.
-- **Apple Developer Program** — $99/year. Hard to justify here: it costs more every year than Homerow does once.
-- **Homerow** — €39 one-time, the maintained commercial successor. Declined on price, recorded so the trade-off is not re-argued from scratch later.
+```
+identifier "com.mokacoding.vimac-dev" and certificate root = H"b5e2f5f9…"
+```
+
+which is byte-identical across rebuilds — verified by building, editing a source file, rebuilding, and diffing. **Grant Accessibility to Vimac Dev once and it stays granted.**
+
+The identity is `Vimac Local Dev`: a self-signed code-signing certificate in the login keychain, trusted for code signing. Free — no Apple Developer subscription. It is machine-local, so recreate it on a new machine (`openssl req -x509` with `extendedKeyUsage=codeSigning`, import, then trust it in Keychain Access); without it the build falls back to ad-hoc, which still works.
+
+`~/Code/active/vimac-next/Config/Project.local.xcconfig` selects it. That file is gitignored, and the `baseConfigurationReference` that loads it is a repo-relative path, so it affects **only that project, only that clone** — nothing else you build is signed with this identity.
+
+`scripts/build.sh` resolves signing as environment → that xcconfig → ad-hoc, and enforces the result on the xcodebuild command line, because the project pins `CODE_SIGN_IDENTITY` at target level and only the command line outranks that. Fixed upstream-side in `vimac-next` (`aa7351e`, `6c3b593`).
+
+Rejected alternatives, recorded so the trade-off is not re-argued later:
+
+- **Apple Developer Program** — $99/year, and buying it solely to keep an Accessibility grant costs more every year than Homerow costs once.
+- **Homerow** — €39 one-time, the maintained commercial successor. Declined on price.
 
 ## Tests
 
