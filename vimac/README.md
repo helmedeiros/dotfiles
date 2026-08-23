@@ -45,7 +45,30 @@ Then launch Vimac and hold `Space` in any app to see hints. Preferences live in 
 
 The pin is deliberately frozen: 0.3.19 is the final release, so there is no upgrade path and no reason for the hash to change. If the fork's release ever disappears, the archive is identifiable anywhere by the MD5 above — no other source is required to verify a replacement copy.
 
-The one live alternative, if Vimac eventually breaks on a future macOS, is [`mokagio/vimac`](https://github.com/mokagio/vimac): an actively maintained fork that has moved to Swift Package Manager and requires macOS 15+, but ships no prebuilt app — it needs full Xcode and a `make install` from source.
+Frozen also means **it can never be fixed**. Its Sparkle updater points at `api.appcenter.ms`, and App Center was retired in March 2025, so the feed is dead — harmless (the domain is Microsoft's, not lapsable), but no future release can ever arrive through it. Whatever macOS breaks next, this binary stays broken.
+
+## Where this is heading
+
+The 0.3.19 binary **works on macOS 26** — verified by use, not assumption (`hintModeActivationCount` in `dexterleng.vimac` prefs, no crash reports). So it stays the daily driver: notarized, stable Accessibility grant, zero friction.
+
+The succession plan is a private pair of repos, not a bet on someone else's hosting:
+
+| Repo | Source | Role |
+| --- | --- | --- |
+| `helmedeiros/vimac-archive` | `nchudleigh/vimac` | Frozen original, 912 commits — insurance against upstream disappearing |
+| `helmedeiros/vimac-next` | `mokagio/vimac` | Working copy — SPM, macOS 15+, builds and tests green on Xcode 26 |
+
+`vimac-next` is cloned at `~/Code/active/vimac-next` with `upstream` pointing at `mokagio/vimac`. It builds a `com.mokacoding.vimac-dev` bundle, deliberately a different id from the installed 0.3.19, so both coexist and experimenting cannot break the working install.
+
+Switch this topic from hash-pinned download to build-from-source once the dev build has proven itself in daily use. Until then, the pinned binary is the one that must keep working.
+
+### On signing
+
+The dev build is ad-hoc signed. macOS keys the Accessibility grant to the code signature, and an ad-hoc signature changes on every build, so the dev build needs re-granting each rebuild. Three ways out, in cost order:
+
+- **Self-signed certificate** — free, and gives a stable identity so the grant survives rebuilds. A `Vimac Local Dev` identity is already imported into the login keychain; it still needs two interactive steps that cannot be scripted: trust it for code signing, and allow `codesign` to use its private key (Keychain Access → the cert → *Always Trust* for Code Signing, and *Always Allow* on first use). Then build with `CODE_SIGN_IDENTITY="Vimac Local Dev"`. Remove it with `security delete-identity -c "Vimac Local Dev"` if abandoning this route.
+- **Apple Developer Program** — $99/year. Hard to justify here: it costs more every year than Homerow does once.
+- **Homerow** — €39 one-time, the maintained commercial successor. Declined on price, recorded so the trade-off is not re-argued from scratch later.
 
 ## Tests
 
