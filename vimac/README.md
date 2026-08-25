@@ -27,11 +27,29 @@ An app that needs Accessibility access can drive the whole machine, so the binar
 
 ## What `install.sh` does
 
-- Skips immediately if `/Applications/Vimac.app` already exists (idempotent, safe under `bin/dot`).
-- Downloads the pinned archive, verifies its SHA-256, and only then extracts it into `/Applications`.
-- Exits `0` on a download failure so a dead link degrades to "Vimac missing" rather than breaking `bin/dot`; exits non-zero on a checksum mismatch, which is a real signal.
+Two sources, and the machine's current state decides which applies:
 
-Overridable for testing via `VIMAC_APP`, `VIMAC_URL`, and `VIMAC_SHA256`.
+| Situation | What happens |
+| --- | --- |
+| Something is already at `/Applications/Vimac.app` | Left alone. The script reports *which* build it is and exits `0`. |
+| Nothing installed | Downloads the pinned archive, verifies its SHA-256, extracts to `/Applications`. |
+| `VIMAC_BUILD_FROM_SOURCE=1` | Builds from the `vimac-next` checkout and installs that instead. |
+
+**An existing install is never replaced.** The script identifies what is there by **bundle id**, not by the path — both sources land on the same `Vimac.app`, and only the identifier distinguishes them:
+
+- `com.mokacoding.vimac` → self-built
+- `dexterleng.vimac` → the pinned 0.3.19
+- anything else → third-party, still left alone
+
+That distinction is the point. A path check alone would let `bin/dot` quietly reinstall the 2021 binary over a build you deliberately chose to run — the exact regression `test/vimac/vimac_test.bats` now guards.
+
+Building is **opt-in, never automatic**: it needs Xcode and takes minutes, which has no place in every `bin/dot` run. A missing checkout or missing Xcode prints what to do and exits `0` rather than breaking the run. A dead download link does the same; only a checksum mismatch exits non-zero, because that is a real signal rather than an absence.
+
+```sh
+VIMAC_BUILD_FROM_SOURCE=1 vimac/install.sh    # replace whatever is installed with your build
+```
+
+Overridable via `VIMAC_APP`, `VIMAC_SOURCE_DIR`, `VIMAC_URL`, `VIMAC_SHA256`.
 
 ## After installing
 
@@ -41,26 +59,49 @@ Grant Accessibility access — this cannot be scripted, macOS requires the click
 
 Then launch Vimac and hold `Space` in any app to see hints. Preferences live in the menu bar item.
 
+Note that the two builds have **different bundle ids**, so macOS treats them as different apps: switching between them needs a fresh Accessibility grant, and `UserDefaults` preferences do not carry over (the key *names* match, so values can be copied across by hand).
+
 ## Maintenance
 
 The pin is deliberately frozen: 0.3.19 is the final release, so there is no upgrade path and no reason for the hash to change. If the fork's release ever disappears, the archive is identifiable anywhere by the MD5 above — no other source is required to verify a replacement copy.
 
 Frozen also means **it can never be fixed**. Its Sparkle updater points at `api.appcenter.ms`, and App Center was retired in March 2025, so the feed is dead — harmless (the domain is Microsoft's, not lapsable), but no future release can ever arrive through it. Whatever macOS breaks next, this binary stays broken.
 
-## Where this is heading
+## Current state
 
-The 0.3.19 binary **works on macOS 26** — verified by use, not assumption (`hintModeActivationCount` in `dexterleng.vimac` prefs, no crash reports). So it stays the daily driver: notarized, stable Accessibility grant, zero friction.
+**The self-built 0.4.0 is the installed and running app** (`com.mokacoding.vimac`, signed `Vimac Local Dev`). The pinned 0.3.19 is now purely the fallback: it is what a fresh machine gets, and what to reach for if a build ever goes wrong.
 
-The succession plan is a private pair of repos, not a bet on someone else's hosting:
+Rolling back is two commands — the pinned archive is still reachable and hash-verified, so the restore is exact:
+
+```sh
+sudo rm -rf /Applications/Vimac.app
+vimac/install.sh
+```
+
+## How this got here
+
+The 0.3.19 binary **does work on macOS 26** — verified by use, not assumption (`hintModeActivationCount` in its prefs, no crash reports). It served as the daily driver while the replacement was proven, which is why the pin still exists rather than having been deleted.
+
+The succession is a private pair of repos, not a bet on someone else's hosting:
 
 | Repo | Source | Role |
 | --- | --- | --- |
 | `helmedeiros/vimac-archive` | `nchudleigh/vimac` | Frozen original, 912 commits — insurance against upstream disappearing |
 | `helmedeiros/vimac-next` | `mokagio/vimac` | Working copy — SPM, macOS 15+, builds and tests green on Xcode 26 |
 
-`vimac-next` is cloned at `~/Code/active/vimac-next` with `upstream` pointing at `mokagio/vimac`. It builds a `com.mokacoding.vimac-dev` bundle, deliberately a different id from the installed 0.3.19, so both coexist and experimenting cannot break the working install.
+`vimac-next` is cloned at `~/Code/active/vimac-next` with `upstream` pointing at `mokagio/vimac`. Debug builds (`make build`, `make run`) carry a `-dev` bundle-id suffix so they coexist with whatever is installed — experimenting cannot break the working copy. `make install` builds Release under the plain id and replaces `/Applications/Vimac.app`.
 
-Switch this topic from hash-pinned download to build-from-source once the dev build has proven itself in daily use. Until then, the pinned binary is the one that must keep working.
+### Security review
+
+Audited before granting Accessibility, which is keylogger-grade permission. Across 8,699 lines of Swift:
+
+- **No network code at all** — no `URLSession`, sockets, or `WKWebView`. Every `http://` in the source is a comment or a GitHub link opened in the browser by an explicit menu click. Sparkle is gone, so unlike 0.3.19 there is no updater and no phone-home.
+- **No process execution, no dynamic code loading, no run-script build phases, no CI workflows, no encoded blobs.**
+- **Three dependencies**, pinned by commit and checked against upstream tags: RxSwift 5.1.1, AXSwift 0.3.2, MASShortcut — all canonical repos, all matching.
+- **Genuine fork**: `git merge-base --is-ancestor` confirms the original is a true ancestor; authorship is the original author plus the fork maintainer.
+- The two `CGEvent` taps see every keystroke — unavoidable for a global hotkey — but compare against the configured activation key and pass everything else through unchanged. Nothing accumulated, logged, or persisted beyond 17 preference keys.
+
+One hazard found, and it is operational rather than malicious: `scripts/install.sh` in that repo does `rm -rf /Applications/Vimac.app`. That is the intended upgrade path, but it means `make install` replaces whatever is there.
 
 ### On signing — solved, at no cost
 
@@ -85,4 +126,11 @@ Rejected alternatives, recorded so the trade-off is not re-argued later:
 
 ## Tests
 
-`test/vimac/vimac_test.bats` covers the pin, the install path, checksum rejection, idempotency, and download failure, using a stubbed `curl`. Run with `test/run_tests.sh`.
+`test/vimac/vimac_test.bats` (11 tests, stubbed `curl`, no network) covers the checksum pin and its provenance, the install path, checksum rejection, idempotency, and download failure — plus the source-detection rules that matter most:
+
+- a self-built install is never replaced by the pinned binary;
+- the pinned binary is recognised and left alone;
+- an unrecognised third-party app at that path is left alone rather than clobbered;
+- building from source is opt-in, and a missing checkout does not break `bin/dot`.
+
+Run with `test/run_tests.sh`.

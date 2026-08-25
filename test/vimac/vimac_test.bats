@@ -61,6 +61,77 @@ EOF
   grep -q "9301624f889b079c85ca15a77c299d6d" "${INSTALL}"
 }
 
+# --- Never regress an existing install ---
+
+# Writes a fake Vimac.app carrying a given bundle id, so the script's source
+# detection can be exercised without installing anything real.
+an_installed_app_with_id() {
+  app="${TEST_DIR}/Applications/Vimac.app"
+  mkdir -p "${app}/Contents"
+  cat > "${app}/Contents/Info.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key><string>$1</string>
+  <key>CFBundleShortVersionString</key><string>$2</string>
+</dict>
+</plist>
+EOF
+}
+
+# The regression this guards: bin/dot must never quietly put the 2021 binary
+# back over a build the user chose to run.
+@test "never replaces a self-built Vimac with the pinned binary" {
+  an_installed_app_with_id "com.mokacoding.vimac" "0.4.0"
+  a_served_archive > /dev/null   # a download would succeed if one were attempted
+
+  run env VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
+          VIMAC_URL="https://example.invalid/Vimac.zip" \
+          "${INSTALL}"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"self-built 0.4.0"* ]]
+  # The fake app has no real binary; a download would have overwritten it.
+  [ ! -f "${TEST_DIR}/Applications/Vimac.app/Contents/MacOS/Vimac" ]
+}
+
+@test "recognises the pinned binary and leaves it alone" {
+  an_installed_app_with_id "dexterleng.vimac" "0.3.19"
+
+  run env VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" "${INSTALL}"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"pinned 0.3.19"* ]]
+}
+
+@test "leaves an unrecognised app at that path alone rather than clobbering it" {
+  an_installed_app_with_id "com.example.somethingelse" "9.9"
+
+  run env VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" "${INSTALL}"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"third-party"* ]]
+}
+
+# --- Build from source ---
+
+@test "building from source without a checkout does not break dot" {
+  run env VIMAC_BUILD_FROM_SOURCE=1 \
+          VIMAC_SOURCE_DIR="${TEST_DIR}/nonexistent" \
+          VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
+          "${INSTALL}"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"No source checkout"* ]]
+  [[ "$output" == *"leaving the current install alone"* ]]
+}
+
+@test "building from source is opt-in, never the default" {
+  # A plain run must not shell out to make, however tempting a checkout is.
+  grep -q 'VIMAC_BUILD_FROM_SOURCE:-0' "${INSTALL}"
+}
+
 # --- Behaviour ---
 
 @test "installs the app when the checksum matches" {
