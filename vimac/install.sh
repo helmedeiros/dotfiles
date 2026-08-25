@@ -31,8 +31,16 @@ set -e
 VIMAC_VERSION="0.3.19"
 VIMAC_APP="${VIMAC_APP:-/Applications/Vimac.app}"
 VIMAC_SOURCE_DIR="${VIMAC_SOURCE_DIR:-$HOME/Code/active/vimac-next}"
+VIMAC_SOURCE_REPO="${VIMAC_SOURCE_REPO:-helmedeiros/vimac-next}"
 VIMAC_URL="${VIMAC_URL:-https://github.com/erichmond33/vimac/releases/download/vimic_lives/Vimac_distribution.zip}"
 VIMAC_SHA256="${VIMAC_SHA256:-a03ac25edca2190207c70825b154d20a3c6bc5b0d7b705d1ced95a7d0961c4a0}"
+
+# Own builds are verified by SIGNING CERTIFICATE, not by archive hash. A hash
+# would have to be re-pinned for every release; the certificate is stable across
+# all of them, and it is the same fact macOS uses to keep the Accessibility
+# grant. Regenerating the identity means updating this value.
+VIMAC_OWN_BUNDLE_ID="com.mokacoding.vimac"
+VIMAC_OWN_CERT_SHA1="${VIMAC_OWN_CERT_SHA1:-b5e2f5f940fbbdf14fa1d5098fb761a82e47866f}"
 
 # Identify an install by bundle id, not by the path — both sources land on
 # /Applications/Vimac.app, and only the identifier says which one is there.
@@ -50,12 +58,49 @@ describe_install() {
   esac
 }
 
+# Install a Release build published to the private repo's GitHub releases.
+# Faster than building and needs no Xcode, so this is what a second machine
+# gets. The archive is authenticated by the code signature rather than a pinned
+# hash — see VIMAC_OWN_CERT_SHA1 above.
+install_own_release() {
+  command -v gh >/dev/null 2>&1 || return 1
+  gh auth status >/dev/null 2>&1 || return 1
+
+  echo "  Fetching your published build from $VIMAC_SOURCE_REPO."
+  gh release download --repo "$VIMAC_SOURCE_REPO" --pattern "Vimac.zip" \
+    --dir "$work" >/dev/null 2>&1 || return 1
+
+  ditto -x -k "$work/Vimac.zip" "$work/own" 2>/dev/null || return 1
+  [ -d "$work/own/Vimac.app" ] || return 1
+
+  # Refuse anything not signed by the expected identity. A release asset is only
+  # as trustworthy as the account that published it; this checks the artefact.
+  requirement="$(codesign -d -r- "$work/own/Vimac.app" 2>&1 | grep designated || true)"
+  case "$requirement" in
+    *"identifier \"$VIMAC_OWN_BUNDLE_ID\""*"$VIMAC_OWN_CERT_SHA1"*) ;;
+    *)
+      echo "  Published build is not signed by the expected identity — refusing." >&2
+      echo "    got: ${requirement:-no signature}" >&2
+      return 1
+      ;;
+  esac
+
+  codesign --verify --strict "$work/own/Vimac.app" 2>/dev/null || {
+    echo "  Published build fails signature verification — refusing." >&2
+    return 1
+  }
+
+  ditto "$work/own/Vimac.app" "$VIMAC_APP"
+}
+
 build_from_source() {
   if [ ! -d "$VIMAC_SOURCE_DIR" ]; then
-    echo "  No source checkout at $VIMAC_SOURCE_DIR." >&2
-    echo "  Clone it first: git clone git@github.com:helmedeiros/vimac-next.git \\" >&2
-    echo "    $VIMAC_SOURCE_DIR" >&2
-    return 1
+    echo "  No checkout at $VIMAC_SOURCE_DIR — cloning $VIMAC_SOURCE_REPO."
+    mkdir -p "$(dirname "$VIMAC_SOURCE_DIR")"
+    if ! git clone --quiet "git@github.com:${VIMAC_SOURCE_REPO}.git" "$VIMAC_SOURCE_DIR"; then
+      echo "  Clone failed — the repo is private, so this needs SSH access to GitHub." >&2
+      return 1
+    fi
   fi
 
   if ! xcodebuild -version >/dev/null 2>&1; then
@@ -87,7 +132,16 @@ fi
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
-echo "  Downloading Vimac $VIMAC_VERSION (pinned fallback)."
+# Nothing installed. Prefer your own build — it is the maintained, audited one —
+# and fall back to the pinned 2021 binary only when it cannot be had.
+if [ "${VIMAC_PREFER_OWN_BUILD:-1}" = "1" ] && install_own_release; then
+  echo "  Vimac installed from your published build: $(describe_install)."
+  echo "  Grant it Accessibility access (System Settings › Privacy & Security ›"
+  echo "  Accessibility) before first use — it cannot be scripted."
+  exit 0
+fi
+
+echo "  Falling back to the pinned Vimac $VIMAC_VERSION."
 if ! curl -fsSL -o "$work/Vimac.zip" "$VIMAC_URL"; then
   echo "  Download failed — skipping Vimac. See vimac/README.md for the manual route." >&2
   exit 0

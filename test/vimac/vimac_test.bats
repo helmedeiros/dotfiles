@@ -114,16 +114,79 @@ EOF
   [[ "$output" == *"third-party"* ]]
 }
 
+# --- Your own published build ---
+
+@test "own builds are verified by signing certificate, not a per-release hash" {
+  # A hash pin would need re-pinning on every release; the certificate does not.
+  grep -q 'VIMAC_OWN_CERT_SHA1' "${INSTALL}"
+  grep -q 'codesign --verify --strict' "${INSTALL}"
+}
+
+@test "prefers your own published build over the pinned 2021 binary" {
+  grep -q 'VIMAC_PREFER_OWN_BUILD:-1' "${INSTALL}"
+  # install_own_release must be attempted before the pinned download runs.
+  own_line="$(grep -n 'install_own_release;\|&& install_own_release' "${INSTALL}" | head -1 | cut -d: -f1)"
+  pinned_line="$(grep -n 'Falling back to the pinned' "${INSTALL}" | cut -d: -f1)"
+  [ -n "$own_line" ]
+  [ "$own_line" -lt "$pinned_line" ]
+}
+
+@test "falls back to the pinned binary when gh is unavailable" {
+  # No gh on PATH: the own-build path must give up quietly, not fail the run.
+  sha="$(a_served_archive)"
+  cat > "${TEST_DIR}/bin/gh" <<'EOF'
+#!/bin/sh
+exit 127
+EOF
+  chmod +x "${TEST_DIR}/bin/gh"
+
+  run env VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
+          VIMAC_URL="https://example.invalid/Vimac.zip" \
+          VIMAC_SHA256="${sha}" \
+          "${INSTALL}"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Falling back to the pinned"* ]]
+  [ -d "${TEST_DIR}/Applications/Vimac.app" ]
+}
+
+@test "VIMAC_PREFER_OWN_BUILD=0 goes straight to the pinned binary" {
+  sha="$(a_served_archive)"
+
+  run env VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
+          VIMAC_PREFER_OWN_BUILD=0 \
+          VIMAC_URL="https://example.invalid/Vimac.zip" \
+          VIMAC_SHA256="${sha}" \
+          "${INSTALL}"
+
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"Fetching your published build"* ]]
+  [ -d "${TEST_DIR}/Applications/Vimac.app" ]
+}
+
 # --- Build from source ---
 
-@test "building from source without a checkout does not break dot" {
+@test "clones the private repo when the checkout is missing" {
+  grep -q 'git clone --quiet "git@github.com:\${VIMAC_SOURCE_REPO}.git"' "${INSTALL}"
+}
+
+@test "a failed clone does not break dot" {
+  # Stub git so the test never reaches the network, and fail the clone the way
+  # a machine without SSH access to the private repo would.
+  cat > "${TEST_DIR}/bin/git" <<'EOF'
+#!/bin/sh
+[ "$1" = "clone" ] && exit 128
+exit 0
+EOF
+  chmod +x "${TEST_DIR}/bin/git"
+
   run env VIMAC_BUILD_FROM_SOURCE=1 \
           VIMAC_SOURCE_DIR="${TEST_DIR}/nonexistent" \
           VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
           "${INSTALL}"
 
   [ "$status" -eq 0 ]
-  [[ "$output" == *"No source checkout"* ]]
+  [[ "$output" == *"Clone failed"* ]]
   [[ "$output" == *"leaving the current install alone"* ]]
 }
 
@@ -137,7 +200,8 @@ EOF
 @test "installs the app when the checksum matches" {
   sha="$(a_served_archive)"
 
-  run env VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
+  run env VIMAC_PREFER_OWN_BUILD=0 \
+          VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
           VIMAC_URL="https://example.invalid/Vimac.zip" \
           VIMAC_SHA256="${sha}" \
           "${INSTALL}"
@@ -150,7 +214,8 @@ EOF
 @test "refuses to install when the checksum does not match" {
   a_served_archive > /dev/null
 
-  run env VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
+  run env VIMAC_PREFER_OWN_BUILD=0 \
+          VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
           VIMAC_URL="https://example.invalid/Vimac.zip" \
           VIMAC_SHA256="0000000000000000000000000000000000000000000000000000000000000000" \
           "${INSTALL}"
@@ -175,7 +240,8 @@ EOF
 @test "a failed download does not break dot" {
   a_failing_download
 
-  run env VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
+  run env VIMAC_PREFER_OWN_BUILD=0 \
+          VIMAC_APP="${TEST_DIR}/Applications/Vimac.app" \
           VIMAC_URL="https://example.invalid/Vimac.zip" \
           "${INSTALL}"
 

@@ -32,8 +32,11 @@ Two sources, and the machine's current state decides which applies:
 | Situation | What happens |
 | --- | --- |
 | Something is already at `/Applications/Vimac.app` | Left alone. The script reports *which* build it is and exits `0`. |
-| Nothing installed | Downloads the pinned archive, verifies its SHA-256, extracts to `/Applications`. |
-| `VIMAC_BUILD_FROM_SOURCE=1` | Builds from the `vimac-next` checkout and installs that instead. |
+| Nothing installed | Downloads **your own published build** from `helmedeiros/vimac-next` releases, verifies its signature, installs it. |
+| Nothing installed, own build unavailable | Falls back to the pinned 0.3.19 archive, verified by SHA-256. |
+| `VIMAC_BUILD_FROM_SOURCE=1` | Clones the private repo if needed, builds Release, installs that. |
+
+So a fresh machine gets **your** Vimac, not the 2021 binary — without needing Xcode, a checkout, or a build. The pinned archive is the last resort for when the private release cannot be reached (no `gh`, not authenticated, no network).
 
 **An existing install is never replaced.** The script identifies what is there by **bundle id**, not by the path — both sources land on the same `Vimac.app`, and only the identifier distinguishes them:
 
@@ -46,10 +49,33 @@ That distinction is the point. A path check alone would let `bin/dot` quietly re
 Building is **opt-in, never automatic**: it needs Xcode and takes minutes, which has no place in every `bin/dot` run. A missing checkout or missing Xcode prints what to do and exits `0` rather than breaking the run. A dead download link does the same; only a checksum mismatch exits non-zero, because that is a real signal rather than an absence.
 
 ```sh
-VIMAC_BUILD_FROM_SOURCE=1 vimac/install.sh    # replace whatever is installed with your build
+VIMAC_BUILD_FROM_SOURCE=1 vimac/install.sh    # clone if needed, build, install
+VIMAC_PREFER_OWN_BUILD=0  vimac/install.sh    # skip your build, use the pinned 0.3.19
 ```
 
-Overridable via `VIMAC_APP`, `VIMAC_SOURCE_DIR`, `VIMAC_URL`, `VIMAC_SHA256`.
+### Two artefacts, two ways to verify
+
+| Artefact | Verified by | Why |
+| --- | --- | --- |
+| Pinned 0.3.19 | Archive **SHA-256** | Frozen forever, so one hash covers it permanently |
+| Your own build | Signing **certificate** | A hash would need re-pinning on every release; the certificate does not change |
+
+The certificate check is not cosmetic: the download is refused unless the app's designated requirement is `identifier "com.mokacoding.vimac" and certificate root = H"b5e2f5f9…"`, followed by a `codesign --verify --strict`. Tested by pointing it at a deliberately wrong certificate — it refuses and falls back to the pinned binary rather than installing something unverified. Regenerating the signing identity means updating `VIMAC_OWN_CERT_SHA1`.
+
+### Publishing a new build
+
+The download path needs a release to exist. After changing the app:
+
+```sh
+cd ~/Code/active/vimac-next && make install          # build Release + install locally
+ditto -c -k --sequesterRsrc --keepParent \
+  build/Build/Products/Release/Vimac.app /tmp/Vimac.zip
+gh release create vX.Y.Z-helmed /tmp/Vimac.zip --repo helmedeiros/vimac-next
+```
+
+`install.sh` fetches the latest release, so other machines pick it up on their next `bin/dot`.
+
+Overridable via `VIMAC_APP`, `VIMAC_SOURCE_DIR`, `VIMAC_SOURCE_REPO`, `VIMAC_URL`, `VIMAC_SHA256`, `VIMAC_OWN_CERT_SHA1`.
 
 ## After installing
 
@@ -69,7 +95,7 @@ Frozen also means **it can never be fixed**. Its Sparkle updater points at `api.
 
 ## Current state
 
-**The self-built 0.4.0 is the installed and running app** (`com.mokacoding.vimac`, signed `Vimac Local Dev`). The pinned 0.3.19 is now purely the fallback: it is what a fresh machine gets, and what to reach for if a build ever goes wrong.
+**The self-built 0.4.0 is the installed and running app** (`com.mokacoding.vimac`, signed `Vimac Local Dev`), published as [`v0.4.0-helmed`](https://github.com/helmedeiros/vimac-next/releases/tag/v0.4.0-helmed) so other machines can install the same binary without building it. The pinned 0.3.19 is now purely the last-resort fallback.
 
 Rolling back is two commands — the pinned archive is still reachable and hash-verified, so the restore is exact:
 
