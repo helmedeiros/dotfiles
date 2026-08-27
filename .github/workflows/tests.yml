@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: bats + shellcheck
+    # macOS: the suite exercises macOS-specific tooling (defaults, PlistBuddy,
+    # ditto, codesign). On ubuntu the tests that matter would all skip, which
+    # would be a green tick proving nothing.
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install bats and shellcheck
+        run: brew install bats-core shellcheck
+
+      # The suite reports how many suites ran and how many scripts were linted.
+      # Both numbers are asserted below, so a suite silently disappearing — or
+      # the allowlist quietly swallowing the whole repo — fails the build rather
+      # than passing with less coverage.
+      - name: Run the test suite
+        run: ./test/run_tests.sh | tee /tmp/test-output.txt
+
+      - name: Assert coverage did not silently shrink
+        run: |
+          suites=$(grep -oE 'Ran [0-9]+ test suites' /tmp/test-output.txt | grep -oE '[0-9]+')
+          enforced=$(grep -oE 'Lint: [0-9]+ enforced' /tmp/test-output.txt | grep -oE '[0-9]+')
+          echo "suites=$suites enforced=$enforced"
+          [ "${suites:-0}" -ge 13 ] || { echo "test suites dropped below 13"; exit 1; }
+          [ "${enforced:-0}" -ge 80 ] || { echo "linted scripts dropped below 80"; exit 1; }
