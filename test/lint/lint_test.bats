@@ -137,3 +137,39 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
         }
     done
 }
+
+@test "shellcheck allowlist contains no entry that is already clean" {
+    # Without this the list would only ever grow stale: a script gets fixed,
+    # its exemption stays, and the next regression in it goes unnoticed.
+    local allowlist="${DOTFILES_DIR}/test/shellcheck-allowlist.txt"
+    [ -f "$allowlist" ]
+
+    while IFS= read -r rel; do
+        [ -z "$rel" ] && continue
+        case "$rel" in \#*) continue ;; esac
+        [ -f "${DOTFILES_DIR}/${rel}" ] || {
+            echo "allowlist names a file that no longer exists: ${rel}"
+            false
+        }
+        if shellcheck -S warning "${DOTFILES_DIR}/${rel}" > /dev/null 2>&1; then
+            echo "${rel} is clean now — remove it from the allowlist"
+            false
+        fi
+    done < "$allowlist"
+}
+
+@test "no tracked shell script has an error-level shellcheck finding" {
+    # Errors are never exempt: SC2145 in functions/gi and go/install.sh were
+    # real bugs, not style — a multi-argument call fetched the wrong URL and
+    # installed unpinned versions respectively.
+    local scripts=()
+    while IFS= read -r f; do
+        [ -f "${DOTFILES_DIR}/$f" ] || continue
+        head -1 "${DOTFILES_DIR}/$f" 2>/dev/null | grep -qE '^#!.*\b(sh|bash)\b' &&
+            scripts+=("${DOTFILES_DIR}/$f")
+    done < <(git -C "${DOTFILES_DIR}" ls-files)
+
+    [ "${#scripts[@]}" -gt 0 ]
+    run shellcheck -S error "${scripts[@]}"
+    [ "$status" -eq 0 ]
+}

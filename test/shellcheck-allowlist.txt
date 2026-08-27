@@ -1,0 +1,29 @@
+# Scripts that still carry shellcheck warnings, exempted so the repo-wide lint
+# can be switched on today instead of waiting for a 70-finding sweep across
+# installers that touch /Applications, sudo and the network.
+#
+# This list may only SHRINK. test/lint/lint_test.bats fails if a file outside it
+# has findings, and fails again if an entry here has been cleaned up but left
+# behind — so fixing a script forces its removal, and no new script can join.
+#
+# Errors are never exempt: the suite lints everything at -S error regardless.
+dbeaver/install.sh
+dropbox/install.sh
+fonts/install.sh
+functions/kubelog
+github/install.sh
+homebrew/install.sh
+robo3t/install.sh
+script/bootstrap
+script/install
+slate/install.sh
+templates/dot-secrets/git/identity.sh.example
+templates/dot-secrets/kubernetes/config.sh
+templates/dot-secrets/lint/pii-patterns.sh.example
+templates/dot-secrets/myke/config.sh.example
+terminal/install.sh
+test/mothers/brew_mother.sh
+test/mothers/e_mother.sh
+test/mothers/npm_mother.sh
+viscosity/install.sh
+zsh/install.sh

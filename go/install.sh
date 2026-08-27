@@ -3,16 +3,19 @@
 # go
 #
 # This installs go.
-function installglobal() {
-  echo " > go install ${@}@latest"
-  go install "${@}@latest"
+# One package per call. "${@}@latest" appended @latest to the first argument
+# only and passed the rest bare, so a multi-argument call would have installed
+# whatever version those resolved to.
+installglobal() {
+  echo " > go install ${1}@latest"
+  go install "${1}@latest"
 }
 
-if test $(which go)
+if command -v go > /dev/null 2>&1
 then
   echo "  Installing go and packages for you."
 
-	mkdir -p $HOME/go
+	mkdir -p "$HOME/go"
 
   installglobal golang.org/x/tools/cmd/goimports
   installglobal golang.org/x/tools/cmd/gorename

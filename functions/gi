@@ -2,4 +2,12 @@
 #
 # Usage: gi java,python >> .gitignore
 # Description: Create useful .gitignore files for your project
-function gi() { curl -L -s "https://www.gitignore.io/api/$@" ;}
+#
+# The API takes one comma-separated list, so the arguments are joined rather
+# than passed through. "$@" inside the string appended only the first argument
+# to the URL and handed the rest to curl as extra URLs, so `gi java python`
+# silently fetched the wrong thing twice.
+gi() {
+  templates="$(IFS=,; echo "$*")"
+  curl -L -s "https://www.gitignore.io/api/${templates}"
+}
