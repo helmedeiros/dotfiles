@@ -74,12 +74,14 @@ teardown() {
 
 @test "node/install.sh installs the pin, not a floating --lts" {
     grep -q 'nvm install "\${NODE_VERSION}"' "${INSTALL_SH}"
-    ! grep -qE '^[[:space:]]*nvm install --lts' "${INSTALL_SH}"
+    run ! grep -qE '^[[:space:]]*nvm install --lts' "${INSTALL_SH}"
 }
 
-@test "bin/dot reads the same pin instead of hardcoding a version" {
-    grep -q 'node/\.nvmrc' "${DOTFILES}/bin/dot"
-    ! grep -qE 'nvm install [0-9]+\.[0-9]+\.[0-9]+' "${DOTFILES}/bin/dot"
+@test "node/update.sh reads the same pin instead of hardcoding a version" {
+    # The npm block moved out of bin/dot; the pin moved with it.
+    grep -q 'node/\.nvmrc' "${DOTFILES}/node/update.sh"
+    run ! grep -qE 'nvm install [0-9]+\.[0-9]+\.[0-9]+' "${DOTFILES}/node/update.sh"
+    run ! grep -qE 'nvm install [0-9]+\.[0-9]+\.[0-9]+' "${DOTFILES}/bin/dot"
 }
 
 @test "node/install.sh sources lib/integrity.sh" {
@@ -91,7 +93,7 @@ teardown() {
     # The old 'curl -s -o- ... | bash' pattern must be gone from executable
     # code. Strip comments first so a historical mention in the rationale
     # block doesn't trip the assertion.
-    ! grep -vE '^[[:space:]]*#' "${INSTALL_SH}" | grep -qE 'curl[^|]*\| *bash'
+    run ! bash -c "grep -vE '^[[:space:]]*#' '${INSTALL_SH}' | grep -qE 'curl[^|]*\| *bash'"
 }
 
 # --- Functional: SHA gate honours match and mismatch ---

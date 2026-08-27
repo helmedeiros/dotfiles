@@ -1,36 +1,59 @@
 #!/usr/bin/env bash
 #
 # Run all dotfiles installers.
+#
+# A failing installer must not stop the others — a broken topic should not cost
+# you the whole run. But it must not vanish either: the previous version printed
+# one line and discarded the exit code, so a topic that never installed looked
+# identical to one that did, and bin/dot still finished with "completed
+# successfully". Failures are collected and reported at the end, and the exit
+# status reflects them.
 
-set -e
+set -euo pipefail
 
-cd "$(dirname $0)"/..
+cd "$(dirname "$0")/.."
 
-# # Run Homebrew through the Brewfile
-# This is now done in bin/dot, so we skip it here
-# echo "› brew bundle"
-# brew bundle
+readonly GREEN='\033[32m'
+readonly RED='\033[31m'
+readonly YELLOW='\033[33m'
+readonly NC='\033[0m'
 
-# find the installers and run them iteratively
-allDirectories=$(find . -name install.sh | tr "\n" " ")
-fileItemArray=($allDirectories)
-length=${#fileItemArray[@]}
+# -print0 and a null-delimited read: a path containing a space would otherwise
+# be split into two nonexistent scripts by word splitting.
+installers=()
+while IFS= read -r -d '' script; do
+  installers+=("$script")
+done < <(find . -name install.sh -not -path "./test/*" -print0 | sort -z)
+
+length=${#installers[@]}
 echo "Running ${length} post-install scripts..."
 
+failed=()
 executed=1
-for val in "${fileItemArray[@]}"; do
-  app=$(echo "$val" | awk -F'/' '{print $2}' )
+for script in "${installers[@]}"; do
+  app="$(printf '%s' "$script" | awk -F'/' '{print $2}')"
 
-  # Show a simple progress indicator and then move to a new line
-  # This ensures password prompts appear on their own line
-  printf "\r\033[32mProgress: [%s/%s] %s\033[0m\n" "$executed" "$length" "$app"
+  # Progress on its own line, so a sudo prompt from an installer is readable.
+  printf "\r${GREEN}Progress: [%s/%s] %s${NC}\n" "$executed" "$length" "$app"
 
-  # Execute the install script, capturing output in case of errors
-  sh -c "${val}" || {
-    echo "Error in ${app} installation"
-  }
+  # `sh "$script"`, not `sh -c "$script"`: -c re-parses the string as a command
+  # line, so a path containing a space becomes a command plus an argument.
+  if ! sh "$script"; then
+    printf "${RED}  ✗ %s failed${NC}\n" "$app"
+    failed+=("$app")
+  fi
 
-  let "executed++"
+  executed=$((executed + 1))
 done
 
-echo "Post-install scripts completed."
+if [ ${#failed[@]} -eq 0 ]; then
+  echo "Post-install scripts completed."
+  exit 0
+fi
+
+printf "\n${YELLOW}%s of %s post-install scripts failed:${NC}\n" "${#failed[@]}" "$length"
+for app in "${failed[@]}"; do
+  printf "${RED}  - %s${NC}\n" "$app"
+done
+printf "${YELLOW}Re-run a single one with: sh './%s/install.sh'${NC}\n" "${failed[0]}"
+exit 1

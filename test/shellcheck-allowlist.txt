@@ -15,7 +15,6 @@ github/install.sh
 homebrew/install.sh
 robo3t/install.sh
 script/bootstrap
-script/install
 slate/install.sh
 templates/dot-secrets/git/identity.sh.example
 templates/dot-secrets/kubernetes/config.sh

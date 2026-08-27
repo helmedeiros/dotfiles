@@ -1,6 +1,9 @@
 #!/usr/bin/env bats
 
 # Path to the script being tested
+# `run !` needs 1.5.0; a bare `!` does not fail a bats test.
+bats_require_minimum_version 1.5.0
+
 DOT_SCRIPT="${BATS_TEST_DIRNAME}/../../bin/dot"
 
 # Load the Object Mother
@@ -210,4 +213,34 @@ EOL
   run "$DOT_SCRIPT"
   [ "$status" -eq 1 ]  # Script should exit with error when Homebrew install fails
   [ -s "$MOCK_INSTALL_LOG" ]  # File should not be empty
+}
+
+# The npm block was over half of bin/dot and duplicated bin/check-updates.
+@test "dot delegates Node updates to node/update.sh" {
+  grep -q 'node/update.sh' "$DOT_SCRIPT"
+  # None of the extracted body may remain inline.
+  run ! grep -q 'Checking for outdated global npm packages' "$DOT_SCRIPT"
+}
+
+# A warning printed above a "completed successfully" banner is not a report.
+@test "dot does not claim success when post-install scripts fail" {
+  cat > "${ZSH}/script/install" <<'EOL'
+#!/bin/sh
+echo "$0" >> "$(dirname "$0")/../../script_install.log"
+exit 1
+EOL
+  chmod +x "${ZSH}/script/install"
+
+  run "$DOT_SCRIPT"
+
+  [ "$status" -ne 0 ]
+  [[ "${output}" == *"WITH FAILURES"* ]]
+  [[ "${output}" != *"completed successfully"* ]]
+}
+
+@test "dot still reports success when everything passes" {
+  run "$DOT_SCRIPT"
+
+  [ "$status" -eq 0 ]
+  [[ "${output}" == *"completed successfully"* ]]
 }

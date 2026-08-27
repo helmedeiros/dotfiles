@@ -129,7 +129,7 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
     # Must actually READ the file: a mention in a comment while the code still
     # says --lts is exactly the drift this guards against, so strip comments
     # first and require a real `cat` of node/.nvmrc.
-    for consumer in bin/dot node/install.sh bin/check-updates; do
+    for consumer in node/update.sh node/install.sh bin/check-updates; do
         grep -vE '^[[:space:]]*#' "${DOTFILES_DIR}/${consumer}" \
             | grep -q 'cat .*node/\.nvmrc' || {
             echo "${consumer} does not read node/.nvmrc"
