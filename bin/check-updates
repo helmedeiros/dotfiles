@@ -188,9 +188,15 @@ if command -v npm &> /dev/null; then
     # Re-enable strict modes
     set -euo pipefail
 
-    # Try to use a Node.js version if NVM loaded
+    # Select the same Node the rest of the repo installs. node/.nvmrc is the
+    # single source of truth shared with bin/dot and node/install.sh — checking
+    # global packages against a different runtime than the installed one is how
+    # the checker ends up reporting on packages nothing actually uses.
     if command -v nvm &> /dev/null; then
-      nvm use --lts --silent > /dev/null 2>&1 || nvm use node --silent > /dev/null 2>&1 || true
+      node_version="$(cat "$DOTFILES_DIR/node/.nvmrc" 2>/dev/null || echo "--lts")"
+      nvm use "$node_version" --silent > /dev/null 2>&1 ||
+        nvm use --lts --silent > /dev/null 2>&1 ||
+        nvm use node --silent > /dev/null 2>&1 || true
     fi
   fi
 
