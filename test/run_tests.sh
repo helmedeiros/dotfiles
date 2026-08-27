@@ -46,108 +46,28 @@ else
   echo -e "${YELLOW}shellcheck not installed, skipping lint${NC}"
 fi
 
-# Run lib tests
-echo -e "${BLUE}=== Running lib tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/lib/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/lib/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No lib tests found${NC}"
-fi
+# Discover and run every test suite. Suites are found on disk rather than
+# listed here: the previous version repeated this block once per topic, so a
+# new topic's tests only ran if someone remembered to register them — a
+# silent skip, which is the worst kind of test failure.
+#
+# A directory counts as a suite when it holds *_test.bats; that excludes
+# mothers/, which is fixtures.
+suites_run=0
+for suite_dir in "${SCRIPT_DIR}"/*/; do
+  suite="$(basename "$suite_dir")"
+  compgen -G "${suite_dir}*_test.bats" > /dev/null || continue
 
-# Run bin tests
-echo -e "${BLUE}=== Running bin tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/bin/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/bin/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No bin tests found${NC}"
-fi
+  echo -e "${BLUE}=== Running ${suite} tests ===${NC}"
+  bats "${suite_dir}"*_test.bats || FAILED=1
+  suites_run=$((suites_run + 1))
+done
 
-# Run zoxide tests
-echo -e "${BLUE}=== Running zoxide tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/zoxide/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/zoxide/"*_test.bats || FAILED=1
+if [ "$suites_run" -eq 0 ]; then
+  echo -e "${RED}No test suites found under ${SCRIPT_DIR}${NC}"
+  FAILED=1
 else
-  echo -e "${YELLOW}No zoxide tests found${NC}"
-fi
-
-# Run claude tests
-echo -e "${BLUE}=== Running claude tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/claude/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/claude/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No claude tests found${NC}"
-fi
-
-# Run kubernetes tests
-echo -e "${BLUE}=== Running kubernetes tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/kubernetes/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/kubernetes/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No kubernetes tests found${NC}"
-fi
-
-# Run myke tests
-echo -e "${BLUE}=== Running myke tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/myke/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/myke/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No myke tests found${NC}"
-fi
-
-# Run pre-commit tests
-echo -e "${BLUE}=== Running pre-commit tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/pre-commit/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/pre-commit/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No pre-commit tests found${NC}"
-fi
-
-# Run node tests
-echo -e "${BLUE}=== Running node tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/node/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/node/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No node tests found${NC}"
-fi
-
-# Run sdkman tests
-echo -e "${BLUE}=== Running sdkman tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/sdkman/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/sdkman/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No sdkman tests found${NC}"
-fi
-
-# Run xcode tests
-echo -e "${BLUE}=== Running xcode tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/xcode/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/xcode/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No xcode tests found${NC}"
-fi
-
-# Run vimac tests
-echo -e "${BLUE}=== Running vimac tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/vimac/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/vimac/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No vimac tests found${NC}"
-fi
-
-# Run zsh-completion-generator tests
-echo -e "${BLUE}=== Running zsh-completion-generator tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/zsh-completion-generator/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/zsh-completion-generator/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No zsh-completion-generator tests found${NC}"
-fi
-
-# Run repo-wide lint tests
-echo -e "${BLUE}=== Running lint tests ===${NC}"
-if compgen -G "${SCRIPT_DIR}/lint/*_test.bats" > /dev/null; then
-  bats "${SCRIPT_DIR}/lint/"*_test.bats || FAILED=1
-else
-  echo -e "${YELLOW}No lint tests found${NC}"
+  echo -e "${BLUE}=== Ran ${suites_run} test suites ===${NC}"
 fi
 
 if [ "$FAILED" -eq 0 ]; then

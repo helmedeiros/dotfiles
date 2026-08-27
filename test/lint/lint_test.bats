@@ -104,3 +104,36 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
     fi
     return 0
 }
+
+@test "run_tests.sh discovers test suites instead of hardcoding them" {
+    # A hand-maintained list means a new topic's tests only run if someone
+    # remembers to register them — they are otherwise skipped silently, which
+    # looks identical to passing.
+    # No suite that exists on disk may be named literally in the runner.
+    for d in "${DOTFILES_DIR}"/test/*/; do
+        local suite
+        suite="$(basename "$d")"
+        compgen -G "${d}*_test.bats" > /dev/null || continue
+        grep -q "Running ${suite} tests" "${DOTFILES_DIR}/test/run_tests.sh" && {
+            echo "run_tests.sh hardcodes the ${suite} suite"
+            false
+        }
+    done
+
+    grep -q 'for suite_dir in' "${DOTFILES_DIR}/test/run_tests.sh"
+}
+
+@test "every consumer of Node reads the pin from node/.nvmrc" {
+    # bin/dot, node/install.sh and bin/check-updates must agree on the runtime.
+    # A consumer left on --lts silently drifts the day LTS moves on.
+    # Must actually READ the file: a mention in a comment while the code still
+    # says --lts is exactly the drift this guards against, so strip comments
+    # first and require a real `cat` of node/.nvmrc.
+    for consumer in bin/dot node/install.sh bin/check-updates; do
+        grep -vE '^[[:space:]]*#' "${DOTFILES_DIR}/${consumer}" \
+            | grep -q 'cat .*node/\.nvmrc' || {
+            echo "${consumer} does not read node/.nvmrc"
+            false
+        }
+    done
+}
