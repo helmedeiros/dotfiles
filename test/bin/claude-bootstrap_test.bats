@@ -103,7 +103,7 @@ teardown() {
     [ "${status}" -eq 0 ]
 
     # bd init should NOT have been called, but bd setup claude should.
-    ! grep -q '^init$' "${FAKE_BD_LOG}"
+    run ! grep -q '^init$' "${FAKE_BD_LOG}"
     grep -q '^setup claude$' "${FAKE_BD_LOG}"
 
     # Existing .beads/ untouched.
@@ -119,7 +119,7 @@ teardown() {
     [ "${status}" -eq 0 ]
 
     # On the second run, .beads exists so init is skipped.
-    ! grep -q '^init$' "${FAKE_BD_LOG}"
+    run ! grep -q '^init$' "${FAKE_BD_LOG}"
     grep -q '^setup claude$' "${FAKE_BD_LOG}"
 }
 

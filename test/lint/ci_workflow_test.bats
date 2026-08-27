@@ -35,7 +35,7 @@ GITLEAKS_IGNORE="${DOTFILES_ROOT}/.gitleaksignore"
 @test "security workflow requests minimum contents:read permission only" {
     # No need for write permissions — this is a read-only scan.
     grep -qE 'contents:[[:space:]]*read' "${WORKFLOW}"
-    ! grep -qE '(contents|issues|pull-requests):[[:space:]]*write' "${WORKFLOW}"
+    run ! grep -qE '(contents|issues|pull-requests):[[:space:]]*write' "${WORKFLOW}"
 }
 
 # --- .gitleaksignore shape ---

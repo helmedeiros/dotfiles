@@ -52,7 +52,7 @@ EOF
 
 @test "install.sh runs after brew bundle, so it never installs the app itself" {
   # brew bundle owns the install; this script only activates the toolchain.
-  ! grep -qE '^[[:space:]]*mas install' "${INSTALL}"
+  run ! grep -qE '^[[:space:]]*mas install' "${INSTALL}"
 }
 
 # --- Behaviour ---

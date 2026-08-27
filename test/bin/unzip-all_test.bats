@@ -1,6 +1,9 @@
 #!/usr/bin/env bats
 
 # Path to the script being tested
+# `run !` needs 1.5.0; a bare `!` does not fail a bats test.
+bats_require_minimum_version 1.5.0
+
 UNZIP_ALL_SCRIPT="${BATS_TEST_DIRNAME}/../../bin/unzip-all"
 
 # Setup function that runs before each test
@@ -12,7 +15,7 @@ setup() {
   ORIGINAL_DIR="$(pwd)"
 
   # Change to test directory
-  cd "${TEST_DIR}"
+  cd "${TEST_DIR}" || return 1
 
   # Create mock bin directory
   MOCK_BIN="${TEST_DIR}/mock-bin"
@@ -33,7 +36,7 @@ setup() {
 # Teardown function that runs after each test
 teardown() {
   # Return to the original directory
-  cd "${ORIGINAL_DIR}"
+  cd "${ORIGINAL_DIR}" || return 1
 
   # Clean up the temporary directory
   rm -rf "${TEST_DIR}"
@@ -213,10 +216,10 @@ create_test_zip_files() {
   [ "$status" -eq 0 ]
 
   # Verify file was NOT unzipped
-  ! grep -q "not-a-zip.zip" "${UNZIPPED_FILES}"
+  run ! grep -q "not-a-zip.zip" "${UNZIPPED_FILES}"
 
   # Verify file was NOT trashed
-  ! grep -q "not-a-zip.zip" "${TRASHED_FILES}"
+  run ! grep -q "not-a-zip.zip" "${TRASHED_FILES}"
 
   # Verify file still exists
   [ -f "not-a-zip.zip" ]
@@ -278,8 +281,8 @@ create_test_zip_files() {
 
   # Verify only zip file was processed
   grep -q "file1.zip" "${UNZIPPED_FILES}"
-  ! grep -q "file2.txt" "${UNZIPPED_FILES}"
-  ! grep -q "file3.jpg" "${UNZIPPED_FILES}"
+  run ! grep -q "file2.txt" "${UNZIPPED_FILES}"
+  run ! grep -q "file3.jpg" "${UNZIPPED_FILES}"
 
   # Verify non-zip files still exist
   [ -f "file2.txt" ]
@@ -322,8 +325,8 @@ create_test_zip_files() {
 
   # Verify only matching file was processed
   grep -q "test-archive.zip" "${UNZIPPED_FILES}"
-  ! grep -q "prod-archive.zip" "${UNZIPPED_FILES}"
-  ! grep -q "other.zip" "${UNZIPPED_FILES}"
+  run ! grep -q "prod-archive.zip" "${UNZIPPED_FILES}"
+  run ! grep -q "other.zip" "${UNZIPPED_FILES}"
 }
 
 # Test error handling when unzip fails
@@ -342,7 +345,7 @@ create_test_zip_files() {
   [ "$status" -ne 0 ]
 
   # File should not be trashed if unzip fails
-  ! grep -q "corrupted.zip" "${TRASHED_FILES}"
+  run ! grep -q "corrupted.zip" "${TRASHED_FILES}"
 }
 
 # Test error handling when trash fails
@@ -476,7 +479,7 @@ EOF
   # Verify only backup files were processed
   grep -q "backup-2024.zip" "${UNZIPPED_FILES}"
   grep -q "backup-2023.zip" "${UNZIPPED_FILES}"
-  ! grep -q "archive-2024.zip" "${UNZIPPED_FILES}"
+  run ! grep -q "archive-2024.zip" "${UNZIPPED_FILES}"
 }
 
 # Test output messages
@@ -536,5 +539,5 @@ EOF
 
   # Verify only specific file was processed
   grep -q "specific.zip" "${UNZIPPED_FILES}"
-  ! grep -q "other.zip" "${UNZIPPED_FILES}"
+  run ! grep -q "other.zip" "${UNZIPPED_FILES}"
 }

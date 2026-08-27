@@ -23,11 +23,11 @@ ZSHRC="${BATS_TEST_DIRNAME}/../../zsh/zshrc.symlink"
 }
 
 @test "zshrc does NOT contain zoxide init (belongs in path.zsh)" {
-  ! grep -q 'zoxide init' "${ZSHRC}"
+  run ! grep -q 'zoxide init' "${ZSHRC}"
 }
 
 @test "zoxide/aliases.zsh does not define cd alias (defined in path.zsh)" {
-  ! grep -q "^alias cd" "${ZOXIDE_ALIASES}"
+  run ! grep -q "^alias cd" "${ZOXIDE_ALIASES}"
 }
 
 # --- Runtime checks (only if zoxide is installed) ---

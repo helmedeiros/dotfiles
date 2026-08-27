@@ -42,7 +42,7 @@ teardown() {
     grep -q 'download_verified' "${INSTALL_SH}"
     # The 'curl ... | bash' pattern must be gone from executable code.
     # Strip comments first so any rationale text doesn't trip the check.
-    ! grep -vE '^[[:space:]]*#' "${INSTALL_SH}" | grep -qE 'curl[^|]*\| *bash'
+    run ! bash -c "grep -vE '^[[:space:]]*#' '${INSTALL_SH}' | grep -qE 'curl[^|]*\| *bash'"
 }
 
 @test "sdkman/install.sh passes rcupdate=false so SDKMAN won't rewrite zshrc" {
