@@ -7,13 +7,16 @@ GIT_CREDIT_ALL_SCRIPT="${BATS_TEST_DIRNAME}/../../bin/git-credit-all"
 load "../mothers/test_mother.sh"
 
 setup() {
+  if ! git filter-repo --help > /dev/null 2>&1; then
+    skip "git-filter-repo not installed (Brewfile: git-filter-repo)"
+  fi
   TEST_DIR="$(mktemp -d)"
   TEST_REPO="${TEST_DIR}/test-repo"
   ORIGINAL_DIR="$(pwd)"
 }
 
 teardown() {
-  cd "${ORIGINAL_DIR}"
+  cd "${ORIGINAL_DIR}" || return 1
   rm -rf "${TEST_DIR}"
 }
 

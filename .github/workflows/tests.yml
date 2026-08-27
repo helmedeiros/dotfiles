@@ -19,15 +19,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install bats and shellcheck
-        run: brew install bats-core shellcheck
+      # git-filter-repo backs bin/git-credit-all and is in the Brewfile; without
+      # it three tests fail on the runner and pass on a developer laptop.
+      - name: Install bats, shellcheck and git-filter-repo
+        run: brew install bats-core shellcheck git-filter-repo
 
       # The suite reports how many suites ran and how many scripts were linted.
       # Both numbers are asserted below, so a suite silently disappearing — or
       # the allowlist quietly swallowing the whole repo — fails the build rather
       # than passing with less coverage.
+      # pipefail is essential: piping to tee otherwise reports tee's exit status,
+      # so the job went green over a suite with three failing tests.
       - name: Run the test suite
-        run: ./test/run_tests.sh | tee /tmp/test-output.txt
+        run: |
+          set -o pipefail
+          ./test/run_tests.sh | tee /tmp/test-output.txt
 
       - name: Assert coverage did not silently shrink
         run: |
