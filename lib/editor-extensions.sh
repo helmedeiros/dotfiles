@@ -13,6 +13,34 @@
 # No arrays or other bash 4 constructs: this is sourced by topic install.sh
 # files, and macOS still ships bash 3.2 as /bin/bash.
 
+# A marketplace 503 is not a missing extension. Installing sixty ids back to
+# back reliably trips a rate limit or two, and a run must not report a
+# perfectly good extension as failed because the server was busy for a
+# second. Retrying is cheap: an id that really is gone costs two extra
+# round-trips, and those fail fast.
+EDITOR_EXTENSION_ATTEMPTS="${EDITOR_EXTENSION_ATTEMPTS:-3}"
+EDITOR_EXTENSION_RETRY_DELAY="${EDITOR_EXTENSION_RETRY_DELAY:-3}"
+
+install_one_extension() {
+    local cli="$1"
+    local extension="$2"
+    local attempt=1
+
+    while :; do
+        if "$cli" --install-extension "$extension" --force; then
+            return 0
+        fi
+
+        if [ "$attempt" -ge "$EDITOR_EXTENSION_ATTEMPTS" ]; then
+            return 1
+        fi
+
+        attempt=$((attempt + 1))
+        echo "Retrying ${extension} (attempt ${attempt}/${EDITOR_EXTENSION_ATTEMPTS})"
+        sleep "$EDITOR_EXTENSION_RETRY_DELAY"
+    done
+}
+
 # Install every extension listed in a file through an editor CLI.
 # Args:
 #   $1 - editor CLI (path or command name)
@@ -41,7 +69,7 @@ install_editor_extensions() {
         esac
 
         echo "Installing extension: ${extension}"
-        if ! "$cli" --install-extension "$extension" --force; then
+        if ! install_one_extension "$cli" "$extension"; then
             failed_list="${failed_list}  - ${extension}
 "
             failed_count=$((failed_count + 1))

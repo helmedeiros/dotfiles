@@ -11,18 +11,33 @@ DOTFILES="${BATS_TEST_DIRNAME}/../.."
 
 setup() {
     TEST_DIR="$(mktemp -d)"
+    export TEST_DIR
     export ATTEMPTED_LOG="${TEST_DIR}/attempted"
     export UNAVAILABLE=""
+    export TRANSIENT=""
     : > "${ATTEMPTED_LOG}"
+
+    # No backoff in tests; the retry itself is what is under test.
+    export EDITOR_EXTENSION_RETRY_DELAY=0
 
     CLI="${TEST_DIR}/editor-cli"
     cat > "${CLI}" <<'EOL'
 #!/usr/bin/env bash
 # Mimics `code --install-extension <id> --force`: writes the id it was asked
-# for, and fails for the ids named in $UNAVAILABLE.
+# for, fails permanently for the ids in $UNAVAILABLE, and fails once — the
+# way a marketplace 503 does — for the ids in $TRANSIENT.
 echo "$2" >> "${ATTEMPTED_LOG}"
 case " ${UNAVAILABLE} " in
     *" $2 "*) echo "Extension '$2' not found." >&2; exit 1 ;;
+esac
+case " ${TRANSIENT} " in
+    *" $2 "*)
+        if [ ! -f "${TEST_DIR}/tried-$2" ]; then
+            : > "${TEST_DIR}/tried-$2"
+            echo "Error while installing extensions: Server returned 503" >&2
+            exit 1
+        fi
+        ;;
 esac
 EOL
     chmod +x "${CLI}"
@@ -98,4 +113,22 @@ teardown() {
 
     [ "${status}" -eq 0 ]
     grep -q '^only.extension$' "${ATTEMPTED_LOG}"
+}
+
+@test "retries an extension the marketplace refuses once" {
+    export TRANSIENT="first.extension"
+
+    run install_editor_extensions "${CLI}" "${LIST}" "TestEditor"
+
+    [ "${status}" -eq 0 ]
+    [ "$(grep -cxF 'first.extension' "${ATTEMPTED_LOG}")" -eq 2 ]
+}
+
+@test "gives up on an extension that never installs" {
+    export UNAVAILABLE="missing.extension"
+
+    run install_editor_extensions "${CLI}" "${LIST}" "TestEditor"
+
+    [ "${status}" -ne 0 ]
+    [ "$(grep -cxF 'missing.extension' "${ATTEMPTED_LOG}")" -eq 3 ]
 }
