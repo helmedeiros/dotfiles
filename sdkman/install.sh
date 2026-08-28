@@ -64,6 +64,15 @@ function loadSDKMAN() {
 	fi
 }
 
+# Answers "n" to SDKMAN's "set as default?" prompt without changing the
+# current default. `yes n | sdk install ...` looks equivalent but is not: with
+# pipefail on, `yes` is killed by SIGPIPE the moment sdk stops reading, the
+# pipeline reports 141, and a perfectly good install was announced as
+# "Warning: failed to install". A finite writer cannot be killed that way.
+function sdkInstallQuietly() {
+	printf 'n\nn\nn\n' | sdk install "$@" >/dev/null
+}
+
 function sdkInstall() {
 	local candidate="$1"
 	local version="${2:-}"
@@ -75,7 +84,7 @@ function sdkInstall() {
 			return 0
 		fi
 		echo "Installing $candidate $version..."
-		yes n | sdk install "$candidate" "$version" >/dev/null || {
+		sdkInstallQuietly "$candidate" "$version" || {
 			echo "Warning: failed to install $candidate $version" >&2
 			return 0
 		}
@@ -85,7 +94,7 @@ function sdkInstall() {
 			return 0
 		fi
 		echo "Installing $candidate (latest stable)..."
-		yes n | sdk install "$candidate" >/dev/null || {
+		sdkInstallQuietly "$candidate" || {
 			echo "Warning: failed to install $candidate" >&2
 			return 0
 		}

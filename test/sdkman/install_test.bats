@@ -71,3 +71,67 @@ teardown() {
     [ "${status}" -ne 0 ]
     [[ "${output}" == *"SHA-256 mismatch for SDKMAN installer"* ]]
 }
+
+# --- Functional: the run survives SDKMAN's own nounset-unsafe code ---
+
+# The real `sdk` function dereferences $PAGER (src/sdkman-utils.sh) with no
+# default. An unbound variable is fatal for a non-interactive bash even inside
+# an `if` condition, so with nounset on, the installer died at the first
+# `sdk list java` — silently, because that call redirects stderr to /dev/null.
+# Java (installed before the regression) stayed; gradle, maven and groovy were
+# never installed and enableGradleDaemon never ran.
+fake_sdkman_init() {
+    mkdir -p "${HOME}/.sdkman/bin"
+    cat > "${HOME}/.sdkman/bin/sdkman-init.sh" <<'EOL'
+sdk() {
+    : "$PAGER"  # mirrors the real SDKMAN's unguarded expansion
+    case "$1" in
+        current) echo "Using java version 21-tem" ;;
+    esac
+    return 0
+}
+EOL
+}
+
+@test "the run completes when SDKMAN's own code is not nounset-safe" {
+    unset PAGER
+    fake_sdkman_init
+
+    run bash "${INSTALL_SH}"
+
+    [ "${status}" -eq 0 ]
+    [[ "${output}" == *"SDKMAN setup complete"* ]]
+}
+
+@test "the run reaches enableGradleDaemon" {
+    unset PAGER
+    fake_sdkman_init
+
+    run bash "${INSTALL_SH}"
+
+    grep -q '^org.gradle.daemon=true$' "${HOME}/.gradle/gradle.properties"
+}
+
+# A stub `sdk` that reports nothing installed and installs successfully
+# without reading stdin — exactly like the real one once it has decided it
+# has nothing to ask.
+fake_sdkman_init_fresh() {
+    mkdir -p "${HOME}/.sdkman/bin"
+    cat > "${HOME}/.sdkman/bin/sdkman-init.sh" <<'EOL'
+sdk() {
+    : "$PAGER"
+    [ "$1" = "current" ] && return 1
+    return 0
+}
+EOL
+}
+
+@test "a successful install is not reported as a failure" {
+    unset PAGER
+    fake_sdkman_init_fresh
+
+    run bash "${INSTALL_SH}"
+
+    [ "${status}" -eq 0 ]
+    [[ "${output}" != *"Warning: failed to install"* ]]
+}
