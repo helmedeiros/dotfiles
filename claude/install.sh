@@ -15,48 +15,48 @@ YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}Setting up Claude...${NC}"
+printf '%b\n' "${BLUE}Setting up Claude...${NC}"
 
 # Install Claude desktop app via Homebrew (idempotent)
 if ! brew list --cask claude &>/dev/null; then
-    echo -e "${BLUE}Installing Claude desktop app...${NC}"
+    printf '%b\n' "${BLUE}Installing Claude desktop app...${NC}"
     brew install --cask claude
 else
-    echo -e "${GREEN}Claude desktop app already installed${NC}"
+    printf '%b\n' "${GREEN}Claude desktop app already installed${NC}"
 fi
 
 # Install Claude Code CLI via Homebrew (idempotent)
 # Note: Homebrew casks don't auto-update, run 'brew upgrade claude-code' periodically
 if ! brew list --cask claude-code &>/dev/null; then
-    echo -e "${BLUE}Installing Claude Code CLI...${NC}"
+    printf '%b\n' "${BLUE}Installing Claude Code CLI...${NC}"
     brew install --cask claude-code
 else
-    echo -e "${GREEN}Claude Code CLI already installed${NC}"
+    printf '%b\n' "${GREEN}Claude Code CLI already installed${NC}"
     # Check for updates
-    echo -e "${BLUE}Checking for Claude Code updates...${NC}"
+    printf '%b\n' "${BLUE}Checking for Claude Code updates...${NC}"
     if brew outdated --cask claude-code &>/dev/null; then
-        echo -e "${YELLOW}Updating Claude Code...${NC}"
-        brew upgrade --cask claude-code || echo -e "${YELLOW}Update not yet available in Homebrew, try again later${NC}"
+        printf '%b\n' "${YELLOW}Updating Claude Code...${NC}"
+        brew upgrade --cask claude-code || printf '%b\n' "${YELLOW}Update not yet available in Homebrew, try again later${NC}"
     else
-        echo -e "${GREEN}Claude Code is up to date${NC}"
+        printf '%b\n' "${GREEN}Claude Code is up to date${NC}"
     fi
 fi
 
 # Verify installation
 if command -v claude &> /dev/null; then
-    echo -e "${GREEN}Claude Code installed successfully!${NC}"
+    printf '%b\n' "${GREEN}Claude Code installed successfully!${NC}"
     claude --version
 else
-    echo -e "${RED}Claude Code installation could not be verified${NC}"
-    echo -e "${YELLOW}You may need to restart your terminal${NC}"
+    printf '%b\n' "${RED}Claude Code installation could not be verified${NC}"
+    printf '%b\n' "${YELLOW}You may need to restart your terminal${NC}"
 fi
 
 # Install ripgrep for enhanced file search (idempotent)
 if ! command -v rg &> /dev/null; then
-    echo -e "${BLUE}Installing ripgrep for enhanced file search...${NC}"
+    printf '%b\n' "${BLUE}Installing ripgrep for enhanced file search...${NC}"
     brew install ripgrep
 else
-    echo -e "${GREEN}ripgrep already installed${NC}"
+    printf '%b\n' "${GREEN}ripgrep already installed${NC}"
 fi
 
 # Source helper functions
@@ -65,11 +65,11 @@ CLAUDE_DIR="$(cd "$(dirname "$0")" && pwd)"
 . "$CLAUDE_DIR/lib.sh"
 
 # Symlink user-global CLAUDE.md into ~/.claude/
-echo -e "${BLUE}Linking user-global CLAUDE.md...${NC}"
+printf '%b\n' "${BLUE}Linking user-global CLAUDE.md...${NC}"
 if link_claude_file "$CLAUDE_DIR/CLAUDE.md" "$HOME/.claude/CLAUDE.md"; then
-    echo -e "${GREEN}~/.claude/CLAUDE.md linked${NC}"
+    printf '%b\n' "${GREEN}~/.claude/CLAUDE.md linked${NC}"
 else
-    echo -e "${RED}Failed to link ~/.claude/CLAUDE.md${NC}"
+    printf '%b\n' "${RED}Failed to link ~/.claude/CLAUDE.md${NC}"
 fi
 
 # Symlink user-global skills into ~/.claude/skills/ (one symlink per skill dir).
@@ -85,31 +85,31 @@ link_skills_from() {
         local name
         name="$(basename "$skill")"
         if link_claude_file "${skill%/}" "$HOME/.claude/skills/$name"; then
-            echo -e "${GREEN}  ~/.claude/skills/$name linked${NC}"
+            printf '%b\n' "${GREEN}  ~/.claude/skills/$name linked${NC}"
         else
-            echo -e "${RED}  Failed to link skill: $name${NC}"
+            printf '%b\n' "${RED}  Failed to link skill: $name${NC}"
         fi
     done
 }
-echo -e "${BLUE}Linking user-global skills...${NC}"
+printf '%b\n' "${BLUE}Linking user-global skills...${NC}"
 link_skills_from "$CLAUDE_DIR/skills"
 link_skills_from "$DOT_SECRETS_ROOT/claude/skills"
 
 # Check beads is available (installed via Brewfile)
 if command -v bd &> /dev/null; then
-    echo -e "${GREEN}beads (bd) already installed${NC}"
+    printf '%b\n' "${GREEN}beads (bd) already installed${NC}"
 else
-    echo -e "${YELLOW}beads not on PATH. Run 'brew bundle' from \$ZSH or 'brew install beads'.${NC}"
+    printf '%b\n' "${YELLOW}beads not on PATH. Run 'brew bundle' from \$ZSH or 'brew install beads'.${NC}"
 fi
 
 # Install the clean-code-skills plugin (TDD, SOLID, refactoring, etc.)
-echo -e "${BLUE}Installing clean-code-skills plugin...${NC}"
+printf '%b\n' "${BLUE}Installing clean-code-skills plugin...${NC}"
 if install_git_plugin \
     "https://github.com/helmedeiros/clean-code-skills.git" \
     "$HOME/.claude/plugins/clean-code-skills"; then
-    echo -e "${GREEN}clean-code-skills plugin ready${NC}"
+    printf '%b\n' "${GREEN}clean-code-skills plugin ready${NC}"
 else
-    echo -e "${YELLOW}clean-code-skills plugin install skipped${NC}"
+    printf '%b\n' "${YELLOW}clean-code-skills plugin install skipped${NC}"
 fi
 
-echo -e "${GREEN}Claude setup completed!${NC}"
+printf '%b\n' "${GREEN}Claude setup completed!${NC}"

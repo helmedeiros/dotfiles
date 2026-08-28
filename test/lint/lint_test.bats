@@ -173,3 +173,12 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
     run shellcheck -S error "${scripts[@]}"
     [ "$status" -eq 0 ]
 }
+
+@test "no topic install.sh uses 'echo -e'" {
+    # `echo -e` is a bashism: under a POSIX shell the flag is printed as text
+    # and the escapes are left uninterpreted, which is where install runs got
+    # lines like "-e Installing extension: ..." while script/install still
+    # forced every topic through `sh`. Use printf '%b\\n' instead.
+    run bash -c "grep -l 'echo -e' ${DOTFILES_DIR}/*/install.sh"
+    [ "${status}" -ne 0 ]
+}

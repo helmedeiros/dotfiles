@@ -18,27 +18,27 @@ REPO_URL="https://github.com/ciromattia/kcc.git"
 
 # Skip if already installed and up to date
 if [ -x "$BIN_DIR/kcc-c2e" ] && [ -d "$KCC_INSTALL_DIR/venv" ]; then
-    echo -e "${GREEN}KCC already installed. Skipping.${NC}"
+    printf '%b\n' "${GREEN}KCC already installed. Skipping.${NC}"
     exit 0
 fi
 
-echo -e "${GREEN}Installing KCC (Kindle Comic Converter) CLI...${NC}"
+printf '%b\n' "${GREEN}Installing KCC (Kindle Comic Converter) CLI...${NC}"
 
 # Check if required tools are available
 if ! command -v git &> /dev/null; then
-    echo -e "${RED}Error: git is not installed${NC}"
+    printf '%b\n' "${RED}Error: git is not installed${NC}"
     exit 1
 fi
 
 if ! command -v python3 &> /dev/null; then
-    echo -e "${RED}Error: python3 is not installed${NC}"
+    printf '%b\n' "${RED}Error: python3 is not installed${NC}"
     exit 1
 fi
 
 # Check for optional dependencies
-echo -e "${YELLOW}Checking dependencies...${NC}"
+printf '%b\n' "${YELLOW}Checking dependencies...${NC}"
 if ! command -v 7z &> /dev/null && ! command -v unar &> /dev/null; then
-    echo -e "${YELLOW}Warning: Neither sevenzip nor unar found. Install via: brew install sevenzip unar${NC}"
+    printf '%b\n' "${YELLOW}Warning: Neither sevenzip nor unar found. Install via: brew install sevenzip unar${NC}"
 fi
 
 # Use pyenv Python 3.12 if available, fallback to system python3
@@ -46,28 +46,28 @@ PYTHON_CMD="python3"
 if command -v pyenv &> /dev/null; then
     if pyenv versions --bare | grep -q "^3.12"; then
         PYTHON_CMD="$HOME/.pyenv/versions/3.12.8/bin/python3"
-        echo -e "${GREEN}Using pyenv Python 3.12${NC}"
+        printf '%b\n' "${GREEN}Using pyenv Python 3.12${NC}"
     fi
 fi
 
 # Create directories
-echo -e "${YELLOW}Creating directories...${NC}"
+printf '%b\n' "${YELLOW}Creating directories...${NC}"
 mkdir -p "$KCC_INSTALL_DIR"
 mkdir -p "$BIN_DIR"
 
 # Clone or update repository
 if [ -d "$KCC_INSTALL_DIR/.git" ]; then
-    echo -e "${YELLOW}Updating existing KCC repository...${NC}"
+    printf '%b\n' "${YELLOW}Updating existing KCC repository...${NC}"
     cd "$KCC_INSTALL_DIR"
     git pull
 else
-    echo -e "${YELLOW}Cloning KCC repository...${NC}"
+    printf '%b\n' "${YELLOW}Cloning KCC repository...${NC}"
     git clone "$REPO_URL" "$KCC_INSTALL_DIR"
     cd "$KCC_INSTALL_DIR"
 fi
 
 # Create virtual environment
-echo -e "${YELLOW}Creating Python virtual environment...${NC}"
+printf '%b\n' "${YELLOW}Creating Python virtual environment...${NC}"
 if [ -d "$KCC_INSTALL_DIR/venv" ]; then
     echo "Virtual environment already exists, recreating..."
     rm -rf "$KCC_INSTALL_DIR/venv"
@@ -75,14 +75,14 @@ fi
 $PYTHON_CMD -m venv "$KCC_INSTALL_DIR/venv"
 
 # Activate virtual environment and install dependencies
-echo -e "${YELLOW}Installing Python dependencies...${NC}"
+printf '%b\n' "${YELLOW}Installing Python dependencies...${NC}"
 source "$KCC_INSTALL_DIR/venv/bin/activate"
 pip install --upgrade pip
 pip install -r "$KCC_INSTALL_DIR/requirements.txt"
 deactivate
 
 # Create wrapper script for kcc-c2e
-echo -e "${YELLOW}Creating wrapper scripts...${NC}"
+printf '%b\n' "${YELLOW}Creating wrapper scripts...${NC}"
 cat > "$BIN_DIR/kcc-c2e" << 'EOF'
 #!/usr/bin/env bash
 # Wrapper script for kcc-c2e CLI tool
@@ -108,7 +108,7 @@ EOF
 chmod +x "$BIN_DIR/kcc-c2e"
 chmod +x "$BIN_DIR/kcc-c2p"
 
-echo -e "${GREEN}✓ KCC CLI installed successfully!${NC}"
+printf '%b\n' "${GREEN}✓ KCC CLI installed successfully!${NC}"
 echo ""
 echo "The following commands are now available:"
 echo "  - kcc-c2e: Convert comics/manga to e-book format"

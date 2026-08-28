@@ -23,32 +23,32 @@ VSCODE_DIR="$HOME/Library/Application Support/Code/User"
 mkdir -p "$VSCODE_DIR"
 
 # Install VSCode settings
-echo -e "${BLUE}=== Installing VSCode settings ===${NC}"
+printf '%b\n' "${BLUE}=== Installing VSCode settings ===${NC}"
 if [ -f "$SCRIPT_DIR/settings.json.symlink" ]; then
   if [ -f "$VSCODE_DIR/settings.json" ]; then
-    echo -e "${YELLOW}Backing up existing VSCode settings...${NC}"
+    printf '%b\n' "${YELLOW}Backing up existing VSCode settings...${NC}"
     cp "$VSCODE_DIR/settings.json" "$VSCODE_DIR/settings.json.backup"
   fi
-  echo -e "${GREEN}Installing VSCode settings...${NC}"
+  printf '%b\n' "${GREEN}Installing VSCode settings...${NC}"
   cp "$SCRIPT_DIR/settings.json.symlink" "$VSCODE_DIR/settings.json"
 else
-  echo -e "${RED}VSCode settings file not found!${NC}"
+  printf '%b\n' "${RED}VSCode settings file not found!${NC}"
 fi
 
 # Install VSCode extensions
-echo -e "\n${BLUE}=== Installing VSCode extensions ===${NC}"
+printf '%b\n' "\n${BLUE}=== Installing VSCode extensions ===${NC}"
 extensions_failed=0
 if command -v code &> /dev/null; then
   # shellcheck source=../lib/editor-extensions.sh
   . "$SCRIPT_DIR/../lib/editor-extensions.sh"
   install_editor_extensions code "$SCRIPT_DIR/extensions.txt" "VSCode" || extensions_failed=1
 else
-  echo -e "${RED}VSCode not found! Skipping extension installation.${NC}"
+  printf '%b\n' "${RED}VSCode not found! Skipping extension installation.${NC}"
 fi
 
 if [ "$extensions_failed" -ne 0 ]; then
-  echo -e "\n${RED}VSCode setup finished with extension failures.${NC}"
+  printf '%b\n' "\n${RED}VSCode setup finished with extension failures.${NC}"
   exit 1
 fi
 
-echo -e "\n${GREEN}VSCode setup completed!${NC}"
+printf '%b\n' "\n${GREEN}VSCode setup completed!${NC}"
