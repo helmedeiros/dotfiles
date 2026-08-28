@@ -16,11 +16,13 @@ NC='\033[0m' # No Color
 # Get the directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Cursor CLI path - installed inside the app bundle
-CURSOR_CLI="/Applications/Cursor.app/Contents/Resources/app/bin/cursor"
+# App bundle, overridable so tests can point at a stub instead of
+# /Applications. The CLI ships inside the bundle.
+CURSOR_APP="${CURSOR_APP:-/Applications/Cursor.app}"
+CURSOR_CLI="$CURSOR_APP/Contents/Resources/app/bin/cursor"
 
-if ! [ -d "/Applications/Cursor.app" ]; then
-  echo -e "${RED}Cursor not installed. Skipping configuration.${NC}"
+if ! [ -d "$CURSOR_APP" ]; then
+  echo -e "${RED}Cursor is not installed. Skipping configuration.${NC}"
   exit 0
 fi
 
@@ -45,30 +47,18 @@ fi
 
 # Install Cursor extensions
 echo -e "\n${BLUE}=== Installing Cursor extensions ===${NC}"
-if [ -f "$SCRIPT_DIR/extensions.txt" ]; then
-  if [ -x "$CURSOR_CLI" ]; then
-    echo -e "${GREEN}Installing Cursor extensions...${NC}"
-    failed_extensions=()
-    while IFS= read -r line || [[ -n "$line" ]]; do
-      # Skip comments and empty lines
-      if [[ "$line" =~ ^#.*$ ]] || [[ -z "$line" ]]; then
-        continue
-      fi
-      echo -e "${GREEN}Installing extension: $line${NC}"
-      # One extension unavailable on Cursor's marketplace (e.g. a
-      # Microsoft-exclusive one) must not abort the rest of the list.
-      if ! "$CURSOR_CLI" --install-extension "$line" --force; then
-        failed_extensions+=("$line")
-      fi
-    done < "$SCRIPT_DIR/extensions.txt"
-    if [ ${#failed_extensions[@]} -gt 0 ]; then
-      echo -e "${YELLOW}Skipped ${#failed_extensions[@]} unavailable extension(s): ${failed_extensions[*]}${NC}"
-    fi
-  else
-    echo -e "${RED}Cursor CLI not found at $CURSOR_CLI! Skipping extension installation.${NC}"
-  fi
+extensions_failed=0
+if [ -x "$CURSOR_CLI" ]; then
+  # shellcheck source=../lib/editor-extensions.sh
+  . "$SCRIPT_DIR/../lib/editor-extensions.sh"
+  install_editor_extensions "$CURSOR_CLI" "$SCRIPT_DIR/extensions.txt" "Cursor" || extensions_failed=1
 else
-  echo -e "${RED}Extensions list not found!${NC}"
+  echo -e "${RED}Cursor CLI not found at $CURSOR_CLI! Skipping extension installation.${NC}"
+fi
+
+if [ "$extensions_failed" -ne 0 ]; then
+  echo -e "\n${RED}Cursor setup finished with extension failures.${NC}"
+  exit 1
 fi
 
 echo -e "\n${GREEN}Cursor setup completed!${NC}"

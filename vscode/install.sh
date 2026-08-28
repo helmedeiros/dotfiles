@@ -37,30 +37,18 @@ fi
 
 # Install VSCode extensions
 echo -e "\n${BLUE}=== Installing VSCode extensions ===${NC}"
-if [ -f "$SCRIPT_DIR/extensions.txt" ]; then
-  # Check if VSCode is installed
-  if command -v code &> /dev/null; then
-    echo -e "${GREEN}Installing VSCode extensions...${NC}"
-    failed_extensions=()
-    while IFS= read -r line || [[ -n "$line" ]]; do
-      # Skip comments and empty lines
-      if [[ "$line" =~ ^#.*$ ]] || [[ -z "$line" ]]; then
-        continue
-      fi
-      echo -e "${GREEN}Installing extension: $line${NC}"
-      # One renamed/delisted extension must not abort the rest of the list.
-      if ! code --install-extension "$line" --force; then
-        failed_extensions+=("$line")
-      fi
-    done < "$SCRIPT_DIR/extensions.txt"
-    if [ ${#failed_extensions[@]} -gt 0 ]; then
-      echo -e "${YELLOW}Skipped ${#failed_extensions[@]} unavailable extension(s): ${failed_extensions[*]}${NC}"
-    fi
-  else
-    echo -e "${RED}VSCode not found! Skipping extension installation.${NC}"
-  fi
+extensions_failed=0
+if command -v code &> /dev/null; then
+  # shellcheck source=../lib/editor-extensions.sh
+  . "$SCRIPT_DIR/../lib/editor-extensions.sh"
+  install_editor_extensions code "$SCRIPT_DIR/extensions.txt" "VSCode" || extensions_failed=1
 else
-  echo -e "${RED}Extensions list not found!${NC}"
+  echo -e "${RED}VSCode not found! Skipping extension installation.${NC}"
 fi
 
-echo -e "\n${GREEN}VSCode setup completed!${NC}" 
+if [ "$extensions_failed" -ne 0 ]; then
+  echo -e "\n${RED}VSCode setup finished with extension failures.${NC}"
+  exit 1
+fi
+
+echo -e "\n${GREEN}VSCode setup completed!${NC}"
