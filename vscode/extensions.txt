@@ -1,3 +1,8 @@
+# VSCode extensions.
+#
+# Deliberately not a copy of cursor/extensions.txt — the two registries do
+# not carry the same ids. What VSCode is missing is recorded at the bottom.
+
 # Theme and Icons
 pkief.material-icon-theme
 akamud.vscode-theme-onedark
@@ -79,3 +84,8 @@ k--kato.intellij-idea-keybindings
 # AI Assistance
 visualstudioexptteam.vscodeintellicode
 visualstudioexptteam.intellicode-api-usage-examples
+
+# Not carried by the VSCode marketplace (checked 2026-08-28):
+#   anysphere.pyright — Cursor's fork of Pyright, published only for Cursor.
+#     ms-python.vscode-pylance above covers the same ground here.
+#   withfig.fig — unpublished after the Fig acquisition.
