@@ -78,9 +78,12 @@ function sdkInstall() {
 	local version="${2:-}"
 
 	if [ -n "$version" ]; then
-		if sdk list "$candidate" >/dev/null 2>&1 \
-			&& sdk current "$candidate" 2>/dev/null | grep -q "$version"; then
-			echo "$candidate $version already current, skipping."
+		# Presence on disk, not `sdk current`: a candidate can be installed
+		# without being the default (java 21 alongside a default java 8), and
+		# asking `sdk current` re-ran the install — and the download — on every
+		# single dotfiles run, under a log line claiming it was installing.
+		if [ -d "${SDKMAN_DIR}/candidates/${candidate}/${version}" ]; then
+			echo "$candidate $version already installed, skipping."
 			return 0
 		fi
 		echo "Installing $candidate $version..."

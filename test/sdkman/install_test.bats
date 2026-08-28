@@ -135,3 +135,15 @@ EOL
     [ "${status}" -eq 0 ]
     [[ "${output}" != *"Warning: failed to install"* ]]
 }
+
+@test "a candidate installed but not default is left alone" {
+    unset PAGER
+    fake_sdkman_init_fresh
+    mkdir -p "${HOME}/.sdkman/candidates/java/21-tem"
+
+    run bash "${INSTALL_SH}"
+
+    [ "${status}" -eq 0 ]
+    [[ "${output}" == *"java 21-tem already installed, skipping"* ]]
+    [[ "${output}" != *"Installing java"* ]]
+}
