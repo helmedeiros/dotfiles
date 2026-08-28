@@ -1,3 +1,11 @@
+# Cursor extensions.
+#
+# Deliberately not a copy of vscode/extensions.txt: Cursor resolves ids
+# against its own registry, which does not carry the Microsoft-licensed
+# extensions (Remote-*, Codespaces, Azure Repos, IntelliCode) nor a handful
+# of ids that never made it over. Leaving those here made every run end in
+# failures, so they are recorded at the bottom instead.
+
 # Theme and Icons
 pkief.material-icon-theme
 akamud.vscode-theme-onedark
@@ -31,7 +39,6 @@ vscjava.vscode-maven
 vscjava.vscode-gradle
 
 # React/Web Development
-equimper.react-native-react-redux
 msjsdiag.vscode-react-native
 ritwickdey.liveserver
 
@@ -42,17 +49,10 @@ foxundermoon.shell-format
 # Git/GitHub
 eamodio.gitlens
 donjayamanne.githistory
-github.codespaces
-github.remotehub
-ms-vscode.azure-repos
-ms-vscode.remote-repositories
 
 # Remote Development
 ms-vscode-remote.remote-ssh
-ms-vscode-remote.remote-ssh-edit
 ms-vscode-remote.remote-containers
-ms-vscode.remote-explorer
-ms-vscode.remote-server
 
 # Data & SQL
 mtxr.sqltools
@@ -71,12 +71,23 @@ dbaeumer.vscode-eslint
 christian-kohler.path-intellisense
 adpyke.codesnap
 clemenspeters.format-json
-sallar.json-to-js-object
 hediet.vscode-drawio
 firsttris.vscode-jest-runner
 vscodevim.vim
 k--kato.intellij-idea-keybindings
 
-# AI Assistance
-visualstudioexptteam.vscodeintellicode
-visualstudioexptteam.intellicode-api-usage-examples
+# Not carried by Cursor's registry (checked 2026-08-28). Install by hand from
+# a .vsix if you ever need one:
+#   burkeholland.simple-react-snippets
+#   equimper.react-native-react-redux
+#   github.codespaces
+#   github.remotehub
+#   ms-vscode.azure-repos
+#   ms-vscode.remote-repositories
+#   ms-vscode-remote.remote-ssh-edit
+#   ms-vscode.remote-explorer
+#   ms-vscode.remote-server
+#   sallar.json-to-js-object
+#   withfig.fig
+#   visualstudioexptteam.vscodeintellicode
+#   visualstudioexptteam.intellicode-api-usage-examples
