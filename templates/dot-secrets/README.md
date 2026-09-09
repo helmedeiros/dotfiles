@@ -29,6 +29,7 @@ This directory contains templates for the following tools:
 - **DBeaver**: Database connection configurations
 - **Git**: author identity (name + email) used by `script/bootstrap`
 - **GitHub**: GitHub tokens and package configurations
+- **Keyboard**: macOS text replacement snippets
 - **Kubernetes**: Kubernetes cluster configurations
 - **Robo3T**: MongoDB connection configurations
 
