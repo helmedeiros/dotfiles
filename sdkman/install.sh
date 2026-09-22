@@ -21,7 +21,7 @@ _SDKMAN_DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # To rotate: re-fetch the script, recompute, bump both lines together.
 #   curl -fsSL "$SDKMAN_INSTALLER_URL" | shasum -a 256
 SDKMAN_INSTALLER_URL="https://get.sdkman.io/?rcupdate=false"
-SDKMAN_INSTALLER_SHA256="befc7e49cd53819a704d5c3f3a7b9803508d474f2cbfe7ba9fab919c5e57e0c5"
+SDKMAN_INSTALLER_SHA256="8642db91ce900cf406d2cd457c2b3c7b8fe3e4a8fe454192ae6a34df435052ec"
 
 # Candidates installed on a fresh machine. Versions default to whatever
 # SDKMAN currently considers stable — that's the whole point of moving
@@ -53,9 +53,11 @@ function loadSDKMAN() {
 	export SDKMAN_DIR="$HOME/.sdkman"
 	# shellcheck source=/dev/null
 	if [ -s "${SDKMAN_DIR}/bin/sdkman-init.sh" ]; then
+		# nounset stays off: SDKMAN's own `sdk` function isn't nounset-safe,
+		# and every call below (sdkInstall, sdk list/current/install) goes
+		# through it, not just this sourcing step.
 		set +u
 		. "${SDKMAN_DIR}/bin/sdkman-init.sh"
-		set -u
 	else
 		echo "Error: sdkman-init.sh missing after install" >&2
 		return 1
