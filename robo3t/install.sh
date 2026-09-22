@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 #
 # Robo3T configuration and install.
-source $(dirname $0)/../secrets/dots.sh
+source "$(dirname "$0")/../secrets/dots.sh"
 
 set -e
 
 function configure_robo3t() {
   local source_dir="$1"
-  local robo3t_version=$(ls -1 /Applications/Robo\ 3T.app/Contents/Info.plist 2>/dev/null | wc -l)
+  local robo3t_version
+  robo3t_version=$(ls -1 /Applications/Robo\ 3T.app/Contents/Info.plist 2>/dev/null | wc -l)
   
   if [ "$robo3t_version" -eq 0 ]; then
-    echo "Robo 3T is not installed. Please install it first with 'brew install --cask robo-3t'."
-    return 1
+    echo "Robo 3T is not installed. Skipping configuration."
+    return 0
   fi
   
   # Check for Robo3T configuration directory
@@ -23,7 +24,8 @@ function configure_robo3t() {
   fi
   
   # Find the latest version directory
-  local version_dir=$(find "$robo3t_dir" -type d -depth 1 | sort -r | head -n 1)
+  local version_dir
+  version_dir=$(find "$robo3t_dir" -type d -depth 1 | sort -r | head -n 1)
   
   if [ -z "$version_dir" ]; then
     echo "No Robo3T version directory found. Please run Robo3T at least once to create it."
