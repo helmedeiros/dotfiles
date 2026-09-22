@@ -16,7 +16,6 @@ jetmartin.bats
 # Python Specific
 ms-python.vscode-pylance
 ms-python.debugpy
-anysphere.pyright
 donjayamanne.python-extension-pack
 donjayamanne.python-environment-manager
 kevinrose.vsc-python-indent
@@ -31,7 +30,6 @@ vscjava.vscode-maven
 vscjava.vscode-gradle
 
 # React/Web Development
-burkeholland.simple-react-snippets
 equimper.react-native-react-redux
 msjsdiag.vscode-react-native
 ritwickdey.liveserver
@@ -77,7 +75,6 @@ hediet.vscode-drawio
 firsttris.vscode-jest-runner
 vscodevim.vim
 k--kato.intellij-idea-keybindings
-withfig.fig
 
 # AI Assistance
 visualstudioexptteam.vscodeintellicode
