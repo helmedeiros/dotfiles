@@ -48,14 +48,22 @@ echo -e "\n${BLUE}=== Installing Cursor extensions ===${NC}"
 if [ -f "$SCRIPT_DIR/extensions.txt" ]; then
   if [ -x "$CURSOR_CLI" ]; then
     echo -e "${GREEN}Installing Cursor extensions...${NC}"
+    failed_extensions=()
     while IFS= read -r line || [[ -n "$line" ]]; do
       # Skip comments and empty lines
       if [[ "$line" =~ ^#.*$ ]] || [[ -z "$line" ]]; then
         continue
       fi
       echo -e "${GREEN}Installing extension: $line${NC}"
-      "$CURSOR_CLI" --install-extension "$line" --force
+      # One extension unavailable on Cursor's marketplace (e.g. a
+      # Microsoft-exclusive one) must not abort the rest of the list.
+      if ! "$CURSOR_CLI" --install-extension "$line" --force; then
+        failed_extensions+=("$line")
+      fi
     done < "$SCRIPT_DIR/extensions.txt"
+    if [ ${#failed_extensions[@]} -gt 0 ]; then
+      echo -e "${YELLOW}Skipped ${#failed_extensions[@]} unavailable extension(s): ${failed_extensions[*]}${NC}"
+    fi
   else
     echo -e "${RED}Cursor CLI not found at $CURSOR_CLI! Skipping extension installation.${NC}"
   fi
