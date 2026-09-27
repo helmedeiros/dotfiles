@@ -59,3 +59,24 @@ GITLEAKS_IGNORE="${DOTFILES_ROOT}/.gitleaksignore"
         }
     done <<< "${non_comment}"
 }
+
+@test "every action is pinned to a full commit sha" {
+    local bad=0
+    while IFS= read -r line; do
+        [ -n "$line" ] || continue
+        ref="${line##*@}"
+        ref="${ref%% *}"
+        if ! [[ "$ref" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "action not pinned to a commit sha: $line" >&2
+            bad=1
+        fi
+    done <<< "$(grep -hE '^[[:space:]]*(-[[:space:]]*)?uses:' "${BATS_TEST_DIRNAME}"/../../.github/workflows/*.yml || true)"
+    [ "$bad" -eq 0 ]
+}
+
+@test "each pinned action records the tag it came from" {
+    while IFS= read -r line; do
+        [ -n "$line" ] || continue
+        [[ "$line" == *"#"* ]]
+    done <<< "$(grep -hE '^[[:space:]]*(-[[:space:]]*)?uses:' "${BATS_TEST_DIRNAME}"/../../.github/workflows/*.yml || true)"
+}
