@@ -114,6 +114,10 @@ run_on_bare_machine() {
         grep -qxF "$topic" <<< "$(excepted_topics)" && continue
 
         output="$(run_on_bare_machine "$installer")" && status=0 || status=$?
+        if [ -e "${BARE_HOME}/.dot-secrets" ]; then
+            echo "${installer} created a .dot-secrets on a bare machine" >&2
+            return 1
+        fi
         if [ "$status" -ne 0 ]; then
             failures="${failures}  ${installer} exited ${status}: $(tail -1 <<< "$output")
 "
@@ -143,4 +147,16 @@ run_on_bare_machine() {
     local after="${BATS_FILE_TMPDIR}/state-after"
     git -C "${DOTFILES}" status --porcelain > "${after}"
     diff "${REPO_STATE_BEFORE}" "${after}"
+}
+
+@test "no installer pulls .dot-secrets onto a bare machine" {
+    local installer
+    while IFS= read -r installer; do
+        [ -n "$installer" ] || continue
+        run_on_bare_machine "$installer" >/dev/null 2>&1 || true
+        if [ -e "${BARE_HOME}/.dot-secrets" ]; then
+            echo "${installer} created ${BARE_HOME}/.dot-secrets" >&2
+            return 1
+        fi
+    done <<< "$(topic_installers)"
 }

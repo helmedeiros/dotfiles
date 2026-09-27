@@ -130,3 +130,13 @@ export DEPENDABOT="${DOTFILES_ROOT}/.github/dependabot.yml"
       end
     '
 }
+
+@test "no workflow runs the bootstrap that clones .dot-secrets" {
+    run bash -c "grep -nE '^[^#]*(script/bootstrap|setup_secret_dotfiles)' ${DOTFILES_ROOT}/.github/workflows/*.yml"
+    [ "${status}" -ne 0 ]
+}
+
+@test "no workflow references a secrets repository" {
+    run bash -c "grep -niE '^[^#]*dot-secrets' ${DOTFILES_ROOT}/.github/workflows/*.yml"
+    [ "${status}" -ne 0 ]
+}
