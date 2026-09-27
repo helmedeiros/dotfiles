@@ -56,6 +56,7 @@ brew 'ngrep'
 brew 'trash'
 brew 'duti'           # Set default apps for file types / UTIs (see macos/set-defaults.sh)
 brew 'links'
+brew 'leaf-markdown-viewer'
 brew 'tree'
 brew 'jq'
 brew 'openshift-cli'
