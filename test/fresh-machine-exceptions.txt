@@ -21,11 +21,4 @@ vimac
 zsh-completion-generator
 
 # Exit non-zero when a prerequisite is missing, instead of skipping.
-amp
-claude
 fonts
-kubernetes
-ollama
-python
-tapeIt
-tracer

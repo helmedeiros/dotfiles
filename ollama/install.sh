@@ -2,8 +2,9 @@
 
 # Check if Ollama is installed via Homebrew
 if ! command -v ollama &> /dev/null; then
-    echo "Ollama is not installed. Please run 'bin/dot' first to install it via Homebrew."
-    exit 1
+    echo "Ollama is not installed, skipping."
+    echo "Run 'bin/dot' to install it via Homebrew, then re-run this."
+    exit 0
 fi
 
 # Check if Ollama service is running

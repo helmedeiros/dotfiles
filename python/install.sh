@@ -12,8 +12,8 @@ if ! command -v pyenv &> /dev/null; then
   if command -v brew &> /dev/null; then
     brew install pyenv
   else
-    echo "❌ Homebrew not found. Please install pyenv manually."
-    exit 1
+    echo "❌ Homebrew not found, skipping. Install pyenv manually to use this topic."
+    exit 0
   fi
 fi
 

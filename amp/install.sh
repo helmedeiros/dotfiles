@@ -10,8 +10,9 @@
 set -e
 
 if ! command -v go &> /dev/null; then
-  echo "  Go is not installed. Please install Go first."
-  exit 1
+  echo "  Go is not installed, skipping."
+  echo "  It ships in the Brewfile — 'brew install go' — then re-run this."
+  exit 0
 fi
 
 echo "  Installing amp and amd for you."

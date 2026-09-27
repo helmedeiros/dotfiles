@@ -15,6 +15,11 @@ YELLOW='\033[0;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+if ! command -v brew &> /dev/null; then
+    printf '%b\n' "${YELLOW}Homebrew is not installed, skipping Claude setup.${NC}"
+    exit 0
+fi
+
 printf '%b\n' "${BLUE}Setting up Claude...${NC}"
 
 # Install Claude desktop app via Homebrew (idempotent)

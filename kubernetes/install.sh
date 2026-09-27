@@ -14,17 +14,17 @@ TEMPLATE_DIR="$HOME/.dotfiles/templates/dot-secrets/kubernetes"
 
 # Check if kubectl is installed
 if ! command -v kubectl &> /dev/null; then
-  echo "Error: kubectl is not installed"
-  echo "Please install kubectl first: brew install kubernetes-cli"
-  exit 1
+  echo "kubectl is not installed, skipping."
+  echo "Install it first: brew install kubernetes-cli"
+  exit 0
 fi
 
 # Check if .dot-secrets repository exists
 if [ ! -d "$DOT_SECRETS_DIR" ]; then
-  echo "Error: .dot-secrets directory not found at $DOT_SECRETS_DIR"
+  echo ".dot-secrets directory not found at $DOT_SECRETS_DIR, skipping."
   echo "Please clone your .dot-secrets repository to your home directory:"
   echo "  git clone git@github.com:yourusername/.dot-secrets.git ~/.dot-secrets"
-  exit 1
+  exit 0
 fi
 
 # Check if Kubernetes config file exists in .dot-secrets
