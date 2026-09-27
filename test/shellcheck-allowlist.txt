@@ -21,4 +21,3 @@ terminal/install.sh
 test/mothers/brew_mother.sh
 test/mothers/e_mother.sh
 test/mothers/npm_mother.sh
-viscosity/install.sh

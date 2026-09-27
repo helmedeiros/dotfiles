@@ -187,3 +187,8 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
     run bash -c "git -C '${DOTFILES_DIR}' grep -nE '^[^#]*(curl|wget|-string |BlocklistURL|_URL=)[^#]*http://' -- '*.sh' '*.zsh' 'bin/*' 'script/*' 'functions/*'"
     [ "${status}" -ne 0 ]
 }
+
+@test "no installer runs an /Applications binary by hardcoded path" {
+    run bash -c "git -C '${DOTFILES_DIR}' grep -nE '^[[:space:]]*/Applications/' -- '*/install.sh'"
+    [ "${status}" -ne 0 ]
+}

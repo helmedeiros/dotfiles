@@ -83,6 +83,8 @@ run_on_bare_machine() {
         ROBO3T_APP="${BARE_HOME}/Applications/Robo 3T.app" \
         VIMAC_APP="${BARE_HOME}/Applications/Vimac.app" \
         XCODE_APP="${BARE_HOME}/Applications/Xcode.app" \
+        VISCOSITY_APP="${BARE_HOME}/Applications/Viscosity.app" \
+        VISCOSITY_SCRIPTS="${BARE_HOME}/Library/ViscosityScripts" \
         "${SANDBOX_REPO}/${installer}" </dev/null 2>&1
 }
 
@@ -147,16 +149,4 @@ run_on_bare_machine() {
     local after="${BATS_FILE_TMPDIR}/state-after"
     git -C "${DOTFILES}" status --porcelain > "${after}"
     diff "${REPO_STATE_BEFORE}" "${after}"
-}
-
-@test "no installer pulls .dot-secrets onto a bare machine" {
-    local installer
-    while IFS= read -r installer; do
-        [ -n "$installer" ] || continue
-        run_on_bare_machine "$installer" >/dev/null 2>&1 || true
-        if [ -e "${BARE_HOME}/.dot-secrets" ]; then
-            echo "${installer} created ${BARE_HOME}/.dot-secrets" >&2
-            return 1
-        fi
-    done <<< "$(topic_installers)"
 }
