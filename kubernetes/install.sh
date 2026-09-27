@@ -67,38 +67,39 @@ echo "Checking VPN connectivity to company resources..."
 if curl --connect-timeout 5 -s --head "$KUBE_CONFIG_URL" >/dev/null; then
   echo "VPN connection detected. Proceeding with download..."
   
-  # Download the company's kubectl config
   echo "Downloading company kubectl configuration from $KUBE_CONFIG_URL..."
+
+  KUBE_CONFIG_PATH="$HOME/.kube/$KUBE_CONFIG_FILENAME"
+  KUBE_CONFIG_DOWNLOAD="$(mktemp)"
+  trap 'rm -f "$KUBE_CONFIG_DOWNLOAD"' EXIT
+
   if command -v curl &> /dev/null; then
-    curl --connect-timeout 10 -s -o "$HOME/.kube/$KUBE_CONFIG_FILENAME" "$KUBE_CONFIG_URL"
+    download_ok=$(curl --connect-timeout 10 --fail --silent --show-error \
+      -o "$KUBE_CONFIG_DOWNLOAD" "$KUBE_CONFIG_URL" && echo yes || echo no)
   elif command -v wget &> /dev/null; then
-    wget --timeout=10 -q -O "$HOME/.kube/$KUBE_CONFIG_FILENAME" "$KUBE_CONFIG_URL"
+    download_ok=$(wget --timeout=10 -q -O "$KUBE_CONFIG_DOWNLOAD" "$KUBE_CONFIG_URL" && echo yes || echo no)
   else
     echo "Error: Neither curl nor wget is installed. Cannot download kubectl config."
     exit 1
   fi
 
-  # Check if the download was successful
-  if [ ! -f "$HOME/.kube/$KUBE_CONFIG_FILENAME" ]; then
+  if [ "$download_ok" != "yes" ] || [ ! -s "$KUBE_CONFIG_DOWNLOAD" ]; then
     echo "Error: Failed to download kubectl config from $KUBE_CONFIG_URL"
     echo "Please check your network connection and the URL."
     exit 1
   fi
+
+  install -m 600 "$KUBE_CONFIG_DOWNLOAD" "$KUBE_CONFIG_PATH"
   
   # Set the KUBECONFIG environment variable for this session
   export KUBECONFIG="$HOME/.kube/$KUBE_CONFIG_FILENAME"
 
-  # Add the KUBECONFIG to shell profile if not already there
-  for PROFILE in "$HOME/.zshrc" "$HOME/.bashrc" "$HOME/.bash_profile"; do
-    if [ -f "$PROFILE" ]; then
-      if ! grep -q "KUBECONFIG.*$KUBE_CONFIG_FILENAME" "$PROFILE"; then
-        echo "Adding KUBECONFIG to $PROFILE"
-        echo "" >> "$PROFILE"
-        echo "# Kubernetes configuration" >> "$PROFILE"
-        echo "export KUBECONFIG=\"\$HOME/.kube/$KUBE_CONFIG_FILENAME\"" >> "$PROFILE"
-      fi
-    fi
-  done
+  LOCALRC="$HOME/.localrc"
+  if ! grep -qs "KUBECONFIG.*$KUBE_CONFIG_FILENAME" "$LOCALRC"; then
+    echo "Adding KUBECONFIG to $LOCALRC"
+    printf '\nexport KUBECONFIG="$HOME/.kube/%s"\n' "$KUBE_CONFIG_FILENAME" >> "$LOCALRC"
+  fi
+  chmod 600 "$LOCALRC"
 
   # List available contexts
   echo "Available Kubernetes contexts:"
