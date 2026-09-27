@@ -9,6 +9,7 @@ bats_require_minimum_version 1.5.0
 DOTFILES_ROOT="${BATS_TEST_DIRNAME}/../.."
 WORKFLOW="${DOTFILES_ROOT}/.github/workflows/security.yml"
 GITLEAKS_IGNORE="${DOTFILES_ROOT}/.gitleaksignore"
+export DEPENDABOT="${DOTFILES_ROOT}/.github/dependabot.yml"
 
 @test "security workflow file exists" {
     [ -f "${WORKFLOW}" ]
@@ -79,4 +80,30 @@ GITLEAKS_IGNORE="${DOTFILES_ROOT}/.gitleaksignore"
         [ -n "$line" ] || continue
         [[ "$line" == *"#"* ]]
     done <<< "$(grep -hE '^[[:space:]]*(-[[:space:]]*)?uses:' "${BATS_TEST_DIRNAME}"/../../.github/workflows/*.yml || true)"
+}
+
+@test "dependabot config exists" {
+    [ -f "${DEPENDABOT}" ]
+}
+
+@test "dependabot config is valid YAML" {
+    ruby -ryaml -e "YAML.load_file('${DEPENDABOT}')"
+}
+
+@test "dependabot watches the actions the workflows pin" {
+    ruby -ryaml -e '
+      config = YAML.load_file(ENV["DEPENDABOT"])
+      ecosystems = config["updates"].map { |u| u["package-ecosystem"] }
+      abort "github-actions not watched" unless ecosystems.include?("github-actions")
+    '
+}
+
+@test "dependabot commits in the repo conventional-commit style" {
+    ruby -ryaml -e '
+      config = YAML.load_file(ENV["DEPENDABOT"])
+      config["updates"].each do |u|
+        prefix = u.dig("commit-message", "prefix")
+        abort "update entry has no commit-message prefix" if prefix.nil? || prefix.empty?
+      end
+    '
 }
