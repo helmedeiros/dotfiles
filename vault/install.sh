@@ -6,11 +6,11 @@ _VAULT_DOTFILES_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../lib/integrity.sh
 . "${_VAULT_DOTFILES_ROOT}/lib/integrity.sh"
 
-VAULT_VERSION="${VAULT_VERSION:-1.13.1}"
+VAULT_VERSION="${VAULT_VERSION:-2.1.1}"
 VAULT_BASE_URL="${VAULT_BASE_URL:-https://releases.hashicorp.com/vault}"
 
-VAULT_SHA256_amd64="1e36bf545cb0e0bbe74071e78a342460e38ed8e9572b22045c3c83d60f9e2c66"
-VAULT_SHA256_arm64="9825b87faf467f2ea391124b54a0f7504ffaea9e29978bab52313b0fadadb51d"
+VAULT_SHA256_amd64="1310ccba498a08fa9bfe09c698f54f38b6d9c2ae45bae08cf91f02bc10d295b6"
+VAULT_SHA256_arm64="95d100472b726d889ee380c9335191abdf5b3e6f3108cde48f4f962bfea4f009"
 
 release_arch() {
 	if [ "$(uname -m)" = "arm64" ]; then
