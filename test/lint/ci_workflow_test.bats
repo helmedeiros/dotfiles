@@ -7,7 +7,7 @@
 bats_require_minimum_version 1.5.0
 
 DOTFILES_ROOT="${BATS_TEST_DIRNAME}/../.."
-WORKFLOW="${DOTFILES_ROOT}/.github/workflows/security.yml"
+export WORKFLOW="${DOTFILES_ROOT}/.github/workflows/security.yml"
 GITLEAKS_IGNORE="${DOTFILES_ROOT}/.gitleaksignore"
 export DEPENDABOT="${DOTFILES_ROOT}/.github/dependabot.yml"
 
@@ -29,8 +29,31 @@ export DEPENDABOT="${DOTFILES_ROOT}/.github/dependabot.yml"
     grep -q 'gitleaks/gitleaks-action@' "${WORKFLOW}"
 }
 
-@test "security workflow checks out with full history (gitleaks needs it)" {
+@test "security workflow checks out unshallowed" {
     grep -qE 'fetch-depth:[[:space:]]*0' "${WORKFLOW}"
+}
+
+@test "security workflow scans every commit on a schedule" {
+    ruby -ryaml -e '
+      wf = YAML.load_file(ENV["WORKFLOW"])
+      on = wf[true] || wf["on"]
+      abort "no schedule trigger" unless on.key?("schedule")
+      abort "no manual trigger" unless on.key?("workflow_dispatch")
+      history = wf["jobs"]["gitleaks-history"]
+      abort "no full-history job" if history.nil?
+      guard = history["if"].to_s
+      abort "history job not bound to schedule" unless guard.include?("schedule")
+      abort "history job not bound to dispatch" unless guard.include?("workflow_dispatch")
+    '
+}
+
+@test "the per-event gitleaks job does not claim to scan history" {
+    ruby -ryaml -e '
+      wf = YAML.load_file(ENV["WORKFLOW"])
+      guard = wf["jobs"]["gitleaks"]["if"].to_s
+      abort "per-event job would also run on a schedule" if guard.empty?
+      abort "per-event job not bound to push/pull_request" unless guard.include?("push")
+    '
 }
 
 @test "security workflow requests minimum contents:read permission only" {
