@@ -8,7 +8,6 @@
 #
 # Errors are never exempt: the suite lints everything at -S error regardless.
 dbeaver/install.sh
-fonts/install.sh
 functions/kubelog
 github/install.sh
 homebrew/install.sh
