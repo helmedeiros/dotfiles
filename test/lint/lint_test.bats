@@ -182,3 +182,8 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
     run bash -c "grep -l 'echo -e' ${DOTFILES_DIR}/*/install.sh"
     [ "${status}" -ne 0 ]
 }
+
+@test "no shell script fetches or configures a plaintext http URL" {
+    run bash -c "git -C '${DOTFILES_DIR}' grep -nE '^[^#]*(curl|wget|-string |BlocklistURL|_URL=)[^#]*http://' -- '*.sh' '*.zsh' 'bin/*' 'script/*' 'functions/*'"
+    [ "${status}" -ne 0 ]
+}
