@@ -1,0 +1,31 @@
+# Topics whose install.sh does not yet survive a bare machine.
+#
+# The contract test/script/fresh_machine_test.bats enforces: an installer run
+# on a machine that has none of the things it configures must SKIP and exit 0,
+# not fail. script/install collects non-zero exits into a "these installers
+# failed" list, so an installer that exits 1 because you simply do not have
+# that tool reports a broken setup on every run — which is how the robo3t,
+# cursor and sdkman failures hid in plain sight for so long.
+#
+# This list may only SHRINK, like test/shellcheck-allowlist.txt. The test
+# fails if an entry here has become compliant but was left behind.
+
+# Reach for the network or a real toolchain before they can tell whether
+# there is any work to do, so the harness cannot reach their skip path.
+hoster
+kcc
+sdkman
+tools
+vault
+vimac
+zsh-completion-generator
+
+# Exit non-zero when a prerequisite is missing, instead of skipping.
+amp
+claude
+fonts
+kubernetes
+ollama
+python
+tapeIt
+tracer
