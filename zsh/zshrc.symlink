@@ -35,14 +35,8 @@ do
   source $file
 done
 
-# initialize autocomplete here, otherwise functions won't be loaded
-# Use lazy loading for better performance - only rebuild if needed
-autoload -Uz compinit
-if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
-  compinit
-else
-  compinit -C
-fi
+source "$ZSH/lib/compinit.zsh"
+dotfiles_compinit
 
 # load every completion after autocomplete loads
 for file in ${(M)config_files:#*/completion.zsh}
