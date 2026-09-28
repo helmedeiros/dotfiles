@@ -159,6 +159,28 @@ run_provisioned() {
         "${SANDBOX_REPO}/${installer}" </dev/null 2>&1
 }
 
+run_again_on_same_machine() {
+    local installer="$1"
+    perl -e 'alarm shift @ARGV; exec @ARGV or die' 30 \
+        env -i \
+        HOME="${BARE_HOME}" \
+        PROBE_LOG="${PROBE_LOG}" \
+        PATH="${STUB_BIN}:/usr/bin:/bin" \
+        SHELL=/bin/zsh \
+        TERM=dumb \
+        CURSOR_APP="${BARE_HOME}/Applications/Cursor.app" \
+        ROBO3T_APP="${BARE_HOME}/Applications/Robo 3T.app" \
+        VIMAC_APP="${BARE_HOME}/Applications/Vimac.app" \
+        XCODE_APP="${BARE_HOME}/Applications/Xcode.app" \
+        VISCOSITY_APP="${BARE_HOME}/Applications/Viscosity.app" \
+        VISCOSITY_SCRIPTS="${BARE_HOME}/Library/ViscosityScripts" \
+        "${SANDBOX_REPO}/${installer}" </dev/null 2>&1
+}
+
+snapshot_home() {
+    ( cd "${BARE_HOME}" 2>/dev/null && find . -type f -exec shasum {} + 2>/dev/null | sort ) || true
+}
+
 @test "installers run against a copy, never the working tree" {
     [ -n "${SANDBOX_REPO}" ]
     [ -d "${SANDBOX_REPO}" ]
@@ -246,6 +268,38 @@ run_provisioned() {
 
     if [ -n "$failures" ]; then
         echo "provisioned topics that did not exit 0:" >&2
+        printf '%s' "$failures" >&2
+        return 1
+    fi
+}
+
+@test "repeated runs converge, so bin/dot is safe to re-run" {
+    local failures="" installer topic settled again status
+
+    while IFS= read -r installer; do
+        [ -n "$installer" ] || continue
+        topic="$(topic_of "$installer")"
+        grep -qxF "$topic" <<< "$(excepted_topics)" && continue
+
+        run_on_bare_machine "$installer" >/dev/null 2>&1 || true
+        run_again_on_same_machine "$installer" >/dev/null 2>&1 || true
+        settled="$(snapshot_home)"
+
+        run_again_on_same_machine "$installer" >/dev/null 2>&1 && status=0 || status=$?
+        again="$(snapshot_home)"
+
+        if [ "$status" -ne 0 ]; then
+            failures="${failures}  ${installer} exited ${status} on a repeat run
+"
+        elif [ "$settled" != "$again" ]; then
+            failures="${failures}  ${installer} keeps changing \$HOME every run:
+$(diff <(printf '%s\n' "$settled") <(printf '%s\n' "$again") | head -4 | sed 's/^/      /')
+"
+        fi
+    done <<< "$(topic_installers)"
+
+    if [ -n "$failures" ]; then
+        echo "installers that never settle:" >&2
         printf '%s' "$failures" >&2
         return 1
     fi
