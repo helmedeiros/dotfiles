@@ -1,17 +1,23 @@
-# Topics whose install.sh does not yet survive a bare machine.
+# Topics that cannot SKIP on a bare machine, because installing is exactly
+# what they are supposed to do there: they clone or download before they can
+# tell whether there is any work to do, and the harness has no network.
 #
-# The contract test/script/fresh_machine_test.bats enforces: an installer run
-# on a machine that has none of the things it configures must SKIP and exit 0,
-# not fail. script/install collects non-zero exits into a "these installers
-# failed" list, so an installer that exits 1 because you simply do not have
-# that tool reports a broken setup on every run — which is how the robo3t,
-# cursor and sdkman failures hid in plain sight for so long.
+# test/script/fresh_machine_test.bats runs two scenarios.
 #
-# This list may only SHRINK, like test/shellcheck-allowlist.txt. The test
-# fails if an entry here has become compliant but was left behind.
-
-# Reach for the network or a real toolchain before they can tell whether
-# there is any work to do, so the harness cannot reach their skip path.
+#   bare machine       every topic NOT listed here must exit 0. An installer
+#                      that exits non-zero lands in script/install's "these
+#                      installers failed" list, which should mean something
+#                      broke — not that you do not use that tool.
+#
+#   already provisioned  every topic listed here must still exit 0 once the
+#                      thing it installs is present. That is the re-run that
+#                      happens on every bin/dot, and it is where sdkman was
+#                      re-downloading a candidate it already had while
+#                      reporting a successful install as a failure.
+#
+# So nothing here is untested — these topics are held to the second contract
+# instead of the first. Adding a topic means writing its fixture in
+# provision_topic; the list may only SHRINK.
 hoster
 kcc
 sdkman

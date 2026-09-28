@@ -88,6 +88,77 @@ run_on_bare_machine() {
         "${SANDBOX_REPO}/${installer}" </dev/null 2>&1
 }
 
+provision_topic() {
+    local topic="$1"
+
+    case "$topic" in
+        hoster)
+            mkdir -p "${BARE_HOME}/.hoster"
+            printf '#!/bin/sh\n' > "${BARE_HOME}/.hoster/hoster"
+            chmod +x "${BARE_HOME}/.hoster/hoster"
+            ;;
+        zsh-completion-generator)
+            mkdir -p "${BARE_HOME}/.zsh-completion-generator"
+            printf 'gencomp() { return 0; }\n' \
+                > "${BARE_HOME}/.zsh-completion-generator/zsh-completion-generator.plugin.zsh"
+            ;;
+        kcc)
+            mkdir -p "${BARE_HOME}/.local/bin" "${BARE_HOME}/.local/share/kcc/venv"
+            printf '#!/bin/sh\n' > "${BARE_HOME}/.local/bin/kcc-c2e"
+            chmod +x "${BARE_HOME}/.local/bin/kcc-c2e"
+            ;;
+        vimac)
+            mkdir -p "${BARE_HOME}/Applications/Vimac.app/Contents"
+            ;;
+        sdkman)
+            mkdir -p "${BARE_HOME}/.sdkman/bin"
+            cat > "${BARE_HOME}/.sdkman/bin/sdkman-init.sh" <<'EOL'
+sdk() {
+    case "$1" in
+        current) echo "Using java version 21-tem" ;;
+    esac
+    return 0
+}
+EOL
+            ;;
+        vault)
+            cat > "${STUB_BIN}/vault" <<'EOL'
+#!/bin/sh
+echo "Vault v2.1.1 (stub)"
+EOL
+            chmod +x "${STUB_BIN}/vault"
+            ;;
+        tools)
+            printf '#!/bin/sh\necho aider stub\n' > "${STUB_BIN}/aider"
+            chmod +x "${STUB_BIN}/aider"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+run_provisioned() {
+    local installer="$1" topic="$2"
+    rm -rf "${BARE_HOME}"
+    mkdir -p "${BARE_HOME}"
+    provision_topic "$topic" || return 2
+    perl -e 'alarm shift @ARGV; exec @ARGV or die' 30 \
+        env -i \
+        HOME="${BARE_HOME}" \
+        PROBE_LOG="${PROBE_LOG}" \
+        PATH="${STUB_BIN}:/usr/bin:/bin" \
+        SHELL=/bin/zsh \
+        TERM=dumb \
+        CURSOR_APP="${BARE_HOME}/Applications/Cursor.app" \
+        ROBO3T_APP="${BARE_HOME}/Applications/Robo 3T.app" \
+        VIMAC_APP="${BARE_HOME}/Applications/Vimac.app" \
+        XCODE_APP="${BARE_HOME}/Applications/Xcode.app" \
+        VISCOSITY_APP="${BARE_HOME}/Applications/Viscosity.app" \
+        VISCOSITY_SCRIPTS="${BARE_HOME}/Library/ViscosityScripts" \
+        "${SANDBOX_REPO}/${installer}" </dev/null 2>&1
+}
+
 @test "installers run against a copy, never the working tree" {
     [ -n "${SANDBOX_REPO}" ]
     [ -d "${SANDBOX_REPO}" ]
@@ -149,4 +220,33 @@ run_on_bare_machine() {
     local after="${BATS_FILE_TMPDIR}/state-after"
     git -C "${DOTFILES}" status --porcelain > "${after}"
     diff "${REPO_STATE_BEFORE}" "${after}"
+}
+
+@test "a topic that cannot skip on a bare machine still exits 0 once provisioned" {
+    local failures="" topic output status
+
+    local installer
+    while IFS= read -r topic; do
+        [ -n "$topic" ] || continue
+        installer="$(topic_installers | grep -m1 "^${topic}/")"
+        [ -n "$installer" ] || { failures="${failures}  ${topic} has no installer
+"; continue; }
+
+        output="$(run_provisioned "$installer" "$topic")" && status=0 || status=$?
+        if [ "$status" -eq 2 ]; then
+            failures="${failures}  ${topic} has no provisioned fixture
+"
+            continue
+        fi
+        if [ "$status" -ne 0 ]; then
+            failures="${failures}  ${topic} exited ${status}: $(tail -1 <<< "$output")
+"
+        fi
+    done <<< "$(excepted_topics)"
+
+    if [ -n "$failures" ]; then
+        echo "provisioned topics that did not exit 0:" >&2
+        printf '%s' "$failures" >&2
+        return 1
+    fi
 }
