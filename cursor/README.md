@@ -4,7 +4,7 @@ This directory contains configuration files specific to Cursor, the AI-powered c
 
 ## Contents
 
-- `settings.json.symlink`: Cursor-specific settings file
+- `settings.json`: Cursor-specific settings file
 - `extensions.txt`: List of recommended Cursor extensions
 - `install.sh`: Script to install Cursor settings and extensions
 - `filetypes`: Extensions Cursor claims as default app on macOS (consumed by `macos/bind-filetypes.sh`)
@@ -55,7 +55,7 @@ The configuration includes support for BATS testing framework:
 
 If you prefer to install manually:
 
-1. Copy `settings.json.symlink` to `~/Library/Application Support/Cursor/User/settings.json`
+1. Copy `settings.json` to `~/Library/Application Support/Cursor/User/settings.json`
 2. Install extensions listed in `extensions.txt` using:
    ```
    cursor --install-extension EXTENSION_ID

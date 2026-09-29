@@ -34,13 +34,13 @@ mkdir -p "$CURSOR_DIR"
 
 # Install Cursor settings
 printf '%b\n' "${BLUE}=== Installing Cursor settings ===${NC}"
-if [ -f "$SCRIPT_DIR/settings.json.symlink" ]; then
+if [ -f "$SCRIPT_DIR/settings.json" ]; then
   if [ -f "$CURSOR_DIR/settings.json" ]; then
     printf '%b\n' "${YELLOW}Backing up existing Cursor settings...${NC}"
     cp "$CURSOR_DIR/settings.json" "$CURSOR_DIR/settings.json.backup"
   fi
   printf '%b\n' "${GREEN}Installing Cursor settings...${NC}"
-  cp "$SCRIPT_DIR/settings.json.symlink" "$CURSOR_DIR/settings.json"
+  cp "$SCRIPT_DIR/settings.json" "$CURSOR_DIR/settings.json"
 else
   printf '%b\n' "${RED}Cursor settings file not found!${NC}"
 fi

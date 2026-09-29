@@ -58,7 +58,7 @@ teardown() {
 
     [ "${status}" -eq 0 ]
     [ -f "${HOME}/Library/Application Support/Code/User/settings.json" ]
-    diff "${DOTFILES}/vscode/settings.json.symlink" \
+    diff "${DOTFILES}/vscode/settings.json" \
         "${HOME}/Library/Application Support/Code/User/settings.json"
 }
 
@@ -90,7 +90,7 @@ teardown() {
 
     [ "${status}" -eq 0 ]
     [ -f "${HOME}/Library/Application Support/Cursor/User/settings.json" ]
-    diff "${DOTFILES}/cursor/settings.json.symlink" \
+    diff "${DOTFILES}/cursor/settings.json" \
         "${HOME}/Library/Application Support/Cursor/User/settings.json"
 }
 
@@ -98,7 +98,7 @@ teardown() {
     run bash "${CURSOR_SH}"
 
     [ "${status}" -eq 0 ]
-    run diff "${DOTFILES}/vscode/settings.json.symlink" \
+    run diff "${DOTFILES}/vscode/settings.json" \
         "${HOME}/Library/Application Support/Cursor/User/settings.json"
     [ "${status}" -ne 0 ]
 }

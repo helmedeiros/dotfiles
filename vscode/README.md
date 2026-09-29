@@ -4,7 +4,7 @@ This directory contains configuration files for Visual Studio Code.
 
 ## Contents
 
-- `settings.json.symlink`: VSCode settings file
+- `settings.json`: VSCode settings file
 - `extensions.txt`: List of recommended VSCode extensions
 - `install.sh`: Script to install settings and extensions
 
@@ -46,7 +46,7 @@ The configuration includes support for BATS testing framework:
 
 If you prefer to install manually:
 
-1. Copy `settings.json.symlink` to `~/Library/Application Support/Code/User/settings.json`
+1. Copy `settings.json` to `~/Library/Application Support/Code/User/settings.json`
 2. Install extensions listed in `extensions.txt` using:
    ```
    code --install-extension EXTENSION_ID

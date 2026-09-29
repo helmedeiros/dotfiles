@@ -192,3 +192,20 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
     run bash -c "git -C '${DOTFILES_DIR}' grep -nE '^[[:space:]]*/Applications/' -- '*/install.sh'"
     [ "${status}" -ne 0 ]
 }
+
+@test "no two .symlink files land on the same path in \$HOME" {
+    local duplicates
+    duplicates="$(git -C "${DOTFILES_DIR}" ls-files '*.symlink' \
+        | while IFS= read -r f; do basename "${f%.symlink}"; done \
+        | sort | uniq -d)"
+    if [ -n "${duplicates}" ]; then
+        echo "these basenames collide in \$HOME:" >&2
+        printf '%s\n' "${duplicates}" >&2
+        return 1
+    fi
+}
+
+@test "every .symlink file is something that belongs in \$HOME" {
+    run bash -c "git -C '${DOTFILES_DIR}' ls-files '*.symlink' | grep -E '/settings\.json\.symlink$'"
+    [ "${status}" -ne 0 ]
+}
