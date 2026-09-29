@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CONFIG="${1:-$(cd "$(dirname "$0")/.." && pwd)/.pre-commit-config.yaml}"
+
+pinned_repos() {
+	awk '
+		/^[[:space:]]*-[[:space:]]*repo:[[:space:]]*https:\/\/github\.com\// {
+			sub(/^.*github\.com\//, "", $0)
+			sub(/[[:space:]]*$/, "", $0)
+			repo = $0
+		}
+		/^[[:space:]]*rev:[[:space:]]*/ {
+			rev = $2
+			if (repo != "") { print repo, rev; repo = "" }
+		}
+	' "$CONFIG"
+}
+
+latest_release() {
+	local out
+	if out="$(gh api "repos/$1/releases/latest" --jq '.tag_name' 2>/dev/null)"; then
+		printf '%s' "$out"
+	fi
+}
+
+stale=0
+
+while read -r repo rev; do
+	[ -n "$repo" ] || continue
+	latest="$(latest_release "$repo")"
+
+	if [ -z "$latest" ]; then
+		echo "skip  $repo pinned at $rev (no published release to compare)"
+		continue
+	fi
+
+	if [ "$latest" = "$rev" ]; then
+		echo "ok    $repo $rev"
+	else
+		echo "STALE $repo pinned at $rev, latest release is $latest"
+		stale=1
+	fi
+done < <(pinned_repos)
+
+if [ "$stale" -ne 0 ]; then
+	echo
+	echo "Update the rev values above by hand; 'pre-commit autoupdate' resolves"
+	echo "the newest tag reachable from the default branch, which for gitleaks"
+	echo "is older than its newest release."
+	exit 1
+fi

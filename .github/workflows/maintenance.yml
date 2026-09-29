@@ -1,0 +1,21 @@
+name: maintenance
+
+on:
+  schedule:
+    - cron: '41 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  precommit-pins:
+    name: pre-commit pins
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Compare each pinned hook against its latest release
+        run: ./script/check-precommit-pins
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
