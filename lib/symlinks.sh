@@ -13,7 +13,7 @@ link_file () {
     then
 
       local currentSrc
-      currentSrc="$(readlink "$dst")"
+      currentSrc="$(readlink "$dst" || true)"
 
       if [ "$currentSrc" == "$src" ]
       then
@@ -24,7 +24,7 @@ link_file () {
 
         user "File already exists: $dst ($(basename "$src")), what do you want to do?\n\
         [s]kip, [S]kip all, [o]verwrite, [O]verwrite all, [b]ackup, [B]ackup all?"
-        read -n 1 action
+        read -n 1 action || action=""
 
         case "$action" in
           o )
@@ -40,7 +40,7 @@ link_file () {
           S )
             skip_all=true;;
           * )
-            ;;
+            skip=true;;
         esac
 
       fi

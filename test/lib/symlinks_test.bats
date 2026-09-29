@@ -35,6 +35,7 @@ add_symlink_source() {
 
 run_install_dotfiles() {
     run env HOME="${HOME}" DOTFILES_ROOT="${DOTFILES_ROOT}" bash -c "
+        set -e
         info() { :; }
         user() { echo \"PROMPTED: \$*\"; }
         success() { :; }
@@ -107,4 +108,24 @@ run_install_dotfiles() {
     run_install_dotfiles
 
     [ ! -e "${HOME}/.buried" ]
+}
+
+@test "an unrelated existing file is never destroyed without an answer" {
+    add_symlink_source vim vimrc.symlink
+    printf 'my own vimrc\n' > "${HOME}/.vimrc"
+
+    run_install_dotfiles
+
+    [ "$(cat "${HOME}/.vimrc")" = "my own vimrc" ]
+}
+
+@test "a conflicting file does not abort the rest of the run" {
+    add_symlink_source vim vimrc.symlink
+    add_symlink_source tmux tmux.conf.symlink
+    printf 'my own vimrc\n' > "${HOME}/.vimrc"
+
+    run_install_dotfiles
+
+    [ "${status}" -eq 0 ]
+    [ -L "${HOME}/.tmux.conf" ]
 }
