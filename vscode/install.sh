@@ -25,7 +25,8 @@ mkdir -p "$VSCODE_DIR"
 # Install VSCode settings
 printf '%b\n' "${BLUE}=== Installing VSCode settings ===${NC}"
 if [ -f "$SCRIPT_DIR/settings.json" ]; then
-  if [ -f "$VSCODE_DIR/settings.json" ]; then
+  if [ -f "$VSCODE_DIR/settings.json" ] \
+    && ! diff -q "$SCRIPT_DIR/settings.json" "$VSCODE_DIR/settings.json" >/dev/null 2>&1; then
     printf '%b\n' "${YELLOW}Backing up existing VSCode settings...${NC}"
     cp "$VSCODE_DIR/settings.json" "$VSCODE_DIR/settings.json.backup"
   fi

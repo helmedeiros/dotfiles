@@ -109,3 +109,16 @@ write_secrets_config() {
     grep -q 'from-secrets' "${HOME}/.3T/robo-3t/1.4.4/robo3t.json"
     [ ! -f "${HOME}/.3T/robo-3t/1.3.1/robo3t.json" ]
 }
+
+@test "keeps the original backup across repeated runs" {
+    install_app
+    launch_app_once
+    write_secrets_config '{"connections":[]}'
+    printf '{"mine":true}\n' > "${VERSION_DIR}/robo3t.json"
+
+    run bash "${INSTALL_SH}"
+    run bash "${INSTALL_SH}"
+    run bash "${INSTALL_SH}"
+
+    [ "$(cat "${VERSION_DIR}/robo3t.json.backup")" = '{"mine":true}' ]
+}

@@ -132,3 +132,50 @@ teardown() {
     [ "${status}" -eq 0 ]
     [[ "${output}" == *"not installed"* ]]
 }
+
+@test "vscode backs up settings it is about to replace" {
+    mkdir -p "${HOME}/Library/Application Support/Code/User"
+    printf '{ "mine": true }\n' > "${HOME}/Library/Application Support/Code/User/settings.json"
+
+    run bash "${VSCODE_SH}"
+
+    [ "${status}" -eq 0 ]
+    [ "$(cat "${HOME}/Library/Application Support/Code/User/settings.json.backup")" = '{ "mine": true }' ]
+}
+
+@test "vscode keeps the original backup across repeated runs" {
+    mkdir -p "${HOME}/Library/Application Support/Code/User"
+    printf '{ "mine": true }\n' > "${HOME}/Library/Application Support/Code/User/settings.json"
+
+    run bash "${VSCODE_SH}"
+    run bash "${VSCODE_SH}"
+    run bash "${VSCODE_SH}"
+
+    [ "$(cat "${HOME}/Library/Application Support/Code/User/settings.json.backup")" = '{ "mine": true }' ]
+}
+
+@test "vscode writes no backup when there was nothing there" {
+    run bash "${VSCODE_SH}"
+
+    [ "${status}" -eq 0 ]
+    [ ! -e "${HOME}/Library/Application Support/Code/User/settings.json.backup" ]
+}
+
+@test "vscode captures a later hand edit in the backup" {
+    run bash "${VSCODE_SH}"
+    printf '{ "edited": true }\n' > "${HOME}/Library/Application Support/Code/User/settings.json"
+
+    run bash "${VSCODE_SH}"
+
+    [ "$(cat "${HOME}/Library/Application Support/Code/User/settings.json.backup")" = '{ "edited": true }' ]
+}
+
+@test "cursor keeps the original backup across repeated runs" {
+    mkdir -p "${HOME}/Library/Application Support/Cursor/User"
+    printf '{ "mine": true }\n' > "${HOME}/Library/Application Support/Cursor/User/settings.json"
+
+    run bash "${CURSOR_SH}"
+    run bash "${CURSOR_SH}"
+
+    [ "$(cat "${HOME}/Library/Application Support/Cursor/User/settings.json.backup")" = '{ "mine": true }' ]
+}

@@ -39,7 +39,8 @@ function configure_robo3t() {
     return 0
   fi
 
-  if [ -f "$version_dir/robo3t.json" ]; then
+  if [ -f "$version_dir/robo3t.json" ] \
+    && ! diff -q "$config" "$version_dir/robo3t.json" >/dev/null 2>&1; then
     echo "Backing up existing Robo3T configuration..."
     cp "$version_dir/robo3t.json" "$version_dir/robo3t.json.backup"
   fi

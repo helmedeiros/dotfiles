@@ -35,7 +35,8 @@ mkdir -p "$CURSOR_DIR"
 # Install Cursor settings
 printf '%b\n' "${BLUE}=== Installing Cursor settings ===${NC}"
 if [ -f "$SCRIPT_DIR/settings.json" ]; then
-  if [ -f "$CURSOR_DIR/settings.json" ]; then
+  if [ -f "$CURSOR_DIR/settings.json" ] \
+    && ! diff -q "$SCRIPT_DIR/settings.json" "$CURSOR_DIR/settings.json" >/dev/null 2>&1; then
     printf '%b\n' "${YELLOW}Backing up existing Cursor settings...${NC}"
     cp "$CURSOR_DIR/settings.json" "$CURSOR_DIR/settings.json.backup"
   fi
