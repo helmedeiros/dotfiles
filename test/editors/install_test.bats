@@ -58,6 +58,8 @@ teardown() {
 
     [ "${status}" -eq 0 ]
     [ -f "${HOME}/Library/Application Support/Code/User/settings.json" ]
+    diff "${DOTFILES}/vscode/settings.json.symlink" \
+        "${HOME}/Library/Application Support/Code/User/settings.json"
 }
 
 @test "vscode attempts every extension in its list" {
@@ -88,6 +90,17 @@ teardown() {
 
     [ "${status}" -eq 0 ]
     [ -f "${HOME}/Library/Application Support/Cursor/User/settings.json" ]
+    diff "${DOTFILES}/cursor/settings.json.symlink" \
+        "${HOME}/Library/Application Support/Cursor/User/settings.json"
+}
+
+@test "cursor and vscode do not install each other's settings" {
+    run bash "${CURSOR_SH}"
+
+    [ "${status}" -eq 0 ]
+    run diff "${DOTFILES}/vscode/settings.json.symlink" \
+        "${HOME}/Library/Application Support/Cursor/User/settings.json"
+    [ "${status}" -ne 0 ]
 }
 
 @test "cursor attempts every extension in its list" {
