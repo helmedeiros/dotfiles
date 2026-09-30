@@ -2,9 +2,7 @@
 #
 set -e
 
-running_unattended () {
-  [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ] || [ ! -t 0 ]
-}
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/lib/unattended.sh"
 
 setup_secret_dotfiles () {
   local -r dot_secret="$HOME/.dot-secrets"

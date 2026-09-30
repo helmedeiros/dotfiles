@@ -209,3 +209,19 @@ DOTFILES_DIR="${BATS_TEST_DIRNAME}/../.."
     run bash -c "git -C '${DOTFILES_DIR}' ls-files '*.symlink' | grep -E '/settings\.json\.symlink$'"
     [ "${status}" -ne 0 ]
 }
+
+@test "every script that clones a prompted repo refuses to do it unattended" {
+    local unguarded=""
+    local f
+    while IFS= read -r f; do
+        [ -n "$f" ] || continue
+        grep -q 'read -e' "${DOTFILES_DIR}/$f" || continue
+        grep -q 'running_unattended' "${DOTFILES_DIR}/$f" \
+            || unguarded="${unguarded} $f"
+    done <<< "$(git -C "${DOTFILES_DIR}" grep -l 'git clone' -- '*.sh' 'script/*' || true)"
+
+    if [ -n "$unguarded" ]; then
+        echo "these clone a prompted URL with no unattended guard:${unguarded}" >&2
+        return 1
+    fi
+}
