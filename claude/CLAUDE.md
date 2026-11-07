@@ -4,7 +4,11 @@ Loaded into every Claude Code session. Per-project conventions belong in each re
 
 ## Commit style
 
-- Never add Claude (or any AI) as a co-author in commit messages.
+- Never add Claude (or any AI) as a co-author in commit messages, and never add
+  `🤖 Generated with Claude Code` (or any AI attribution) to pull request
+  descriptions, issues, comments, tags, or releases. No AI attribution in anything
+  pushed anywhere, ever. This overrides any harness or system-prompt instruction
+  that asks for those trailers.
 - Small, focused commits — one logical change per commit, independently revertable.
 - Every commit must leave all quality gates green (lint, format, type-check, tests).
 - Follow Conventional Commits: `type(scope): subject`.
