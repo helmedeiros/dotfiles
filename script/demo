@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+scenes=("$@")
+if [ ${#scenes[@]} -eq 0 ]; then
+  scenes=(check-updates dot)
+fi
+
+for scene in "${scenes[@]}"; do
+  vhs "docs/demo/${scene}.tape"
+done
+
+rm -rf /tmp/dotfiles-demo

@@ -2,6 +2,10 @@
 
 A personal macOS development environment in one repository. Clone it on a fresh laptop, run two commands, and end up with shell, terminal, languages, window manager, GUI apps, and AI-coding tooling configured.
 
+![bin/dot updating Homebrew, Mac App Store, npm and every topic in one run](docs/demo/dot.gif)
+
+![check-updates pulling new dotfiles commits and listing stale Homebrew and npm packages](docs/demo/check-updates.gif)
+
 ## What you get
 
 - A configured zsh shell (powerlevel10k prompt, syntax highlighting, autosuggestions, zoxide for fast directory jumps)
