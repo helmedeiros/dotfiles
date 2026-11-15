@@ -111,6 +111,7 @@ cask 'rar'
 cask 'via'
 cask 'claude'  # Official Anthropic Claude desktop app
 cask 'claude-code'  # Claude Code CLI - AI-assisted development tool
+cask 'chatgpt'  # OpenAI ChatGPT desktop app
 cask 'ghostty'
 cask 'raycast'
 cask 'calibre'  # E-book management and conversion (for EPUB to AZW3)
