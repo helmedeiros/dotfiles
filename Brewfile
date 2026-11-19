@@ -10,6 +10,7 @@ tap 'asmvik/formulae'
 tap 'helmedeiros/tap'
 
 brew 'fastretro'  # Retrospective board CLI (own tap)
+cask 'homerow'  # Touch-typing tutor CLI (own tap)
 
 # JVM toolchain (Java, Gradle, Maven, Groovy, Spring Boot CLI) is owned by
 # SDKMAN — see sdkman/install.sh and sdkman/README.md. The previously-listed
