@@ -31,7 +31,12 @@ else
 fi
 
 # Install Claude Code CLI via Homebrew (idempotent)
-# Note: Homebrew casks don't auto-update, run 'brew upgrade claude-code' periodically
+# Note: Homebrew casks don't auto-update, run 'brew upgrade claude-code@latest' periodically
+if brew list --cask claude-code &>/dev/null; then
+    printf '%b\n' "${YELLOW}Replacing claude-code cask with claude-code@latest...${NC}"
+    brew uninstall --cask claude-code
+fi
+
 if ! brew list --cask claude-code@latest &>/dev/null; then
     printf '%b\n' "${BLUE}Installing Claude Code CLI...${NC}"
     brew install --cask claude-code@latest
