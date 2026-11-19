@@ -76,7 +76,7 @@ Claude Code is an agentic coding tool that lives in your terminal, understands y
 Homebrew casks do not auto-update. To get the latest features and security fixes:
 
 ```bash
-brew upgrade --cask claude-code
+brew upgrade --cask claude-code@latest
 ```
 
 ### Authentication

@@ -110,7 +110,7 @@ cask 'visual-studio-code'
 cask 'rar'
 cask 'via'
 cask 'claude'  # Official Anthropic Claude desktop app
-cask 'claude-code'  # Claude Code CLI - AI-assisted development tool
+cask 'claude-code@latest'  # Claude Code CLI - AI-assisted development tool
 cask 'chatgpt'  # OpenAI ChatGPT desktop app
 cask 'ghostty'
 cask 'raycast'
